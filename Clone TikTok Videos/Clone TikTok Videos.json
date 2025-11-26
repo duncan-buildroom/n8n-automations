@@ -1,0 +1,908 @@
+{
+  "name": "Clone TikTok Videos",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.URL }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "ae8b8c8a-b081-41f9-a0a0-c84dc133d952",
+      "name": "Get TikTok Video Page Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        192,
+        208
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "jsCode": "const html = $input.first().json.data;\nconst headers = $input.first().json.headers || {};\nconst cookies = headers['set-cookie'] || [];\n\nif (!html) {\n  throw new Error(\"HTML body is undefined. Check the previous node's output.\");\n}\nconst regex = /<script id=\"__UNIVERSAL_DATA_FOR_REHYDRATION__\" type=\"application\\/json\">([\\s\\S]*?)<\\/script>/;\nconst match = html.match(regex);\n\nif (match) {\n  const jsonStr = match[1];\n  const data = JSON.parse(jsonStr);\n  const videoUrl = data?.__DEFAULT_SCOPE__?.[\"webapp.video-detail\"]?.itemInfo?.itemStruct?.video?.playAddr;\n  if (!videoUrl) {\n    throw new Error(\"Could not find video URL in the JSON data.\");\n  }\n  return [{ json: { videoUrl, cookies: cookies.join('; ') } }];\n} else {\n  throw new Error(\"Could not find __UNIVERSAL_DATA_FOR_REHYDRATION__ script in the HTML.\");\n}"
+      },
+      "id": "574a3d74-dbb6-4201-a31c-4c3d758593e5",
+      "name": "Scrape raw video URL",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        624,
+        208
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.videoUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            },
+            {
+              "name": "Referer",
+              "value": "https://www.tiktok.com/"
+            },
+            {
+              "name": "Accept",
+              "value": "video/mp4,video/webm,video/*;q=0.9,application/octet-stream;q=0.8"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.5"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Cookie",
+              "value": "={{ $json.cookies }}"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "0230165e-3d00-4d2e-891b-6cfb0add9539",
+      "name": "Output video file without watermark",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1040,
+        208
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "content": "## 1. Load the video page\nOpen this node and replace the URL with the one of the video you want to download without a watermark.\n\nA Tiktok video URL looks like: https://www.tiktok.com/@Username_here/video/Video_ID_Here\n\nOutputs the returned page HTML along with the session cookies\n\n",
+        "height": 360,
+        "width": 460,
+        "color": 6
+      },
+      "id": "798d3664-63ce-4d00-97aa-94c6f46a94f6",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 2. Find the raw video URL\nParses through all of the HTML and finds the section containing the video URL before the watermark is applied",
+        "height": 360,
+        "width": 380,
+        "color": 5
+      },
+      "id": "48f33189-31d7-4518-b9f3-1191f47762a3",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 3. Output video file without watermark\nUsing the cookies from step 1, a request is made to access the original video file as shown on TikTok",
+        "height": 360,
+        "width": 400,
+        "color": 7
+      },
+      "id": "120131ec-551c-4010-a0a0-9854d24c027b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "text": "Analyze this video moment by moment. Describe the video to an ai video generator so I can replicate this video exactly including the audio. If there's a notable person in the video, make sure to mention who they sound like. Output ONLY a prompt for an ai video generator. Prompt can be no more than 800 characters.",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        208
+      ],
+      "id": "48220d2c-6c71-4045-951d-c1516f5ed423",
+      "name": "Analyze video",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "rgTtCI14Pygr3UY7",
+          "name": "Google Gemini - YT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "video",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "URL"
+            },
+            {
+              "fieldLabel": "Video Model",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Wan 2.5"
+                  },
+                  {
+                    "option": "Sora 2"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -144,
+        208
+      ],
+      "id": "bd30624d-4590-49fa-a5f0-36c6f9edc3af",
+      "name": "On form submission",
+      "webhookId": "26f1c791-5b5f-4852-8d88-63a3bda48480"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "mediaUrl": "={{ JSON.parse($json.data.resultJson).resultUrls[0] }}"
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        512
+      ],
+      "id": "9d2fac44-8506-4363-89a2-b14d8eafff4e",
+      "name": "Upload media",
+      "credentials": {
+        "blotatoApi": {
+          "id": "PLYEu7PIK1I5FU3U",
+          "name": "Blotato YT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.kie.ai/api/v1/jobs/recordInfo?taskId={{ $json.data.taskId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        528
+      ],
+      "id": "f1b7cbc1-2289-4073-9b2c-70d63d1c6756",
+      "name": "getVideo",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "K7MvLmRsdSvggmhN",
+          "name": "Kie AI Oct1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        272,
+        528
+      ],
+      "id": "4f0ad0b0-337a-439f-8d21-1d9639b27fd5",
+      "name": "Wait 3min",
+      "webhookId": "42d8bb7d-675d-4e61-96c2-f6ecc35ef67f"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a95653fe-4641-499d-b5ea-83920481c125",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        528
+      ],
+      "id": "d6f4a2bc-75e1-4b3a-8056-0b27e23326e4",
+      "name": "success?"
+    },
+    {
+      "parameters": {
+        "content": "## Generate with Wan 2.5\nSend the video prompt to Kie AI for video generation using Wan 2.5",
+        "height": 336,
+        "width": 464
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        384
+      ],
+      "id": "75503583-8b48-4874-9be4-b245970b3111",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Wait for Video to Process",
+        "height": 688,
+        "width": 384,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        384
+      ],
+      "id": "edd1a019-d6fc-42f9-a176-2bf8c5760f0a",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Upload to Blotato",
+        "height": 336,
+        "width": 384,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        880,
+        384
+      ],
+      "id": "ae3bc7e8-fa5c-46e8-a58d-40a0e7a4263c",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "accountId": {
+          "__rl": true,
+          "value": "571",
+          "mode": "list",
+          "cachedResultName": "duncanrogoff",
+          "cachedResultUrl": "https://backend.blotato.com/v2/accounts/571"
+        },
+        "postContentText": "#sora #ai #fyp",
+        "postContentMediaUrls": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        1408,
+        448
+      ],
+      "id": "24b99e0c-8c20-4b05-86d1-dd432b1d6553",
+      "name": "Instagram",
+      "credentials": {
+        "blotatoApi": {
+          "id": "PLYEu7PIK1I5FU3U",
+          "name": "Blotato YT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "platform": "tiktok",
+        "accountId": {
+          "__rl": true,
+          "value": "560",
+          "mode": "list",
+          "cachedResultName": "duncanrogoff",
+          "cachedResultUrl": "https://backend.blotato.com/v2/accounts/560"
+        },
+        "postContentText": "#sora #ai #fyp",
+        "postContentMediaUrls": "={{ $json.url }}",
+        "postCreateTiktokOptionIsAiGenerated": true,
+        "options": {}
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        1408,
+        592
+      ],
+      "id": "daf162cd-622e-4220-ae65-adf726140ad3",
+      "name": "TikTok",
+      "credentials": {
+        "blotatoApi": {
+          "id": "PLYEu7PIK1I5FU3U",
+          "name": "Blotato YT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "platform": "twitter",
+        "accountId": {
+          "__rl": true,
+          "value": "906",
+          "mode": "list",
+          "cachedResultName": "DuncanRogoff",
+          "cachedResultUrl": "https://backend.blotato.com/v2/accounts/906"
+        },
+        "postContentText": "#sora #ai #fyp",
+        "postContentMediaUrls": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        1632,
+        432
+      ],
+      "id": "5cebe697-c316-409f-a95e-8a048c3209fd",
+      "name": "Twitter",
+      "credentials": {
+        "blotatoApi": {
+          "id": "PLYEu7PIK1I5FU3U",
+          "name": "Blotato YT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "platform": "youtube",
+        "accountId": {
+          "__rl": true,
+          "value": "323",
+          "mode": "list",
+          "cachedResultName": "Duncan Rogoff (Duncan Rogoff | AI Automation)",
+          "cachedResultUrl": "https://backend.blotato.com/v2/accounts/323"
+        },
+        "postContentText": "#sora #ai #fyp",
+        "postContentMediaUrls": "={{ $json.url }}",
+        "postCreateYoutubeOptionTitle": "Ok, who did this?",
+        "postCreateYoutubeOptionContainsSyntheticMedia": true,
+        "options": {}
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        1632,
+        576
+      ],
+      "id": "08db20ab-76b6-4e41-8bd0-3b45f9b15969",
+      "name": "YouTube",
+      "credentials": {
+        "blotatoApi": {
+          "id": "PLYEu7PIK1I5FU3U",
+          "name": "Blotato YT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Post to Socials",
+        "height": 336,
+        "width": 560,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        384
+      ],
+      "id": "4097d544-128b-4396-a5a9-9ba8d645e8f1",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        864
+      ],
+      "id": "371d957b-1032-4847-bf2e-e1e275b5a7ee",
+      "name": "Wait",
+      "webhookId": "772901d1-9e0a-4dc0-96c0-7db10942340f"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $('sora2').item.json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        512,
+        864
+      ],
+      "id": "238cd001-62bb-4c82-b799-58cbad469576",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "K7MvLmRsdSvggmhN",
+          "name": "Kie AI Oct1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c692062a-1e29-4c33-aab2-d96b96c82e00",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        864
+      ],
+      "id": "6f31a9d0-6b8a-4676-9f1d-258c086e735f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "content": "## Generate with Sora 2\nSend the video prompt to Kie AI for video generation using Wan 2.5",
+        "height": 336,
+        "width": 464
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        736
+      ],
+      "id": "291eb92d-c708-41f7-9bbd-d40ab88ba24f",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1bf5f09a-ab8c-4f44-b7d7-7c61a93aba19",
+                    "leftValue": "={{ $('On form submission').item.json['Video Model'] }}",
+                    "rightValue": "Wan 2.5",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('On form submission').item.json['Video Model'] }}",
+                    "rightValue": "Sora 2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "caba5296-b8b4-4f85-b615-25f7859a6910"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Sora 2"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -144,
+        656
+      ],
+      "id": "0f58acfc-d10a-47c7-8944-f4fbfec4aa03",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sora-2-text-to-video\",\n  \"input\": {\n    \"prompt\": \"{{ $json.content.parts[0].text.replace(/[\"\\n\\r]/g, '') }}\",\n    \"aspect_ratio\": \"portrait\",\n    \"n_frames\": \"10\",\n    \"remove_watermark\": true\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        64,
+        864
+      ],
+      "id": "4e774720-6df9-4bb6-bc2b-31eae0b22b77",
+      "name": "sora2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "K7MvLmRsdSvggmhN",
+          "name": "Kie AI Oct1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"wan/2-5-text-to-video\",\n  \"input\": {\n    \"prompt\": \"{{ $json.content.parts[0].text.replace(/[\"\\n\\r]/g, '') }}\",\n    \"aspect_ratio\": \"9:16\",\n    \"duration\": \"10\",\n    \"resolution\": \"720p\",\n    \"enable_prompt_expansion\": false\n  }\n}\n\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        64,
+        528
+      ],
+      "id": "cff03810-5d44-4d78-b0a7-b979064088b0",
+      "name": "wan2.5",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "K7MvLmRsdSvggmhN",
+          "name": "Kie AI Oct1"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Scrape raw video URL": {
+      "main": [
+        [
+          {
+            "node": "Output video file without watermark",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get TikTok Video Page Data": {
+      "main": [
+        [
+          {
+            "node": "Scrape raw video URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output video file without watermark": {
+      "main": [
+        [
+          {
+            "node": "Analyze video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze video": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Get TikTok Video Page Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getVideo": {
+      "main": [
+        [
+          {
+            "node": "success?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3min": {
+      "main": [
+        [
+          {
+            "node": "getVideo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "success?": {
+      "main": [
+        [
+          {
+            "node": "Upload media",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 3min",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload media": {
+      "main": [
+        [
+          {
+            "node": "Instagram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TikTok",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Twitter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Upload media",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "wan2.5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "sora2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sora2": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "wan2.5": {
+      "main": [
+        [
+          {
+            "node": "getVideo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "005c42d3-1c21-4635-b9ab-87ce753ecb9b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "LXU06o2fH9RTRzCC",
+  "tags": []
+}
