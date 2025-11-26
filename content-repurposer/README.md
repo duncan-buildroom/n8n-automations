@@ -112,4 +112,12 @@ The best part? It runs 24/7 with zero manual work.
 
 ---
 
+## 🚀 Want to Build & Sell AI Automations Like This?
+
+Join **The Build Room** and learn to build and sell AI automations - from $49 templates to $3K+ clients in 30 days.
+
+[→ Join The Build Room FREE!](https://www.skool.com/buildroom)
+
+---
+
 Built with ❤️ using n8n, OpenAI, and OpenRouter
