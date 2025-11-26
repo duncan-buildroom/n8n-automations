@@ -2,10 +2,6 @@
 
 > An N8N automation that monitors your TikTok RSS feed, downloads videos, transcribes them with AI, generates platform-optimized captions, and auto-posts to Instagram, Twitter, and YouTube Shorts
 
-## 📹 Video Walkthrough
-
-[Link here] is a FULL DEMO with output examples and a step by step video walkthrough of how to setup the automation.
-
 ## ⚡ Overview
 
 TikTok Content Repurpose Engine is an AI-powered automation built in n8n that automatically:
@@ -46,7 +42,7 @@ You'll need accounts for:
 - [RapidAPI](https://rapidapi.com) (TikTok Video Downloader API)
 - [OpenAI API](https://platform.openai.com) (for Whisper transcription)
 - [OpenRouter](https://openrouter.ai) (for LLM caption generation)
-- [Blotato](https://blotato.com) (for multi-platform social posting)
+- [Blotato](https://blotato.com/?ref=duncan) (for multi-platform social posting)
 
 ### 2️⃣ Import the Workflow
 
