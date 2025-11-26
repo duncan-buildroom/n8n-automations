@@ -1,4 +1,4 @@
-# 🎭 TikTok Video Clone Engine
+# 🎬 TikTok Video Clone Engine
 
 > An N8N automation that downloads any TikTok video without watermarks, analyzes it with AI, generates a detailed recreation prompt, and uses Wan 2.5 or Sora 2 to clone the video - then auto-posts to Instagram, TikTok, Twitter, and YouTube
 
