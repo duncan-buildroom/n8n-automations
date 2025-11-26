@@ -1,102 +1,119 @@
-🎬 Content Repurpose Automation
+# 🎬 TikTok Content Repurpose Engine
 
-AI-powered workflow for turning any short-form video into a polished, platform-ready piece of content.
+> An N8N automation that monitors your TikTok RSS feed, downloads videos, transcribes them with AI, generates platform-optimized captions, and auto-posts to Instagram, Twitter, and YouTube Shorts
 
-This n8n automation takes a single video URL (TikTok, IG Reels, Shorts, etc.) and transforms it into a fully optimized YouTube/Twitter/IG post — automatically.
+## 📹 Video Walkthrough
 
-🎥 What This Workflow Does
+[Link here] is a FULL DEMO with output examples and a step by step video walkthrough of how to setup the automation.
 
-Pulls a video URL from an RSS feed
+## ⚡ Overview
 
-Downloads the raw video file
+TikTok Content Repurpose Engine is an AI-powered automation built in n8n that automatically:
 
-Transcribes audio with OpenAI
+- Monitors your TikTok RSS feed for new posts every hour
+- Downloads the video file using TikTok API
+- Transcribes audio content using OpenAI Whisper
+- Generates SEO-optimized captions and clickbait titles using AI
+- Uploads videos and posts simultaneously to Instagram, Twitter (X), and YouTube Shorts
+- Maintains brand voice consistency across all platforms
 
-Generates:
+It's designed for content creators, automation agencies, and solo operators who want to maximize reach by repurposing short-form content across multiple platforms without manual work.
 
-40-character clickbait title
+## 🎨 Features
 
-~200-word SEO-optimized description
+| Feature | Description |
+|---------|-------------|
+| 📡 **RSS Monitor** | Polls TikTok RSS feed hourly to detect new video posts automatically. |
+| 🎥 **Video Download** | Uses RapidAPI's TikTok downloader to fetch high-quality video files without watermarks. |
+| 🎤 **AI Transcription** | Leverages OpenAI Whisper to transcribe video audio with high accuracy. |
+| ✍️ **Smart Caption Writer** | Uses OpenRouter LLM to generate 40-char clickbait titles and 200-word SEO descriptions following Alex Hormozi-style copywriting principles. |
+| 📤 **Multi-Platform Upload** | Auto-uploads via Blotato to Instagram Reels, Twitter/X, and YouTube Shorts simultaneously. |
+| 🎯 **SEO Optimization** | Embeds keywords naturally: AI automations, n8n workflows, Make.com, ChatGPT, automation agency. |
 
-Uploads the video to Blotato
+## 🔄 Workflow Architecture
 
-Posts to: YouTube, Instagram, Twitter/X
+RSS Feed Monitor → Video Metadata Extraction → Video Download → AI Transcription + Media Upload → AI Caption Generation → Multi-Platform Distribution (Instagram + Twitter + YouTube)
 
-Entire pipeline runs 100% automatically
+Each step uses structured prompts, JSON schema validation, and error handling to maintain consistency and reliability across 24/7 automated operation.
 
-⚡ Overview
+## 🔧 Setup Instructions
 
-This automation is designed for high-volume creators and agencies who want to repurpose short-form content across multiple platforms — without manually rewriting descriptions or uploading media.
+### 1️⃣ Requirements
 
-Workflow source:
-Content Repurpose.json (from your uploaded workflow)
+You'll need accounts for:
 
-🧩 Key Features
-Feature	Description
-📡 RSS Feed Trigger	Polls your feed every hour for new content drops.
-⬇️ Video Downloader	Fetches the source mp4 via TikTok downloader API.
-🗣️ AI Transcription	Uses OpenAI to generate a clean transcript.
-✍️ GPT Description Writer	Produces a 40-char title + SEO YouTube description.
-🧬 Structured Output Parser	Forces perfect JSON every time.
-📤 Media Upload	Uploads video to Blotato and retrieves a public URL.
-🚀 3-Platform Auto-Publish	Posts to YouTube, IG, and Twitter with title + description.
-🏗️ Workflow Architecture
-RSS Feed → Set URL → TikTok Downloader → Downloaded Video
-                    ↓
-              OpenAI Transcription
-                    ↓
-            GPT Title + Description
-                    ↓
-       Structured Output Parser → Media Upload → Merge
-                    ↓
-      YouTube • Instagram • Twitter Publishing
+- [RSS.app](https://rss.app) (for TikTok RSS feed generation)
+- [RapidAPI](https://rapidapi.com) (TikTok Video Downloader API)
+- [OpenAI API](https://platform.openai.com) (for Whisper transcription)
+- [OpenRouter](https://openrouter.ai) (for LLM caption generation)
+- [Blotato](https://blotato.com) (for multi-platform social posting)
 
-🔧 Setup Requirements
+### 2️⃣ Import the Workflow
 
-OpenAI (transcription)
+1. In n8n, click Import Workflow → upload the JSON file.
+2. Set your credentials for OpenAI, OpenRouter, RapidAPI, and Blotato in each node.
+3. Edit the RSS Feed Trigger node to target your TikTok RSS feed URL.
 
-OpenRouter (LLM generation)
+### 3️⃣ Configure Your Accounts
 
-Blotato (media upload + publishing)
+In the Blotato nodes, select your connected accounts:
+- Instagram account ID
+- Twitter/X account ID  
+- YouTube channel ID
 
-RapidAPI (TikTok downloader)
+### 4️⃣ Customize Caption Template
 
-Just import the workflow → add your credentials → plug in RSS feed → activate.
+Edit the "writeCaption" node prompt to match your:
+- Brand voice and tone
+- Target keywords
+- CTA preferences (currently set to "Comment 'AI' for free training")
 
-🎯 Ideal Use Cases
+Example prompt structure:
+```
+Video Description: {{ $('getVideo').item.json.description }}
+Video Transcript: {{ $json.text }}
 
-Repurposing TikTok videos into multi-platform content
+Generate a 40-char title starting with results language...
+Generate a 200-word description following these rules...
+```
 
-Automated YouTube descriptions for Shorts
+## 🧪 Example Use Cases
 
-Hands-off repurposing for creators and agencies
+- **Content Creators**: Automatically cross-post TikToks to grow on Instagram Reels, Twitter, and YouTube Shorts without manual uploads.
+- **Automation Agencies**: Deploy for clients who need omnipresence across short-form video platforms with zero daily effort.
+- **Solo Creators**: Scale content distribution while focusing creative energy on recording—let AI handle transcription, copywriting, and posting.
+- **Personal Brands**: Maintain consistent posting schedules across platforms with SEO-optimized captions that drive discovery.
 
-Consistent content publishing for personal brands
+## 📊 Key Outputs
 
-🚀 What You Get
+**Title Example:**
+```
+AI Automations That Build Themselves
+```
 
-30–60 minutes saved per video
+**Description Example:**
+```
+Like + Comment "AI" and I will send you free training on how to build and sell AI automations.
 
-SEO-optimized titles/descriptions
+Most people think building AI automations is hard. It's not. You just need the right system.
 
-Brand-consistent voice
+This workflow shows you how to:
+- Monitor content feeds automatically
+- Use AI to transcribe and optimize copy
+- Deploy to multiple platforms in one click
 
-Automatic cross-posting
+Perfect for automation agencies, n8n operators, and solo creators who want to scale content without hiring a team.
 
-Platform-ready uploads every day
+The best part? It runs 24/7 with zero manual work.
+```
 
-✨ Want a more premium design?
+## 💡 Pro Tips
 
-I can generate:
+- Test with a single video first before activating the hourly trigger
+- Monitor API usage limits on OpenAI and RapidAPI
+- Adjust caption length based on platform character limits
+- Use Blotato's scheduling features for optimal posting times
 
-A dark-mode themed version
+---
 
-A Notion version
-
-A landing-page version
-
-A banner graphic for the top of the README
-
-A downloadable PDF version
-
-Just say: "Make it premium."
+Built with ❤️ using n8n, OpenAI, and OpenRouter
