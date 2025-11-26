@@ -1,0 +1,102 @@
+🎬 Content Repurpose Automation
+
+AI-powered workflow for turning any short-form video into a polished, platform-ready piece of content.
+
+This n8n automation takes a single video URL (TikTok, IG Reels, Shorts, etc.) and transforms it into a fully optimized YouTube/Twitter/IG post — automatically.
+
+🎥 What This Workflow Does
+
+Pulls a video URL from an RSS feed
+
+Downloads the raw video file
+
+Transcribes audio with OpenAI
+
+Generates:
+
+40-character clickbait title
+
+~200-word SEO-optimized description
+
+Uploads the video to Blotato
+
+Posts to: YouTube, Instagram, Twitter/X
+
+Entire pipeline runs 100% automatically
+
+⚡ Overview
+
+This automation is designed for high-volume creators and agencies who want to repurpose short-form content across multiple platforms — without manually rewriting descriptions or uploading media.
+
+Workflow source:
+Content Repurpose.json (from your uploaded workflow)
+
+🧩 Key Features
+Feature	Description
+📡 RSS Feed Trigger	Polls your feed every hour for new content drops.
+⬇️ Video Downloader	Fetches the source mp4 via TikTok downloader API.
+🗣️ AI Transcription	Uses OpenAI to generate a clean transcript.
+✍️ GPT Description Writer	Produces a 40-char title + SEO YouTube description.
+🧬 Structured Output Parser	Forces perfect JSON every time.
+📤 Media Upload	Uploads video to Blotato and retrieves a public URL.
+🚀 3-Platform Auto-Publish	Posts to YouTube, IG, and Twitter with title + description.
+🏗️ Workflow Architecture
+RSS Feed → Set URL → TikTok Downloader → Downloaded Video
+                    ↓
+              OpenAI Transcription
+                    ↓
+            GPT Title + Description
+                    ↓
+       Structured Output Parser → Media Upload → Merge
+                    ↓
+      YouTube • Instagram • Twitter Publishing
+
+🔧 Setup Requirements
+
+OpenAI (transcription)
+
+OpenRouter (LLM generation)
+
+Blotato (media upload + publishing)
+
+RapidAPI (TikTok downloader)
+
+Just import the workflow → add your credentials → plug in RSS feed → activate.
+
+🎯 Ideal Use Cases
+
+Repurposing TikTok videos into multi-platform content
+
+Automated YouTube descriptions for Shorts
+
+Hands-off repurposing for creators and agencies
+
+Consistent content publishing for personal brands
+
+🚀 What You Get
+
+30–60 minutes saved per video
+
+SEO-optimized titles/descriptions
+
+Brand-consistent voice
+
+Automatic cross-posting
+
+Platform-ready uploads every day
+
+✨ Want a more premium design?
+
+I can generate:
+
+A dark-mode themed version
+
+A Notion version
+
+A landing-page version
+
+A banner graphic for the top of the README
+
+A downloadable PDF version
+
+Just say: "Make it premium."
