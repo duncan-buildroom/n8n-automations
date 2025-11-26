@@ -4,7 +4,7 @@
 
 ## 📹 Video Walkthrough
 
-["Here is a FULL DEMO"](https://www.youtube.com/watch?v=6ELszNyxUHY) with output examples and a step by step video walkthrough of how to setup the automation.
+[Here is a FULL DEMO](https://www.youtube.com/watch?v=6ELszNyxUHY) with output examples and a step by step video walkthrough of how to setup the automation.
 
 ## ⚡ Overview
 
