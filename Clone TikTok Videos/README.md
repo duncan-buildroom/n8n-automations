@@ -136,7 +136,7 @@ const videoUrl = data?.__DEFAULT_SCOPE__?.["webapp.video-detail"]?.itemInfo?.ite
 
 Join **The Build Room** and learn to build and sell AI automations - from $49 templates to $3K+ clients in 30 days.
 
-[→ Join The Build Room for FREE!](https://www.skool.com/buildroom)
+[→ Join The Build Room!](https://www.skool.com/buildroom)
 
 ---
 
