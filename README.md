@@ -1,166 +1,118 @@
-# Build Room Automations
+# 🤖 n8n Automation Library
 
-### Client Acquisition, Content Engine, and Monetization Workflows for n8n
+> 28 production-ready AI automations for content creation, lead generation, and business operations.
 
-This repository contains the exact n8n workflows used inside The Build Room ecosystem to automate client acquisition, content production, and revenue operations for AI/automation agencies.
-
-These workflows are designed for aspiring and active AI agency founders who want to launch, scale, and automate faster — without needing to be technical.
+These are the exact n8n workflows I teach inside [The Build Room](https://www.skool.com/build-room) to help you get more leads using AI.
 
 ---
 
-## What This Repo Includes
+## 🔍 What's Inside
 
-### 1. Client Acquisition Workflows
+This repository contains ready-to-import n8n workflows across four categories:
 
-Automations that help agencies attract and close clients using The Build Room methodology.
-Examples:
+| Category | Description |
+|----------|-------------|
+| 🎨 **Content Creation** | AI-powered engines for videos, carousels, social posts, and repurposing |
+| 🎯 **Lead Generation** | Automated prospecting, community hunting, and personalized outreach |
+| 📊 **Business Operations** | Onboarding, feedback triage, lead scoring, and workflow automation |
+| 🔬 **Research & Analysis** | AI research assistants, news digests, and competitive intelligence |
 
-* LinkedIn client pipeline sync
-* Lead capture → nurture segmentation
-* Discovery call booking automations
-* Lead scoring and qualification logic
-* High-intent DM triggers
-
-### 2. Content System Workflows
-
-Automations that turn long-form content into a multi-channel publishing engine.
-Examples:
-
-* YouTube → LinkedIn → TikTok repurposing pipelines
-* Content idea generation + scheduling
-* Auto-export, cleaning, and clipping
-* Metrics tracking for platform performance
-
-### 3. Monetization & Delivery Workflows
-
-Systems that support revenue operations, community management, and client delivery.
-Examples:
-
-* Payment events → onboarding automation
-* Community access provisioning
-* Task/project creation for client builds
-* Retention and renewal sequences
-* KPI dashboards via Airtable/Sheets
+> 📺 **Free AI tutorials**: Learn how to build automations like this on [@duncanrogoff](https://youtube.com/@duncanrogoff)
 
 ---
 
-## Why These Workflows Exist
+## 🎨 Content Creation
 
-Most new AI agency founders get stuck in three areas:
-
-1. Getting consistent leads
-2. Posting consistent content
-3. Delivering client work quickly and profitably
-
-These n8n automations remove friction across all three — compressing time, reducing workload, and increasing perceived likelihood of success.
-They are built using principles from:
-
-* Funnel and nurture frameworks for AI agencies 
-* Persona-based acquisition and segmentation strategy 
-* Vibe Marketing content design principles 
-* Hormozi’s Grand Slam Offer and Core Four lead acquisition frameworks
-
----
-
-## How to Use This Repo
-
-### 1. Import Workflows
-
-Each workflow is exported as an `.json` file.
-Inside n8n:
-Settings → Import → Upload the workflow file.
-
-### 2. Configure Credentials
-
-Most workflows use:
-
-* Notion
-* Airtable
-* GHL or ConvertKit
-* LinkedIn API or PhantomBuster
-* OpenAI API
-* Google Sheets
-* Slack/Discord
-  Credential placeholders are clearly labeled inside each file.
-
-### 3. Customize to Your Offer
-
-Each workflow includes notes explaining:
-
-* Where to insert your offers
-* Recommended lead magnets
-* Segmentation fields
-* Optional upsell paths
-* Metrics to track
-
-### 4. Deploy to Production
-
-Run via:
-
-* n8n Cloud
-* Self-hosted instance (Docker recommended)
-* Trigger via cron or webhook depending on the workflow
+| Automation | Description |
+|------------|-------------|
+| [Cinematic AI Ads](test-output/Cinematic-AI-Ads/) | Turn brand briefs into full cinematic video ads with AI storyboards and Veo3 |
+| [The Faceless Shorts Printer](test-output/The-Faceless-Shorts-Printer/) | Generate viral short-form videos without showing your face |
+| [Carousel Storyteller Engine](test-output/Carousel-Storyteller-Engine/) | Transform ideas into engaging multi-slide carousel posts |
+| [The Comment Content Engine](test-output/The-Comment-Content-Engine/) | Turn comments and engagement into fresh content ideas |
+| [Content Repurpose](test-output/Content-Repurpose/) | Automatically repurpose long-form content across platforms |
+| [Slide Designer](test-output/Slide-Designer/) | AI-powered slide deck generation from raw content |
+| [Deck Maker](test-output/Deck-Maker/) | Create professional presentations automatically |
+| [The Persona Infinite Storyteller](test-output/The-Persona-Infinite-Storyteller/) | Generate endless on-brand stories for any persona |
+| [UGC News Channel](test-output/UGC-News-Channel/) | Curate and produce UGC-style news content at scale |
+| [UGC Image Edit & Asset Library](test-output/UGC-Image-Edit-Asset-Library/) | Automated image editing and asset organization |
+| [The Infinite Lifestyle Product Photographer](test-output/The-Infinite-Lifestyle-Product-Photographer/) | Generate endless product photography variations with AI |
+| [Nano Banana Showcase](test-output/Nano-Banana-Showcase/) | Showcase products with AI-generated lifestyle imagery |
 
 ---
 
-## Folder Structure
+## 🎯 Lead Generation
 
-```
-/client-acquisition
-  linkedin-pipeline.json
-  lead-intake.json
-  nurture-logic.json
-
-/content-engine
-  youtube-to-linkedin.json
-  repurpose-pipeline.json
-  content-calendar-generator.json
-
-/monetization
-  onboarding-automation.json
-  renewal-retention.json
-  payment-event-router.json
-
-/docs
-  diagrams
-  instructions
-```
+| Automation | Description |
+|------------|-------------|
+| [LinkedIn Bot](test-output/LinkedIn-Bot/) | Automated LinkedIn engagement and connection workflows |
+| [LinkedIn Parasite](test-output/LinkedIn-Parasite/) | Leverage viral LinkedIn content for lead generation |
+| [Greg Isenberg Parasite](test-output/Greg-Isenberg-Parasite/) | Tap into trending business ideas for content and leads |
+| [Intent-Based Community Hunter](test-output/Intent-Based-Community-Hunter/) | Find high-intent prospects in online communities |
+| [Personalized Video Prospector](test-output/Personalized-Video-Prospector/) | Create personalized video outreach at scale |
+| [The Newsjacker Social Engine](test-output/The-Newsjacker-Social-Engine/) | Turn breaking news into timely social content |
+| [Programmatic SEO Content Machine](test-output/Programmatic-SEO-Content-Machine/) | Generate SEO-optimized content programmatically |
+| [Digital Ad A/B Tester](test-output/Digital-Ad-AB-Tester/) | Automate ad creative testing and optimization |
 
 ---
 
-## ICP Fit
+## 📊 Business Operations
 
-These workflows are built for:
-
-* Aspiring AI agency founders
-* Displaced workers starting agencies
-* Career changers transitioning into automation
-* Stalled professionals seeking higher-value skills
-* Non-technical newcomers needing fast wins
-
-The workflows intentionally reduce time delay, effort, and failure points while increasing the likelihood of acquiring clients and generating income.
-
----
-
-## License
-
-MIT License.
-Use freely. Modify freely. Build freely.
+| Automation | Description |
+|------------|-------------|
+| [Smart Lead Scoring & Routing](test-output/Smart-Lead-Scoring-Routing/) | AI-powered lead qualification and assignment |
+| [AI-Powered Customer Feedback Triage](test-output/AI-Powered-Customer-Feedback-Triage/) | Automatically categorize and route customer feedback |
+| [Automated Employee Onboarding](test-output/Automated-Employee-Onboarding/) | Streamline new hire onboarding with automation |
+| [The Case Study Engine](test-output/The-Case-Study-Engine/) | Transform client wins into polished case studies |
+| [The Pitch Deck Roaster](test-output/The-Pitch-Deck-Roaster/) | AI analysis and feedback on pitch decks |
+| [AI-Powered Logo & Brand Generator](test-output/AI-Powered-Logo-Brand-Generator/) | Generate logos and brand assets with AI |
 
 ---
 
-## Contribute
+## 🔬 Research & Analysis
 
-If you want to add new workflows, improve documentation, or contribute features, open a pull request.
+| Automation | Description |
+|------------|-------------|
+| [AI Update Research](test-output/AI-Update-Research/) | Stay current with automated AI news and research |
+| [Daily News Digest](test-output/Daily-News-Digest/) | Curated daily news summaries delivered automatically |
 
 ---
 
-## Need Help Implementing?
+## 🔧 How to Use
 
-Join The Build Room community FOR FREE for templates, training, automations, and weekly support.
-Or apply for the 4-week 1:1 sprint if you want everything implemented fast.
+### 1️⃣ Import a Workflow
 
-https://www.skool.com/buildroom
+1. Navigate to any automation folder above
+2. Download the `workflow.json` file
+3. In n8n, go to **Workflows → Import from File**
+4. Select the downloaded JSON file
 
-Just tell me which.
+### 2️⃣ Configure Credentials
 
+Each workflow README lists required credentials. Common services include:
+- OpenAI / OpenRouter (for GPT-4, Claude, Gemini)
+- Airtable (for data storage)
+- Various APIs (Kie.ai, Apify, ElevenLabs, etc.)
+
+### 3️⃣ Customize & Deploy
+
+Each automation folder includes:
+- `README.md` - Full setup instructions, features, and use cases
+- `workflow.json` - Ready-to-import n8n workflow
+
+---
+
+## 🚀 Want More Leads Using AI?
+
+Join **The Build Room** — get your first leads in 14 days and 1,500+ real followers in under 49 days using AI. Guaranteed.
+
+[→ Join The Build Room](https://www.skool.com/build-room)
+
+---
+
+## 📄 License
+
+MIT License. Use freely. Modify freely. Build freely.
+
+---
+
+Built with ❤️ using n8n and AI
