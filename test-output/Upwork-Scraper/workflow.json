@@ -1,0 +1,1504 @@
+{
+  "name": "Upwork Scraper",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "55a79e23-8a55-472b-90e4-f3c78a215e70",
+      "name": "When clicking \u2018Execute workflow\u2019"
+    },
+    {
+      "parameters": {
+        "url": "https://upwork-jobs-api2.p.rapidapi.com/active-freelance-1h",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "search",
+              "value": "automation"
+            },
+            {
+              "name": "limit",
+              "value": "30"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "upwork-jobs-api2.p.rapidapi.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "951a20ca-7cc8-4f16-b789-e04a39bf4647",
+      "name": "scrapeUpwork"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        192
+      ],
+      "id": "8f906b0c-8e64-4d5f-b390-8fe8dafffce7",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"result\": \"true/false\",\n  \"reason\": \"Brief explanation of why it matches or doesn't match\",\n  \"icebreaker\": \"Short, confident intro message if relevant (empty string if not relevant)\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        784,
+        192
+      ],
+      "id": "6bbb7a28-1cd3-44e9-97c4-8cd31d87403a",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Job Title: {{ $json.title }}\nJob Description: {{ $json.description }}\nBudget/Rate: {{ $json.budget }}\nSkills: {{ $json.skills }}\n\nFilter this job for relevance and provide your response in the specified JSON format.\n",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an intelligent job filtering system for an automation engineer who builds outreach systems, CRM systems, project management systems, no-code integrations, and API integrations.\nRELEVANT SKILLS & PLATFORMS:\nAirtable, ClickUp, ChatGPT, Make, Monday.com, Zapier, LinkedIn, Google Sheets, N8N\nAPI integrations (using no-code tools)\nSystem automation and workflow optimization\nNOT RELEVANT (EXCLUDE):\nFull-stack app development\nPython, Telegram, WhatsApp, Facebook, Bubble.io, Softr, Google Apps Scripts, chatbots\nVirtual assistant work\nTiny projects (<10 minutes) or requiring same-day/24hr delivery\nJobs where the CORE work is: content writing, social media marketing, web development, SEO, graphic design, data entry, research, etc.\nJobs that only mention relevant tools incidentally (e.g., \"track results in Airtable\" when the main work is writing/marketing)\nFILTER CRITERIA: The job must be PRIMARILY about building, configuring, automating, or optimizing systems/workflows. Simply using tools like Airtable or ClickUp as storage/tracking doesn't qualify - the work itself must focus on system architecture, automation, integrations, or process optimization.\nEXAMPLE RELEVANT PROJECTS:\nZapier automation hub connecting 12 tools for e-commerce business doing $5M/yr\nAirtable inventory management system for manufacturing company with 500+ SKUs\nMake.com workflow automating lead qualification for $2M/yr consulting firm\nClickUp operations dashboard for multi-location restaurant chain (15 locations)\nLinkedIn outreach automation generating 200+ qualified leads/month for SaaS startup\nGoogle Sheets to Monday.com migration for construction company managing $10M projects\nMulti-platform CRM integration syncing data across Airtable, ClickUp, and HubSpot\nAutomated reporting system pulling data from 8 sources for $3M/yr agency\nOUTPUT FORMAT:\n{\n  \"result\": \"true/false\",\n  \"reason\": \"Brief explanation of why it matches or doesn't match\",\n  \"icebreaker\": \"Short, confident intro message if relevant (empty string if not relevant)\"\n}\n\nICEBREAKER GUIDELINES (for relevant jobs only):\nStart with \"Confident I'm the man you're looking for\"\nReference specific relevant experience from the example projects above that matches their need\nMatch the platform/tool they need with similar work (e.g., Airtable job \u2192 reference Airtable inventory project, Monday.com job \u2192 reference Google Sheets to Monday migration, etc.)\nMention scale/results when possible (e.g., \"$5M/yr business\", \"500+ SKUs\", \"200+ leads/month\")\nKeep it concise but demonstrate deep familiarity with their specific platform/challenge\nExample: \"Confident I'm the man you're looking for. I built an Airtable inventory management system for a manufacturing company with 500+ SKUs, including custom interfaces and automated workflows.\"\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        624,
+        0
+      ],
+      "id": "c2cd19b4-98f5-4f49-8f90-3f50212c50ae",
+      "name": "Job Filter"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// n8n Code Node: Run Once for Each Item mode\nconst job = item.json;\n\n// Budget\nlet budget = null;\nif (job.project_budget_total) {\n  budget = `$${job.project_budget_total}`;\n} else if (job.project_budget_hourly_min && job.project_budget_hourly_max) {\n  budget = `$${job.project_budget_hourly_min} - $${job.project_budget_hourly_max}/hr`;\n} else if (job.project_budget_hourly_min) {\n  budget = `$${job.project_budget_hourly_min}/hr`;\n} else if (job.project_budget_hourly_max) {\n  budget = `$${job.project_budget_hourly_max}/hr`;\n} else {\n  budget = \"Not specified\";\n}\n\n// Skills\nconst skills = Array.isArray(job.skills)\n  ? job.skills.map(s => s.name).join(\", \")\n  : \"None listed\";\n\n// Output\nreturn {\n  json: {\n    title: job.title || \"\",\n    description: job.description_text || \"\",\n    budget,\n    skills,\n    client_location: job.client_city\n      ? `${job.client_city}, ${job.client_country}`\n      : job.client_country || \"Unknown\",\n    url: job.url || \"\"\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        0
+      ],
+      "id": "a673bf6e-411f-43e4-ba24-ac198b5d1e77",
+      "name": "cleanData"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "71c8d0a9-f634-401b-8f74-6d241588e0ca",
+              "leftValue": "={{ $json.output.result }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        944,
+        0
+      ],
+      "id": "0c9d4239-2e04-4a18-86f0-21804530b028",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "content": "## Scrape Upwork",
+        "height": 260,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -64
+      ],
+      "id": "102f3816-9a67-410c-86a6-728ed1cbb7e4",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Filter Jobs",
+        "height": 260,
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        592,
+        -64
+      ],
+      "id": "9a48fd21-d65b-46b9-9d0c-3281cc77d0cc",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appwzQ6hw87HTQKT9",
+          "mode": "list",
+          "cachedResultName": "Upwork Job Scraper",
+          "cachedResultUrl": "https://airtable.com/appwzQ6hw87HTQKT9"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblpZSRcWfMEK1w7y",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appwzQ6hw87HTQKT9/tblpZSRcWfMEK1w7y"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Job Title": "={{ $('cleanData').item.json.title }}",
+            "Job Description": "={{ $('cleanData').item.json.description }}",
+            "Budget": "={{ $('cleanData').item.json.budget }}",
+            "Skills": "={{ $('cleanData').item.json.skills }}",
+            "Client Location": "={{ $('cleanData').item.json.client_location }}",
+            "Icebreaker Message": "={{ $json.output.icebreaker }}",
+            "Original URL": "={{ $('cleanData').item.json.url }}",
+            "Status": "Intake"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Job Description",
+              "displayName": "Job Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Skills",
+              "displayName": "Skills",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Client Location",
+              "displayName": "Client Location",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Icebreaker Message",
+              "displayName": "Icebreaker Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Job Posting",
+              "displayName": "Job Posting",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Original URL",
+              "displayName": "Original URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Intake",
+                  "value": "Intake"
+                },
+                {
+                  "name": "Applied",
+                  "value": "Applied"
+                },
+                {
+                  "name": "Won",
+                  "value": "Won"
+                },
+                {
+                  "name": "Declined",
+                  "value": "Declined"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "8c3a02f7-b373-496f-af1b-81edef3d26b6",
+      "name": "storeListings"
+    },
+    {
+      "parameters": {
+        "content": "## Store Listings",
+        "height": 260,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        -64
+      ],
+      "id": "0b7b5ae0-f79d-4b1a-b1eb-b49831d366e4",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {
+    "scrapeUpwork": [
+      {
+        "json": {
+          "id": 2051910,
+          "title": "Virtual Sales Assistant for Lead Generation, Outreach Experiments & Sales Support (B2B SaaS)",
+          "date_posted": "2025-06-08T18:47:26.48+00:00",
+          "locations": [],
+          "url": "https://www.upwork.com/jobs/~021931785152567808825",
+          "category": "Lead Generation & Telemarketing",
+          "category_group": "Sales & Marketing",
+          "engagement_duration": {
+            "rid": 3,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "1 to 3 months",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 9
+          },
+          "skills": [
+            {
+              "id": "1031626730136649728",
+              "name": "Data Entry"
+            },
+            {
+              "id": "1031626734741995520",
+              "name": "Email Marketing"
+            },
+            {
+              "id": "1031626753582809088",
+              "name": "Lead Generation"
+            },
+            {
+              "id": "1031626767088467968",
+              "name": "Outbound Sales"
+            },
+            {
+              "id": "1534904229452660736",
+              "name": "Prospect List"
+            }
+          ],
+          "project_budget_total": null,
+          "project_budget_hourly_min": null,
+          "project_budget_hourly_max": null,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "ANY",
+            "localMarket": true,
+            "minHoursWeek": 40,
+            "prefEnglishSkill": "ANY"
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "United States",
+          "client_city": "Miami",
+          "client_timezone": "America/New_York (UTC-04:00)",
+          "client_total_assignments": 3,
+          "client_active_assignments": 3,
+          "client_total_hours": 11.67,
+          "client_total_charges": 2360.49,
+          "client_feedback_count": null,
+          "client_score": null,
+          "client_jobs_with_hires": 3,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 6,
+          "description_text": "We\u2019re a fast-growing SaaS company that helps businesses on Microsoft 365 streamline project management and automation. We\u2019re looking for a highly motivated virtual assistant with a proven track record in B2B lead generation who can also support sales experimentation, case study creation, and light sales material development.\n\n\nKey Responsibilities:\n\t\u2022\tResearch and build outbound lead lists (law firms, construction firms, IT providers, etc.)\n\t\u2022\tLaunch and manage cold outreach campaigns using Apollo and Instantly.com\n\t\u2022\tWrite short, personalized intros based on company and role\n\t\u2022\tRun outbound experiments to test different offers, messages, and personas\n\t\u2022\tTrack results and recommend iterations (subject lines, CTAs, timing, etc.)\n\t\u2022\tUse our platform (Trovve) to track outreach, leads, and meetings\n\t\u2022\tAssist in creating case studies from customer feedback and results\n\t\u2022\tBuild or refine simple sales presentations or one-pagers for specific verticals\n\n\nRequirements:\n\t\u2022\tProven experience in outbound lead generation with measurable results\n\t\u2022\tSkilled with tools like Apollo, Instantly.com, and LinkedIn Sales Navigator\n\t\u2022\tStrong written English (especially for light personalization and marketing collateral)\n\t\u2022\tComfortable running outbound experiments and reporting on performance\n\t\u2022\tBonus: Experience creating simple sales decks or client-facing materials\n\t\u2022\tSelf-directed, resourceful, and outcome-oriented\n\t\u2022\tSaaS or Microsoft 365 ecosystem experience is a plus\n\n\nTools We Use:\n\t\u2022\tApollo\n\t\u2022\tInstantly.com\n\t\u2022\tLinkedIn Sales Navigator\n\t\u2022\tTrovve (our internal PM & CRM system)\n\t\u2022\tMicrosoft 365 (Outlook, Excel, PowerPoint)"
+        }
+      },
+      {
+        "json": {
+          "id": 2051922,
+          "title": "Data Engineer to Deploy Airflow on Snowflake's Snowpark Container Services (SPCS) + Github CI/CD",
+          "date_posted": "2025-06-08T18:43:56.283+00:00",
+          "locations": [],
+          "url": "https://www.upwork.com/jobs/~021931784267881214030",
+          "category": "Data Mining & Management",
+          "category_group": "Data Science & Analytics",
+          "engagement_duration": {
+            "id": "474250516458926082",
+            "rid": 3,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "1 to 3 months",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 9
+          },
+          "skills": [
+            {
+              "id": "1192876992131252224",
+              "name": "Snowflake"
+            },
+            {
+              "id": "1031626732393185280",
+              "name": "Docker"
+            },
+            {
+              "id": "996364628025274386",
+              "name": "Python"
+            },
+            {
+              "id": "1031626731499798528",
+              "name": "DevOps"
+            },
+            {
+              "id": "1031626741322858496",
+              "name": "GitHub"
+            },
+            {
+              "id": "1031626785824423936",
+              "name": "Terraform"
+            }
+          ],
+          "project_budget_total": 1000,
+          "project_budget_hourly_min": null,
+          "project_budget_hourly_max": null,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "ANY",
+            "localMarket": true,
+            "prefEnglishSkill": "ANY"
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "United States",
+          "client_city": null,
+          "client_timezone": "America/Tijuana (UTC-07:00)",
+          "client_total_assignments": null,
+          "client_active_assignments": null,
+          "client_total_hours": null,
+          "client_total_charges": null,
+          "client_feedback_count": null,
+          "client_score": null,
+          "client_jobs_with_hires": null,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 1,
+          "description_text": "We are looking for an experienced DevOps/Data Platform engineer to architect and build a modern, cost-effective Apache Airflow instance running entirely on Snowflake's Snowpark Container Services (SPCS). The goal is to create a robust, automated orchestration platform for our DAGs, which primarily consist of lightweight API calls and simple data connections. This project will be built from a single mono-repository in GitHub, which will house both the Airflow application infrastructure code and our DAGs. The final solution must be automated, secure, and optimized for low operational cost.\n\nScope of Work & Core Requirements:\n\n1. All-in-One Repository: Design and create a custom repo for a single-node, all-in-one Airflow deployment. This repo will include both container build info and airflow DAG code.\n\n2. CI/CD Automation with GitHub Actions: Develop a full CI/CD pipeline using GitHub Actions that triggers deployments. \n\n3. Real-time DAG Deployment: Configure the SPCS service specification to include a `git-sync` sidecar container. This sidecar must continuously monitor our GitHub mono-repository and sync the `dags/` folder to a shared volume, allowing for near-instantaneous DAG updates without requiring a full application redeployment.\n\n4. Secure Credential Management: Implement a robust security model using Snowflake Secrets for all runtime credentials (e.g., API keys, service passwords). Configure the SPCS service specification to securely mount these Snowflake Secrets into the Airflow container as environment variables at runtime. \n\nRequired Skills and Experience:\n\n We require expert-level skill in Apache Airflow, including creating custom Docker images and managing its core components, as well as expert-level skill in GitHub Actions for building complex CI/CD pipelines. Strong proficiency in Docker is needed, including multi-stage builds and optimization. It is crucial that you have a deep understanding of secure credential management, specifically the distinction and implementation of Snowflake Secrets and GitHub Actions Secrets. Experience with the `git-sync` sidecar pattern for continuous deployment and setting up a mono-repo structure for a DevOps-focused project is essential.\n\nDeliverables:\n\n1. A fully functional GitHub mono-repository containing all necessary code (Dockerfile, `supervisord.conf`, `service-spec.yaml`, GitHub Actions workflows).\n2. A deployed and running Airflow service on our SPCS compute pool.\n3. A working CI/CD pipeline that automates the build and deployment process.\n4. Clear documentation on how the system works and how to manage it.\n\nTo Apply:\n\nIn your proposal, please briefly describe a similar project you have completed. Specifically highlight your experience with building and deploying airflow with containers."
+        }
+      },
+      {
+        "json": {
+          "id": 2051935,
+          "title": "Automation & Workflow Integration Specialist for Real Estate",
+          "date_posted": "2025-06-08T18:40:41.235+00:00",
+          "locations": [
+            "Ukraine",
+            "Serbia",
+            "Romania",
+            "Poland",
+            "Philippines",
+            "Mexico",
+            "Colombia",
+            "Argentina",
+            "India"
+          ],
+          "url": "https://www.upwork.com/jobs/~021931783452851140209",
+          "category": "Scripts & Utilities",
+          "category_group": "Web, Mobile & Software Dev",
+          "engagement_duration": {
+            "rid": 3,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "1 to 3 months",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 9
+          },
+          "skills": [
+            {
+              "id": "1733104400597401607",
+              "name": "n8n"
+            },
+            {
+              "id": "1031626797853687808",
+              "name": "Zapier"
+            },
+            {
+              "id": "1031626717876699136",
+              "name": "Automation"
+            }
+          ],
+          "project_budget_total": null,
+          "project_budget_hourly_min": 15,
+          "project_budget_hourly_max": 20,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "INDEPENDENT",
+            "countries": [
+              "Ukraine",
+              "Serbia",
+              "Romania",
+              "Poland",
+              "Philippines",
+              "Mexico",
+              "Colombia",
+              "Argentina",
+              "India"
+            ],
+            "localMarket": true,
+            "minHoursWeek": 30,
+            "risingTalent": true,
+            "prefEnglishSkill": "FLUENT",
+            "minJobSuccessScore": 90
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "United States",
+          "client_city": "Macomb",
+          "client_timezone": "America/Sao_Paulo (UTC-03:00)",
+          "client_total_assignments": 116,
+          "client_active_assignments": 26,
+          "client_total_hours": 2633.5,
+          "client_total_charges": 103918.11,
+          "client_feedback_count": 79,
+          "client_score": 4.97,
+          "client_jobs_with_hires": 89,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 1,
+          "description_text": "We\u2019re a fast-moving real estate investment company looking for a skilled automation specialist to build, optimize, and maintain smart workflows across our tech stack. You should have real-world experience connecting platforms like HelloSign, CRMs, dialers, and Google Sheets using n8n, Make.com, or Zapier., Salesforce, Justcall, Gmail flows wetc.\n\nOur goal is to reduce manual work, increase data accuracy, and streamline internal operations. If you're an integration wizard who thrives in building back-end automations and knows how to think like an operator, we want to work with you.\n\nResponsibilities:\n\nBuild multi-step workflows triggered by events (e.g. document signed in HelloSign \u2192 parse data \u2192 send to CRM \u2192 notify title company)\n\nAutomate CRM field updates using contract data (e.g. pull price from PDF and update lead record)\n\nCreate time-based automations (e.g. update lead stage every 48 hours if not contacted)\n\nIntegrate phone systems or smart dialers with CRM and lead pipelines\n\nEnsure workflows are error-proof, trackable, and easily maintainable\n\nBuild automation documentation for internal reference\n\nMust-Have Skills:\n\nExpertise with n8n, Make.com, or Zapier\n\nStrong understanding of APIs, webhooks, and parsing structured data (e.g. JSON, PDFs)\n\nExperience integrating tools like HelloSign, Google Sheets, CRMs, Twilio/RingCentral, etc.\n\nAttention to detail, clear documentation, and ability to think operationally\n\nEnglish fluency and ability to communicate over async (Slack/email) + video calls\n\nNice to Have (Bonus Points):\n\nFamiliarity with real estate workflows\n\nExperience automating lead follow-up or sales pipelines\n\nKnowledge of ChatGPT API or embedding AI into workflows\n\nUnderstanding of dialer platforms and SMS follow-up tools"
+        }
+      },
+      {
+        "json": {
+          "id": 2051753,
+          "title": "\ud83d\udd27 Automation , AI Marketing Expert and virtual assistant",
+          "date_posted": "2025-06-08T18:40:01.889+00:00",
+          "locations": [],
+          "url": "https://www.upwork.com/jobs/~021931783288024690766",
+          "category": "Digital Marketing",
+          "category_group": "Sales & Marketing",
+          "engagement_duration": {
+            "rid": 2,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "3 to 6 months",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 18
+          },
+          "skills": [
+            {
+              "id": "1549040408135077888",
+              "name": "CRM Automation"
+            },
+            {
+              "id": "1484275374491357184",
+              "name": "Email Automation"
+            },
+            {
+              "id": "1549040408122494976",
+              "name": "Lead Management Automation"
+            },
+            {
+              "id": "1204836469569601536",
+              "name": "Marketing Operations & Workflow"
+            },
+            {
+              "id": "1031626755721904128",
+              "name": "Mailchimp"
+            },
+            {
+              "id": "1031626797853687808",
+              "name": "Zapier"
+            },
+            {
+              "id": "1031626779570716672",
+              "name": "Shopify"
+            },
+            {
+              "id": "1031626756493656064",
+              "name": "Marketing Strategy"
+            },
+            {
+              "id": "1031626756418158592",
+              "name": "Marketing Automation"
+            },
+            {
+              "id": "1031626709379039232",
+              "name": "Administrative Support"
+            }
+          ],
+          "project_budget_total": null,
+          "project_budget_hourly_min": 4,
+          "project_budget_hourly_max": 7,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "ANY",
+            "group": null,
+            "tests": null,
+            "states": null,
+            "regions": null,
+            "earnings": null,
+            "location": null,
+            "countries": null,
+            "languages": null,
+            "locations": null,
+            "timezones": null,
+            "groupRecno": null,
+            "onSiteType": null,
+            "localMarket": true,
+            "minHoursWeek": 40,
+            "risingTalent": false,
+            "minOdeskHours": 0,
+            "localDescription": null,
+            "prefEnglishSkill": "ANY",
+            "minJobSuccessScore": 0,
+            "shouldHavePortfolio": false,
+            "locationCheckRequired": false,
+            "localFlexibilityDescription": null
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "United States",
+          "client_city": "Plano",
+          "client_timezone": "America/Sao_Paulo (UTC-03:00)",
+          "client_total_assignments": 27,
+          "client_active_assignments": 12,
+          "client_total_hours": 953.17,
+          "client_total_charges": 7146.58,
+          "client_feedback_count": 12,
+          "client_score": 3.56,
+          "client_jobs_with_hires": 15,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 1,
+          "description_text": "\ud83d\ude80 Automation & Marketing Workflow Expert (Zapier, Make, AI Voice Agent, CRM, ClickUp, Shopify)\n\nWe\u2019re looking for a freelance expert to help us automate and optimize our sales, marketing, and operations processes using Zapier, Make (formerly Integromat), and other modern tools.\n\n\u2705 Scope of Work\n\n\ud83d\udd17 Tool Integrations & Automations\n\nConnect tools like Go HighLevel (GHL), Shopify, Google Sheets, QuickBooks, and others to automate lead management, tagging, email marketing, reporting, and invoicing.\n\n\ud83d\uddc2\ufe0f ClickUp Automation\n\nCreate task automations triggered by CRM activity, form submissions, or deal status changes.\n\n\ud83d\udce7 Email & SMS Marketing Setup\n\nBuild smart flows in Go HighLevel for customer journeys, lead nurturing, and notifications.\n\n\ud83d\udcca KPI Dashboard Setup\n\nUse Google Sheets/Analytics to build custom reports tracking sales and marketing performance.\n\n\ud83e\udd16 AI Voice Agent (Inbound & Outbound)\n\nImplement and integrate an AI-powered voice agent (using platforms like Air.ai, Vapi, or similar) to handle inbound calls (FAQs, appointment booking, customer inquiries) and outbound calls (follow-ups, lead qualification, surveys).\n\nConnect the voice agent to CRM and marketing systems to tag, score, and update leads based on call interactions.\n\n\u270d\ufe0f AI-Powered Efficiency\n\nUse tools like ChatGPT or Jasper to generate email content, sales responses, or chatbot flows.\n\n\ud83d\udcc8 Facebook Pixel Setup\n\nInstall and verify Facebook Pixel to track conversions and performance for ad campaigns.\n\n\ud83d\udee0\ufe0f Tools We Use:\nZapier, Make, Go HighLevel, ClickUp, Shopify, Google Sheets, QuickBooks, Google Analytics, ChatGPT, Slack.\n\n\ud83d\udca1 What We\u2019re Looking For:\n\u2705 Strong Zapier or Make experience with CRM, marketing, and finance tools\n\u2705 Ability to build efficient task workflows in ClickUp\n\u2705 Familiarity with AI Voice Agent implementation for inbound/outbound calls\n\u2705 Understanding of email/SMS flows and customer journeys\n\u2705 Knowledge of AI tools (ChatGPT, Jasper) and their practical use in sales & marketing\n\u2705 Bonus: Experience with Facebook Pixel and Shopify integrations\n\n\ud83d\udce9 To Apply:\nPlease share:\n\nRelevant automation examples\n\nYour experience with AI Voice Agents or similar voice automation tools\n\nYour hourly or fixed project rate\n\nAny dashboards or flows you\u2019ve built before"
+        }
+      },
+      {
+        "json": {
+          "id": 2051763,
+          "title": "ChatGPT + Twilio Integration Expert Needed to Automate Driver Stats Texting System",
+          "date_posted": "2025-06-08T18:38:25.177+00:00",
+          "locations": [],
+          "url": "https://www.upwork.com/jobs/~021931782881572068415",
+          "category": "Scripts & Utilities",
+          "category_group": "Web, Mobile & Software Dev",
+          "engagement_duration": {
+            "rid": 3,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "1 to 3 months",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 9
+          },
+          "skills": [
+            {
+              "id": "1110580482322976768",
+              "name": "API"
+            },
+            {
+              "id": "996364628025274385",
+              "name": "PHP"
+            },
+            {
+              "id": "996364628025274383",
+              "name": "JavaScript"
+            },
+            {
+              "id": "996364628025274386",
+              "name": "Python"
+            },
+            {
+              "id": "1031626791381876736",
+              "name": "Twilio API"
+            }
+          ],
+          "project_budget_total": null,
+          "project_budget_hourly_min": 15,
+          "project_budget_hourly_max": 25,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "ANY",
+            "localMarket": true,
+            "minHoursWeek": 30,
+            "prefEnglishSkill": "ANY"
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "United States",
+          "client_city": "stoughton",
+          "client_timezone": "America/Sao_Paulo (UTC-03:00)",
+          "client_total_assignments": 38,
+          "client_active_assignments": 11,
+          "client_total_hours": 3700.5,
+          "client_total_charges": 42645.59,
+          "client_feedback_count": 22,
+          "client_score": 4.99,
+          "client_jobs_with_hires": 34,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 1,
+          "description_text": "We are seeking a skilled developer to integrate ChatGPT with Twilio for an automated driver statistics texting system. The ideal candidate will design a solution that allows our drivers to receive real-time updates on their performance metrics via SMS. This project requires a solid understanding of both APIs and experience in automation. If you are passionate about leveraging AI to enhance communication, we want to hear from you!"
+        }
+      },
+      {
+        "json": {
+          "id": 2051754,
+          "title": "Social Media Marketer creation and management for our company owned brands",
+          "date_posted": "2025-06-08T18:36:11.141+00:00",
+          "locations": [],
+          "url": "https://www.upwork.com/jobs/~021931782320577803889",
+          "category": "Digital Marketing",
+          "category_group": "Sales & Marketing",
+          "engagement_duration": {
+            "id": "474250516458926080",
+            "rid": 1,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "More than 6 months",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 52
+          },
+          "skills": [
+            {
+              "id": "1031626732233801728",
+              "name": "Display Ad"
+            },
+            {
+              "id": "1031626760109146112",
+              "name": "Mobile Advertising"
+            },
+            {
+              "id": "1484275068844036096",
+              "name": "Social Media Carousel"
+            },
+            {
+              "id": "1204836479312969728",
+              "name": "Text Ad"
+            },
+            {
+              "id": "1204836481896660992",
+              "name": "Video Advertising"
+            },
+            {
+              "id": "1204836472363008000",
+              "name": "Product Listing Ad"
+            },
+            {
+              "id": "1045317635993010176",
+              "name": "Food & Beverage"
+            },
+            {
+              "id": "996364628000108570",
+              "name": "Sports & Recreation"
+            },
+            {
+              "id": "996364628000108563",
+              "name": "Education"
+            },
+            {
+              "id": "1110580675537784832",
+              "name": "Real Estate"
+            },
+            {
+              "id": "1110580628179898368",
+              "name": "Media & Entertainment"
+            },
+            {
+              "id": "1204836464238641152",
+              "name": "LinkedIn Campaign Manager"
+            },
+            {
+              "id": "1204836455908753408",
+              "name": "Facebook Ads Manager"
+            },
+            {
+              "id": "1031626741842952192",
+              "name": "Google Analytics"
+            },
+            {
+              "id": "1031626741817786368",
+              "name": "Google Ads"
+            },
+            {
+              "id": "1204836471268294656",
+              "name": "Pinterest Ads Manager"
+            },
+            {
+              "id": "1204836481225572352",
+              "name": "Twitter/X Ads Manager"
+            },
+            {
+              "id": "1052162208978227205",
+              "name": "LinkedIn"
+            },
+            {
+              "id": "1052162208978227203",
+              "name": "Snapchat"
+            },
+            {
+              "id": "1052162208978227202",
+              "name": "Twitter/X"
+            },
+            {
+              "id": "1052162208978227200",
+              "name": "YouTube"
+            },
+            {
+              "id": "1504884978195890176",
+              "name": "Facebook Messenger"
+            },
+            {
+              "id": "1052162208978227208",
+              "name": "Facebook"
+            },
+            {
+              "id": "1031626781114220544",
+              "name": "Social Media Marketing"
+            },
+            {
+              "id": "1052162208978227206",
+              "name": "Instagram"
+            },
+            {
+              "id": "1031626781101637632",
+              "name": "Social Media Management"
+            },
+            {
+              "id": "1031626739238289408",
+              "name": "Flyer Design"
+            },
+            {
+              "id": "1549040408135077888",
+              "name": "CRM Automation"
+            },
+            {
+              "id": "1031626756493656064",
+              "name": "Marketing Strategy"
+            },
+            {
+              "id": "1110580696895180800",
+              "name": "Social Media Content"
+            },
+            {
+              "id": "1045317633501593600",
+              "name": "Facebook Advertising"
+            }
+          ],
+          "project_budget_total": 100,
+          "project_budget_hourly_min": null,
+          "project_budget_hourly_max": null,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "ANY",
+            "localMarket": true,
+            "prefEnglishSkill": "ANY"
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "United States",
+          "client_city": "Atlanta",
+          "client_timezone": "America/Sao_Paulo (UTC-03:00)",
+          "client_total_assignments": 28,
+          "client_active_assignments": 8,
+          "client_total_hours": 10425,
+          "client_total_charges": 78558.13,
+          "client_feedback_count": 12,
+          "client_score": 4.74,
+          "client_jobs_with_hires": 23,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 1,
+          "description_text": "We are seeking an experienced social media marketer to manage and execute various campaigns for our company. The ideal candidate will develop engaging content, analyze performance metrics, and optimize strategies across multiple platforms. The role requires creativity and a strong understanding of social media trends to effectively connect with our target audience. If you have a proven track record of successful campaigns and a passion for digital marketing, we'd love to hear from you!"
+        }
+      },
+      {
+        "json": {
+          "id": 2051607,
+          "title": "Google sheet to html doc using make or other",
+          "date_posted": "2025-06-08T18:29:13.876+00:00",
+          "locations": [],
+          "url": "https://www.upwork.com/jobs/~021931780570399602289",
+          "category": "Scripts & Utilities",
+          "category_group": "Web, Mobile & Software Dev",
+          "engagement_duration": {
+            "rid": 3,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "1 to 3 months",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 9
+          },
+          "skills": [
+            {
+              "id": "1225465944849223680",
+              "name": "Make.com"
+            },
+            {
+              "id": "996364628025274385",
+              "name": "PHP"
+            },
+            {
+              "id": "1031626742425960448",
+              "name": "Google Sheets"
+            },
+            {
+              "id": "1031626745110315008",
+              "name": "HTML"
+            }
+          ],
+          "project_budget_total": null,
+          "project_budget_hourly_min": 20,
+          "project_budget_hourly_max": 50,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "ANY",
+            "prefEnglishSkill": "ANY"
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "Canada",
+          "client_city": "Toronto",
+          "client_timezone": "Europe/London (UTC+01:00)",
+          "client_total_assignments": 154,
+          "client_active_assignments": 15,
+          "client_total_hours": 41024,
+          "client_total_charges": 300643.77,
+          "client_feedback_count": 98,
+          "client_score": 4.88,
+          "client_jobs_with_hires": 129,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 2,
+          "description_text": "I have a google sheet where that I am populating data to produce the contents for an html page. Looking for someone to setup the process of populating this page in a make automation. \n\nMust have experience doing this"
+        }
+      },
+      {
+        "json": {
+          "id": 2051608,
+          "title": "AI Agents | n8n Automation Expert | Notion Expert | Automation Expert",
+          "date_posted": "2025-06-08T18:29:12.249+00:00",
+          "locations": [],
+          "url": "https://www.upwork.com/jobs/~021931780562965898439",
+          "category": "Scripts & Utilities",
+          "category_group": "Web, Mobile & Software Dev",
+          "engagement_duration": {
+            "rid": 4,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "Less than 1 month",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 3
+          },
+          "skills": [
+            {
+              "id": "1031626775523213312",
+              "name": "Robotic Process Automation"
+            },
+            {
+              "id": "1031626756418158592",
+              "name": "Marketing Automation"
+            },
+            {
+              "id": "1031626753582809088",
+              "name": "Lead Generation"
+            },
+            {
+              "id": "1031626717876699136",
+              "name": "Automation"
+            },
+            {
+              "id": "1031626730405085184",
+              "name": "Data Scraping"
+            },
+            {
+              "id": "996364628025274386",
+              "name": "Python"
+            }
+          ],
+          "project_budget_total": null,
+          "project_budget_hourly_min": 30,
+          "project_budget_hourly_max": 60,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "ANY",
+            "minHoursWeek": 30,
+            "prefEnglishSkill": "ANY"
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "CAN",
+          "client_city": "London",
+          "client_timezone": "America/New_York (UTC-04:00)",
+          "client_total_assignments": 1,
+          "client_active_assignments": null,
+          "client_total_hours": 4,
+          "client_total_charges": 47.97,
+          "client_feedback_count": 1,
+          "client_score": 5,
+          "client_jobs_with_hires": 1,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 2,
+          "description_text": "Description:\nWe're looking for a highly experienced AI Automation Specialist who is a true expert in building intelligent workflows using n8n, Notion, and AI agents (e.g., OpenAI, Langchain, RAG pipelines, custom bots, etc.). This role is ideal for someone who thrives on streamlining operations and integrating tools to save time, reduce manual effort, and boost productivity.\n\nWho We Are:\nWe are a fast-growing business that leverages smart automation to stay ahead. We work across platforms like Airtable, Notion, CRMs, and various APIs \u2014 and we're now expanding our automation infrastructure. You\u2019ll work directly with our founder on high-impact tasks.\n\n\ud83d\udd27 Your Core Responsibilities:\nDesign, build, and maintain n8n workflows integrated with APIs, webhooks, and external tools\n\nDevelop and deploy AI agents for customer support, internal knowledge queries, or operational automation\n\nSeamlessly integrate and automate workflows across Notion, Airtable, Slack, Gmail, HubSpot, and more\n\nCreate modular, reusable workflows that are easy to scale and manage\n\nDocument your logic, approach, and offer support during testing and deployment\n\n\u2705 Required Expertise:\nProven experience with n8n automation (please share past workflows or repos)\n\nAdvanced Notion automation knowledge using APIs and integrations\n\nExperience with AI agents (OpenAI APIs, Langchain, RAG architecture, or similar)\n\nSolid understanding of API endpoints, webhooks, and JSON payloads\n\nAbility to think strategically and offer suggestions to improve business automation\n\nExcellent communication and documentation skills\n\n\ud83d\udca1 Bonus if you have:\nExperience with Zapier, Make.com, or Retool\n\nAirtable automations or scripting\n\nAI chatbot deployment (e.g., internal team assistants or customer bots)\n\nPlease apply only if you're an expert.\nWhen applying, mention \"n8n Ninja\" in your proposal and provide examples of past work (screenshots, videos, or brief descriptions of automations you've built).\n\nLet\u2019s build something powerful together."
+        }
+      },
+      {
+        "json": {
+          "id": 2051627,
+          "title": "Set up Voice AI on GoHighLevel",
+          "date_posted": "2025-06-08T18:25:00.955+00:00",
+          "locations": [],
+          "url": "https://www.upwork.com/jobs/~021931779509744006769",
+          "category": "AI Apps & Integration",
+          "category_group": "Web, Mobile & Software Dev",
+          "engagement_duration": {
+            "rid": 4,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "Less than 1 month",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 3
+          },
+          "skills": [
+            {
+              "id": "1633880258703847424",
+              "name": "Conversational AI"
+            },
+            {
+              "id": "1691099314245873665",
+              "name": "AI Agent Development"
+            },
+            {
+              "id": "1031626717876699136",
+              "name": "Automation"
+            }
+          ],
+          "project_budget_total": null,
+          "project_budget_hourly_min": 25,
+          "project_budget_hourly_max": 40,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "ANY",
+            "minHoursWeek": 30,
+            "prefEnglishSkill": "ANY"
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "Norway",
+          "client_city": "Hagan",
+          "client_timezone": "Europe/Berlin (UTC+02:00)",
+          "client_total_assignments": 33,
+          "client_active_assignments": 12,
+          "client_total_hours": null,
+          "client_total_charges": 11087.05,
+          "client_feedback_count": 14,
+          "client_score": 4.93,
+          "client_jobs_with_hires": 32,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 3,
+          "description_text": "I\u2019m looking for an expert who has experience working with Voice AI inside of GoHighLevel to help me set up an AI voice agent that can book appointments for my business.\n\nI want to learn how to set this up correctly \u2014 not just have it done for me. So I need someone who can:\n\n(The caller does not need to be perfect, im mainly looking to learn how to make it collect name & type of appointment and map it in the right fields. So the job is not long, it will take a couple of minutes only.)\n\n\u2705 Set up the AI voice agent to:\n\nCollect the caller\u2019s name\n\nCollect what type of appointment the caller is trying to book\n\nMap this data into the Opportunities section so I can clearly see:\n\nName of the person who booked\n\nType of appointment they booked\n\n\u2705 Teach me how to do this:\n\nSet it up once (while recording the process in a Loom video)\n\nWrite clear step-by-step instructions so I can repeat the process in the future\n\nI want to get this done ASAP \u2014 ready to hire immediately.\n\nBudget for this first task is $150 for teaching me and delivering the video + written instructions.\n\nIf you do a good job, I will have more ongoing tasks related to voice AI and GoHighLevel setup in the future.\n\nPlease only apply if you have direct experience with Voice AI inside of GoHighLevel and can confidently teach this."
+        }
+      },
+      {
+        "json": {
+          "id": 2051633,
+          "title": "AI Video Character Developer \u2013 Custom Avatar Creation & Automation Pipeline",
+          "date_posted": "2025-06-08T18:23:18.302+00:00",
+          "locations": [
+            "Israel"
+          ],
+          "url": "https://www.upwork.com/jobs/~021931779077663585905",
+          "category": "Video & Animation",
+          "category_group": "Design & Creative",
+          "engagement_duration": {
+            "id": "474250516458926082",
+            "rid": 3,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "1 to 3 months",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 9
+          },
+          "skills": [
+            {
+              "id": "1623716461613027328",
+              "name": "AI-Generated Video"
+            },
+            {
+              "id": "1356688482635091968",
+              "name": "Narrated Presentation"
+            },
+            {
+              "id": "1356688519654019072",
+              "name": "Social Media Video"
+            },
+            {
+              "id": "1691099315546107904",
+              "name": "AI Speech-to-Text"
+            },
+            {
+              "id": "1031626716094119936",
+              "name": "Artificial Intelligence"
+            },
+            {
+              "id": "1031626786411626496",
+              "name": "3D Animation"
+            },
+            {
+              "id": "1504885059955458048",
+              "name": "3D Avatar"
+            },
+            {
+              "id": "1031626723639672832",
+              "name": "Character Animation"
+            },
+            {
+              "id": "1031626723652255744",
+              "name": "Character Design"
+            },
+            {
+              "id": "1031626786457763840",
+              "name": "3D Modeling"
+            }
+          ],
+          "project_budget_total": 750,
+          "project_budget_hourly_min": null,
+          "project_budget_hourly_max": null,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "ANY",
+            "regions": [
+              "Americas",
+              "Africa",
+              "Europe"
+            ],
+            "location": {
+              "worldRegion": "Americas"
+            },
+            "countries": [
+              "Israel"
+            ],
+            "localMarket": true,
+            "prefEnglishSkill": "ANY"
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "United Kingdom",
+          "client_city": "London",
+          "client_timezone": "Europe/London (UTC+01:00)",
+          "client_total_assignments": 13,
+          "client_active_assignments": null,
+          "client_total_hours": 48.83,
+          "client_total_charges": 372.86,
+          "client_feedback_count": 10,
+          "client_score": 4.83,
+          "client_jobs_with_hires": 11,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 4,
+          "description_text": "AI Video Character Developer \u2013 Custom Avatar Creation \n\nProject Overview\nWe are building a scalable video production system that integrates custom characters with automated scripting and voiceover tools. We\u2019re seeking an experienced AI video specialist to help create original character avatars and integrate them into a robust automation workflow.\n\nThis project will begin with a batch of 6 characters and, upon successful delivery, scale up significantly. Ideal candidates will have strong experience in AI character design, video automation, OpenAI integrations, and API workflows.\n\n\ud83d\udd27 Key Responsibilities\nCustom Character Creation: Design original AI avatars from briefs and visual references (not stock models)\n\nVoice Sync & Expression: Enable accurate lip-syncing and natural facial movement with AI-generated voiceovers\n\nScript-to-Video Pipeline: Develop a system that transforms scripts into polished video content using automation\n\nOpenAI Integration: Build prompt-based scripting flows using OpenAI or similar LLMs\n\nAPI Workflow: Create endpoints and automation logic to generate videos programmatically\n\nStyle Flexibility: Support both photorealistic and stylised/animated visual styles\n\nScalability: Develop processes that support rapid expansion (50+ characters)\n\n\ud83e\udde0 Technical Requirements\nFamiliarity with tools like Runway, D-ID, HeyGen, Synthesia, or similar platforms\n\nExperience with voice cloning and text-to-speech integration (e.g., ElevenLabs, XTTS)\n\nStrong grasp of automation workflows (e.g., via Python, Node.js, or serverless functions)\n\nAbility to build, test, and document custom API endpoints\n\nOpenAI API experience for text generation and prompt design\n\nVideo output generation at scale, ideally with cloud-based processing experience\n\n\ud83d\udcc1 Deliverables (Phase 1)\n6 original AI avatars (designed and developed)\n\nScript-to-video pipeline fully functional via API\n\nDocumentation: endpoints, automation logic, sample flows\n\nTest videos demonstrating emotional expression, voice sync, and character clarity\n\nClean handover of assets with appropriate licensing clearance\n\n\ud83d\udd10 IP & Ownership\nAll deliverables must be created exclusively for this project\n\nFinal ownership and full commercial rights are transferred to us upon completion\n\nNo reuse of characters, models, code, or training data is permitted elsewhere\n\nIP agreement and rights confirmation required upon selection\n\n\ud83d\udc64 Ideal Candidate Profile\nMust Have:\n\n2+ years experience with AI avatar/video generation tools\n\nPortfolio of custom avatar work (not pre-made templates)\n\nOpenAI API or similar integration experience\n\nExperience with automated video generation workflows\n\nUnderstanding of lip-sync/emotion tech\n\nPreferred:\n\nBackground in animation, 3D, or character design\n\nFamiliarity with webhooks and automation platforms (Zapier, Make, etc.)\n\nExperience managing batch content production or video pipelines\n\n\ud83d\udcbc Project Scope & Terms\nPhase 1: Develop 6 characters and a working automation pipeline\n\nPhase 2: Expand character library and optimize system for scale\n\nTimeline: ~4\u20136 weeks for initial delivery\n\nBudget: Competitive, depending on experience and scope\n\nEngagement: Long-term potential for ongoing character development\n\n\ud83d\udcdd To Apply\nPlease provide:\n\nPortfolio of original AI characters or relevant projects\n\nYour preferred tools and approach to automated video generation\n\nConfirmation of ability to transfer full IP ownership\n\nSample API/video automation flow (if available)\n\nYour proposed timeline and pricing structure"
+        }
+      },
+      {
+        "json": {
+          "id": 2051637,
+          "title": "Discord Trading Signal Bot Development",
+          "date_posted": "2025-06-08T18:22:12.135+00:00",
+          "locations": [],
+          "url": "https://www.upwork.com/jobs/~021931778800682935495",
+          "category": "Scripts & Utilities",
+          "category_group": "Web, Mobile & Software Dev",
+          "engagement_duration": {
+            "id": "474250516458926082",
+            "rid": 3,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "1 to 3 months",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 9
+          },
+          "skills": [
+            {
+              "id": "996364628025274386",
+              "name": "Python"
+            },
+            {
+              "id": "996364628025274381",
+              "name": "C++"
+            },
+            {
+              "id": "996364628025274383",
+              "name": "JavaScript"
+            },
+            {
+              "id": "1110580482322976768",
+              "name": "API"
+            },
+            {
+              "id": "1031626762999021568",
+              "name": "Node.js"
+            }
+          ],
+          "project_budget_total": 5000,
+          "project_budget_hourly_min": null,
+          "project_budget_hourly_max": null,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "ANY",
+            "localMarket": true,
+            "prefEnglishSkill": "ANY"
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "United States",
+          "client_city": "Houston",
+          "client_timezone": "Europe/London (UTC+01:00)",
+          "client_total_assignments": 20,
+          "client_active_assignments": null,
+          "client_total_hours": 130.17,
+          "client_total_charges": 1822.89,
+          "client_feedback_count": 11,
+          "client_score": 4.99,
+          "client_jobs_with_hires": 14,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 1,
+          "description_text": "Discord Bot to Read Trade Signals and Place Orders on Apex (Rithmic), NinjaTrader, Thinkorswim\n\nI\u2019m looking for a developer to build a custom Discord trading assistant bot.\nPhase 1 :\nA Windows-compatible .exe bot (with eventual deployment on AWS) that:\nMonitors text messages in a specific Discord channel\nParses futures trade signals (e.g., \u201cBUY GC @ 2345 STOP 2335 TP 2365\u201d) \u2013 format may vary\nSends me an alert via Discord with the parsed trade and asks for manual approval (with adjustable risk size)\nOnce confirmed, executes a bracket order (entry, stop loss, take profit)\nSupports Apex (Rithmic), NinjaTrader, and ThinkOrSwim (Schwab) (other platforms optional later)\nImplements risk-based position sizing (fixed $ or %)\nIgnores signals for instruments already in an open trade\nResponds to mid-trade messages like \u201cmove to breakeven\u201d or \u201cexit early\u201d\nSends Discord alerts when a trade is executed or fails\nLogs actions, errors, and trade metadata to a local file\nReads config from settings.json\n\nPhase 2:\nParse trades from images (signals are image-based and more consistent)\n\nRun on an AWS VPS or containerized deployment\nAdd GUI or web dashboard (optional)\n\nDeliverables:\n.exe file\nFull source code\nSetup instructions\nAPI key config file (settings.json)\nReadable code documentation\nRequired Skills:\nPython or Node.js with Discord bot experience\nApex Prop firm other Proprietary trading firms\nNinjaTrader / Rithmic API familiarity\nTD Ameritrade / ThinkOrSwim API\nExperience with trading automation\nAWS deployment experience (optional but preferred)\nOCR experience (bonus for Phase 2)\n\nMilestones:\nPhase 1 \u2013 Apex/NinjaTrader support via text signals and ThinkOrSwim\n\nLogging, Discord alerts\n\nFinal delivery + docs\n\nOptional Phase 2: Image parsing, AWS deployment\n\nBudget & Timeline:\nOpen to hourly or milestone-based proposals\n\nLooking to start ASAP"
+        }
+      },
+      {
+        "json": {
+          "id": 2051470,
+          "title": "Marketing Strategy for Portal and Email Signups",
+          "date_posted": "2025-06-08T18:17:00.71+00:00",
+          "locations": [],
+          "url": "https://www.upwork.com/jobs/~021931777492808209209",
+          "category": "Marketing, PR & Brand Strategy",
+          "category_group": "Sales & Marketing",
+          "engagement_duration": {
+            "id": "474250516458926082",
+            "rid": 3,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "1 to 3 months",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 9
+          },
+          "skills": [
+            {
+              "id": "1031626756418158592",
+              "name": "Marketing Automation"
+            },
+            {
+              "id": "1031626734741995520",
+              "name": "Email Marketing"
+            },
+            {
+              "id": "1031626756493656064",
+              "name": "Marketing Strategy"
+            },
+            {
+              "id": "1110580557849808896",
+              "name": "Email Campaign Setup"
+            },
+            {
+              "id": "1031626753582809088",
+              "name": "Lead Generation"
+            }
+          ],
+          "project_budget_total": 50,
+          "project_budget_hourly_min": null,
+          "project_budget_hourly_max": null,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "ANY",
+            "localMarket": true,
+            "prefEnglishSkill": "ANY"
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "USA",
+          "client_city": "Wilmington",
+          "client_timezone": "America/New_York (UTC-04:00)",
+          "client_total_assignments": 1,
+          "client_active_assignments": null,
+          "client_total_hours": 64,
+          "client_total_charges": 2356.95,
+          "client_feedback_count": 1,
+          "client_score": 5,
+          "client_jobs_with_hires": 1,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 2,
+          "description_text": "We are seeking a creative marketing strategist to provide suggestions for increasing portal and email signups on our platform, CDR.fyi. The ideal candidate will analyze our current signup processes and propose actionable strategies to enhance user engagement and conversion rates. Your insights will play a crucial role in driving our user growth. Please include previous experience and examples of successful campaigns in your application."
+        }
+      },
+      {
+        "json": {
+          "id": 2051492,
+          "title": "Entry Data From PDF",
+          "date_posted": "2025-06-08T18:12:26.862+00:00",
+          "locations": [],
+          "url": "https://www.upwork.com/jobs/~021931731039530919111",
+          "category": "Data Entry & Transcription Services",
+          "category_group": "Admin Support",
+          "engagement_duration": {
+            "id": "474250516458926080",
+            "rid": 1,
+            "ctime": "2014-06-04T17:59:10.123Z",
+            "label": "More than 6 months",
+            "mtime": "2014-06-04T17:59:10.123Z",
+            "weeks": 52
+          },
+          "skills": [
+            {
+              "id": "1031626791583203328",
+              "name": "Typing"
+            },
+            {
+              "id": "1031626730136649728",
+              "name": "Data Entry"
+            },
+            {
+              "id": "1031626759719075840",
+              "name": "Microsoft Word"
+            },
+            {
+              "id": "1110580468284641280",
+              "name": "Accuracy Verification"
+            },
+            {
+              "id": "1031626768082518016",
+              "name": "PDF Conversion"
+            },
+            {
+              "id": "1045317673838215168",
+              "name": "PDF"
+            }
+          ],
+          "project_budget_total": 70,
+          "project_budget_hourly_min": null,
+          "project_budget_hourly_max": null,
+          "project_budget_currency": "USD",
+          "languages": [],
+          "additional_qualifications": {
+            "type": "ANY",
+            "prefEnglishSkill": "ANY"
+          },
+          "number_of_positions_to_hire": 1,
+          "client_country": "India",
+          "client_city": null,
+          "client_timezone": "Asia/Calcutta (UTC+05:30)",
+          "client_total_assignments": null,
+          "client_active_assignments": null,
+          "client_total_hours": null,
+          "client_total_charges": null,
+          "client_feedback_count": null,
+          "client_score": null,
+          "client_jobs_with_hires": null,
+          "client_company_size": null,
+          "client_company_industry": null,
+          "client_open_jobs": 2,
+          "description_text": "Summary\nWe are looking for a reliable and detail-oriented freelancer to manually extract data from a 195-page PDF construction price list and enter it into a structured CSV file.\nEach row in the CSV must include:\n\u2022 A code (e.g. A 1.01.3.a.1)\n\u2022 A clean description\n\u2022 Unit of measurement\n\u2022 Price (decimal format)\nThe code has a hierarchical structure that must be preserved by splitting it into subfields (category, subcategory, etc.).\nThe job requires precision and consistency. No OCR or automation \u2014 manual entry only."
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking \u2018Execute workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "scrapeUpwork",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrapeUpwork": {
+      "main": [
+        [
+          {
+            "node": "cleanData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Job Filter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Job Filter",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cleanData": {
+      "main": [
+        [
+          {
+            "node": "Job Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Filter": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "storeListings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6e3b6556-ef99-4963-a219-8778acddbe90",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "jEtnxsF7CdrpTiks",
+  "tags": []
+}

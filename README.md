@@ -1,8 +1,8 @@
 # 🤖 n8n Automation Library
 
-> 28 production-ready AI automations for content creation, lead generation, and business operations.
+> 30 production-ready AI automations for content creation, lead generation, and business operations.
 
-These are the exact n8n workflows I teach inside [The Build Room](https://www.skool.com/build-room) to help you get more leads using AI.
+These are the exact n8n workflows I teach inside [The Build Room](https://www.skool.com/buildroom) to help you get more leads using AI.
 
 > 📺 **Free AI tutorials**: Learn how to build automations like this on [@duncanrogoff](https://youtube.com/@duncanrogoff)
 
@@ -52,6 +52,7 @@ This repository contains ready-to-import n8n workflows across four categories:
 | [The Newsjacker Social Engine](test-output/The-Newsjacker-Social-Engine/) | Turn breaking news into timely social content |
 | [Programmatic SEO Content Machine](test-output/Programmatic-SEO-Content-Machine/) | Generate SEO-optimized content programmatically |
 | [Digital Ad A/B Tester](test-output/Digital-Ad-AB-Tester/) | Automate ad creative testing and optimization |
+| [Upwork Scraper](test-output/Upwork-Scraper/) | Scrape Upwork jobs, filter with AI, and generate personalized icebreakers |
 
 ---
 
@@ -74,6 +75,7 @@ This repository contains ready-to-import n8n workflows across four categories:
 |------------|-------------|
 | [AI Update Research](test-output/AI-Update-Research/) | Stay current with automated AI news and research |
 | [Daily News Digest](test-output/Daily-News-Digest/) | Curated daily news summaries delivered automatically |
+| [Reddit Insights](test-output/Reddit-Insights/) | Mine subreddits for business opportunities and product ideas |
 
 ---
 
@@ -101,13 +103,13 @@ Each automation folder includes:
 
 ---
 
-## 🚀 Want to Build & Sell AI Automations Like These?
+## 🚀 Want to Build a Profitable Personal Brand Using AI?
 
-Join **The Build Room** and learn to build and sell AI automations — from $49 templates to $3K+ clients in 30 days.
+Join **The Build Room** — the fastest way to build a highly profitable personal brand using AI.
 
-Get your first leads in 14 days and 1,500+ real followers in under 49 days using AI. Guaranteed.
+Get your first leads in 14 days and 1,500+ real followers in under 49 days. Guaranteed.
 
-[→ Join The Build Room](https://www.skool.com/build-room)
+[→ Join The Build Room](https://www.skool.com/buildroom)
 
 > 📺 **Watch free tutorials**: [@duncanrogoff on YouTube](https://youtube.com/@duncanrogoff)
 

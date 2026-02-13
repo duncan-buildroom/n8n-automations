@@ -2,7 +2,7 @@
 
 > Generate a complete, professional presentation deck from a single topic - slides designed, rendered, and compiled to PDF automatically.
 
-One of the systems I teach inside [The Build Room](https://www.skool.com/build-room) to help you get more leads using AI.
+One of the systems I teach inside [The Build Room](https://www.skool.com/buildroom) to help you get more leads using AI.
 
 ## 📹 Video Walkthrough
 
@@ -111,11 +111,13 @@ Update the Google Drive folder IDs in:
 
 ---
 
-## 🚀 Want to Build & Sell AI Automations Like This?
+## 🚀 Want to Build a Profitable Personal Brand Using AI?
 
-Join **The Build Room** and learn to build and sell AI automations - from $49 templates to $3K+ clients in 30 days.
+Join **The Build Room** — the fastest way to build a highly profitable personal brand using AI.
 
-[→ Join The Build Room](https://www.skool.com/build-room)
+Get your first leads in 14 days and 1,500+ real followers in under 49 days. Guaranteed.
+
+[→ Join The Build Room](https://www.skool.com/buildroom)
 
 ---
 

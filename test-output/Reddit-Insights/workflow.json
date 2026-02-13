@@ -1,0 +1,647 @@
+{
+  "name": "Reddit Insights",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d1632512-b3d8-48bf-b710-c662517e2c78",
+      "name": "When clicking \u2018Execute workflow\u2019"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "subreddit": "saas",
+        "limit": 5,
+        "filters": {
+          "category": "top"
+        }
+      },
+      "type": "n8n-nodes-base.reddit",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a3e6e939-bc41-4f08-91ea-647548fd16e6",
+      "name": "Get many posts"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        144
+      ],
+      "id": "c128fc17-21f9-4cd0-b682-351e25711c24",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        512,
+        144
+      ],
+      "id": "e3d3b6a0-2c7e-490e-8249-c4480294c411",
+      "name": "Auto-fixing Output Parser"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"problem\": \"Clear, concise description of the main problem or challenge being discussed\",\n  \"frustration\": \"Specific pain points and emotional difficulties users are experiencing\",\n  \"ideas\": \"High-impact solutions, innovations, or suggestions mentioned in the discussion\",\n  \"possibilities\": \"Adjacent opportunities and unexplored potential applications or markets\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        656,
+        272
+      ],
+      "id": "7b0d5a71-aa73-4487-b0af-7208b652fce8",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        496,
+        272
+      ],
+      "id": "ad40aaa5-914f-4b38-8a9b-a43f2454c973",
+      "name": "OpenAI Chat Model1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        992,
+        144
+      ],
+      "id": "42e51f9e-5d27-4863-b440-4cf72381d7f9",
+      "name": "Auto-fixing Output Parser1"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": " {\n      \"name\": \"Specific feature name\",\n      \"description\": \"Detailed implementation approach\",\n      \"target_problem\": \"Which problem/frustration this addresses\",\n      \"real_estate_application\": \"How this specifically helps real estate agents\",\n      \"implementation_complexity\": \"Low/Medium/High\",\n      \"potential_impact\": \"Revenue/retention/acquisition benefit\"\n    }"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1104,
+        272
+      ],
+      "id": "74e7d641-3f2f-45a6-8fc1-85f2d7c09ec4",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        992,
+        272
+      ],
+      "id": "29885ee5-da0d-4ca8-886b-b7fdc00ccb2b",
+      "name": "OpenAI Chat Model2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        848,
+        144
+      ],
+      "id": "67e2070f-d1c6-4cb3-9d87-04a687ab873e",
+      "name": "OpenAI Chat Model3"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app0mGzPv7ccdtyBJ",
+          "mode": "list",
+          "cachedResultName": "Reddit Intellgience",
+          "cachedResultUrl": "https://airtable.com/app0mGzPv7ccdtyBJ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblpoqIpWQxoM06RT",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app0mGzPv7ccdtyBJ/tblpoqIpWQxoM06RT"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.output.name }}",
+            "Description": "={{ $json.output.description }}",
+            "Problem": "={{ $('postResearcher').item.json.output.problem }}",
+            "Frustration": "={{ $('postResearcher').item.json.output.frustration }}",
+            "Ideas": "={{ $('postResearcher').item.json.output.ideas }}",
+            "Possibilities": "={{ $('postResearcher').item.json.output.possibilities }}",
+            "Business Application": "={{ $json.output.real_estate_application }}",
+            "Impact": "={{ $json.output.potential_impact }}",
+            "Complexity": "={{ $json.output.implementation_complexity }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Problem",
+              "displayName": "Problem",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Frustration",
+              "displayName": "Frustration",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ideas",
+              "displayName": "Ideas",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Possibilities",
+              "displayName": "Possibilities",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Business Application",
+              "displayName": "Business Application",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Impact",
+              "displayName": "Impact",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Complexity",
+              "displayName": "Complexity",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Todo",
+                  "value": "Todo"
+                },
+                {
+                  "name": "In progress",
+                  "value": "In progress"
+                },
+                {
+                  "name": "Done",
+                  "value": "Done"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Attachments",
+              "displayName": "Attachments",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1264,
+        -192
+      ],
+      "id": "53fb6153-579e-4c3b-a871-726ccae8adb8",
+      "name": "Create a record"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        0
+      ],
+      "id": "f180f8ba-8431-4f06-bc46-859aeb35cb07",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "// N8N Code Node - Format Business Opportunities as Simple Slack Text\n// Input: JSON array with business opportunity analysis\n\nconst inputData = $input.all();\nconst opportunities = inputData[0].json.output || inputData[0].json;\n\n// Helper function to get complexity emoji\nfunction getComplexityEmoji(complexity) {\n  switch(complexity?.toLowerCase()) {\n    case 'low': return '\ud83d\udfe2';\n    case 'medium': return '\ud83d\udfe1';\n    case 'high': return '\ud83d\udd34';\n    default: return '\u26aa';\n  }\n}\n\n// Start building the message\nlet message = `\ud83c\udfe0 *REAL ESTATE SAAS OPPORTUNITIES ANALYSIS*\\n`;\nmessage += `\ud83d\udcca ${opportunities.length} feature opportunities identified from market research\\n\\n`;\nmessage += `\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\\n\\n`;\n\n// Add each opportunity\nopportunities.forEach((opportunity, index) => {\n  const complexityEmoji = getComplexityEmoji(opportunity.implementation_complexity);\n  \n  message += `*${index + 1}. ${opportunity.name.toUpperCase()}*\\n`;\n  message += `${complexityEmoji} Complexity: ${opportunity.implementation_complexity || 'Not specified'}\\n\\n`;\n  \n  message += `\ud83d\udcdd *Description:*\\n${opportunity.description}\\n\\n`;\n  \n  message += `\ud83c\udfaf *Target Problem:*\\n${opportunity.target_problem}\\n\\n`;\n  \n  message += `\ud83c\udfd8\ufe0f *Real Estate Application:*\\n${opportunity.real_estate_application}\\n\\n`;\n  \n  message += `\ud83d\udcca *Potential Business Impact:*\\n${opportunity.potential_impact}\\n\\n`;\n  \n  // Add separator between opportunities\n  if (index < opportunities.length - 1) {\n    message += `\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\\n\\n`;\n  }\n});\n\n// Add summary\nmessage += `\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\\n\\n`;\n\nconst complexityCounts = opportunities.reduce((acc, opp) => {\n  const complexity = opp.implementation_complexity?.toLowerCase() || 'unknown';\n  acc[complexity] = (acc[complexity] || 0) + 1;\n  return acc;\n}, {});\n\nmessage += `\ud83d\udcc8 *IMPLEMENTATION SUMMARY:*\\n`;\nObject.entries(complexityCounts).forEach(([complexity, count]) => {\n  message += `${getComplexityEmoji(complexity)} ${count} ${complexity} complexity features\\n`;\n});\n\nmessage += `\\n\ud83d\udca1 *Next Steps:*\\n`;\nmessage += `\u2022 Review and prioritize based on business goals\\n`;\nmessage += `\u2022 Estimate development resources needed\\n`;\nmessage += `\u2022 Create implementation roadmap\\n`;\nmessage += `\u2022 Validate with target real estate agents`;\n\n// Return as simple text message\nreturn [{ \n  json: { \n    text: message \n  } \n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1408,
+        0
+      ],
+      "id": "45c25f8c-0018-45ec-8dbe-383ac49e0373",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08UP5RRABG",
+          "mode": "list",
+          "cachedResultName": "thebuildroom"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1552,
+        0
+      ],
+      "id": "043ae4f6-3128-490e-975e-21511280ecb3",
+      "name": "Send a message",
+      "webhookId": "cf9a7f7c-b67d-4b42-8eb7-bf552d400e7a"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=title: {{ $json.title }}\nMain Text: {{ $json.selftext }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=ROLE\nYou are a Reddit Post Insight Analyst, an expert at extracting meaningful insights from social media content. Your specialty is identifying underlying problems, user frustrations, innovative ideas, and untapped opportunities within Reddit posts and their discussions.\nOBJECTIVE\nAnalyze Reddit posts to extract four key elements:\n\nProblem: The core issue or challenge being discussed\nFrustration: The emotional pain points and difficulties users are experiencing\nIdeas: High-impact solutions, suggestions, or innovations mentioned\nPossibilities: Adjacent opportunities and unexplored potential applications\n\nLIMITATIONS\n\nFocus only on the provided Reddit post content and comments\nDo not make assumptions beyond what is explicitly stated or clearly implied\nAvoid speculation about external factors not mentioned in the post\nKeep analysis grounded in the actual discussion content\n\nEXECUTION FRAMEWORK\nStep 1: Content Analysis\n\nRead the entire Reddit post including title, body, and top comments\nIdentify the main topic and context\nNote recurring themes and patterns in the discussion\n\nStep 2: Problem Identification\n\nExtract the primary issue or challenge being discussed\nLook for statements like \"I can't...\", \"There's no way to...\", \"Why doesn't...\"\nIdentify systemic or recurring problems mentioned by multiple users\n\nStep 3: Frustration Detection\n\nIdentify emotional language indicating pain points\nLook for expressions of annoyance, difficulty, or dissatisfaction\nNote what users find tedious, time-consuming, or ineffective\n\nStep 4: Ideas Extraction\n\nIdentify solutions, workarounds, or innovations discussed\nLook for creative approaches or novel suggestions\nNote any tools, methods, or strategies that users recommend\n\nStep 5: Possibilities Analysis\n\nConsider adjacent markets or use cases mentioned\nIdentify scalable concepts or broader applications\nLook for unmet needs or gaps in current solutions\n\nOUTPUT FORMAT\nRespond ONLY with valid JSON in this exact structure:\n\n{\n  \"problem\": \"Clear, concise description of the main problem or challenge being discussed\",\n  \"frustration\": \"Specific pain points and emotional difficulties users are experiencing\",\n  \"ideas\": \"High-impact solutions, innovations, or suggestions mentioned in the discussion\",\n  \"possibilities\": \"Adjacent opportunities and unexplored potential applications or markets\"\n}\nCRITICAL: Your entire response must be a single, valid JSON object. Do not include any text outside of the JSON structure, including backticks, explanations, or commentary."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        416,
+        0
+      ],
+      "id": "35ffb306-a9bd-447f-9f6d-9c7c354f4566",
+      "name": "postResearcher"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=problem:{{ $json.output.problem }}\nfrustration: {{ $json.output.frustration }}\nideas: {{ $json.output.ideas }}\npossibilities: {{ $json.output.possibilities }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=ROLE\nYou are a SaaS Business Strategy Consultant specializing in lead generation and email personalization for real estate agents. Your expertise lies in translating market insights into specific, actionable business implementations that can drive growth, reduce churn, and create competitive advantages.\nOBJECTIVE\nTransform Reddit-derived insights into concrete business opportunities for a real estate lead generation and email personalization SaaS platform. Generate specific implementation strategies that can:\n\nAddress identified market problems through new features or services\nSolve user frustrations with innovative product enhancements\nCapitalize on high-impact ideas for business growth\nExplore adjacent market possibilities for expansion\n\nLIMITATIONS\n\nFocus specifically on real estate lead generation and email personalization\nPropose only realistic implementations given typical SaaS capabilities\nConsider scalability and technical feasibility\nAvoid suggestions that would require pivoting the core business model\nKeep recommendations within the real estate industry ecosystem\n\nEXECUTION FRAMEWORK\nStep 1: Problem-to-Feature Analysis\n\nMap the identified problem to specific pain points in real estate lead generation\nConsider how your SaaS can uniquely solve this problem\nThink about automation, personalization, and efficiency improvements\n\nStep 2: Frustration-to-Solution Mapping\n\nIdentify how current real estate tools fail to address these frustrations\nDesign specific features or workflows that eliminate these pain points\nConsider user experience improvements and time-saving automations\n\nStep 3: Ideas-to-Implementation Translation\n\nTake high-impact ideas and adapt them specifically for real estate agents\nConsider integration possibilities with existing real estate tools (CRMs, MLS, etc.)\nThink about unique data sources or personalization opportunities\n\nStep 4: Possibilities-to-Expansion Strategy\n\nExplore adjacent opportunities within the real estate ecosystem\nConsider new customer segments or use cases\nIdentify potential partnership or integration opportunities\n\nStep 5: Prioritization and Specificity\n\nRank opportunities by potential impact and implementation difficulty\nProvide specific technical approaches and business model considerations\nInclude potential metrics to measure success\n\nCONTEXT: YOUR SAAS BUSINESS\n\nCore Service: Lead generation and email personalization for real estate agents\nTarget Market: Real estate agents and brokerages\nKey Capabilities: Lead identification, contact enrichment, personalized email campaigns\nCompetitive Advantage: Automation and personalization at scale\n\nOUTPUT FORMAT\nRespond ONLY with valid JSON in this exact structure:\n\n    {\n      \"name\": \"Specific feature name\",\n      \"description\": \"Detailed implementation approach\",\n      \"target_problem\": \"Which problem/frustration this addresses\",\n      \"real_estate_application\": \"How this specifically helps real estate agents\",\n      \"implementation_complexity\": \"Low/Medium/High\",\n      \"potential_impact\": \"Revenue/retention/acquisition benefit\"\n    }\n \nCRITICAL: Your entire response must be a single, valid JSON object. Do not include any text outside of the JSON structure, including backticks, explanations, or commentary. Focus on specific, actionable implementations that directly leverage your SaaS platform's core capabilities in lead generation and email personalization for real estate agents."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        848,
+        0
+      ],
+      "id": "13535d21-e000-4306-858e-bd875d2e3cd2",
+      "name": "Business Coach"
+    },
+    {
+      "parameters": {
+        "content": "## adjust the system prompt to fit your business!",
+        "height": 304,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        832,
+        -128
+      ],
+      "id": "8a70636e-1f62-464b-bd17-3c8ecab791f2",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## choose a subreddit for your industry!",
+        "height": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        144,
+        -96
+      ],
+      "id": "b3939bbd-dd7d-4c63-9e42-f49be213652f",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \u2018Execute workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Get many posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many posts": {
+      "main": [
+        [
+          {
+            "node": "postResearcher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "postResearcher",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "postResearcher",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Business Coach",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Business Coach",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "postResearcher": {
+      "main": [
+        [
+          {
+            "node": "Business Coach",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Business Coach": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e4f0f52a-d69e-43aa-9d21-1c498d6a1a89",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "PZLrn1UBTJ1BnHSO",
+  "tags": []
+}

@@ -2,7 +2,7 @@
 
 > Turn a simple brand brief into a full cinematic video ad with AI-generated storyboards, images, and video.
 
-One of the systems I teach inside [The Build Room](https://www.skool.com/build-room) to help you get more leads using AI.
+One of the systems I teach inside [The Build Room](https://www.skool.com/buildroom) to help you get more leads using AI.
 
 ## 🔍 Overview
 
@@ -99,11 +99,13 @@ Your app should:
 
 ---
 
-## 🚀 Want More Leads Using AI?
+## 🚀 Want to Build a Profitable Personal Brand Using AI?
 
-Join **The Build Room** - get your first leads in 14 days and 1,500+ real followers in under 49 days using AI. Guaranteed.
+Join **The Build Room** — the fastest way to build a highly profitable personal brand using AI.
 
-[→ Join The Build Room](https://www.skool.com/build-room)
+Get your first leads in 14 days and 1,500+ real followers in under 49 days. Guaranteed.
+
+[→ Join The Build Room](https://www.skool.com/buildroom)
 
 ---
 
