@@ -111,8 +111,6 @@ Get your first leads in 14 days and 1,500+ real followers in under 49 days. Guar
 
 [→ Join The Build Room](https://www.skool.com/buildroom)
 
-> 📺 **Watch free tutorials**: [@duncanrogoff on YouTube](https://youtube.com/@duncanrogoff)
-
 ---
 
 ## 📄 License
