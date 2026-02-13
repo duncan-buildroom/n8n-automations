@@ -70,7 +70,7 @@ You'll need accounts for:
 
 ### 2️⃣ Import the Workflow
 
-1. Download `workflow.json` from this folder
+1. Download `Daily-News-Digest.json` from this folder
 2. In n8n, go to **Workflows → Import from File**
 3. Select the downloaded JSON file
 

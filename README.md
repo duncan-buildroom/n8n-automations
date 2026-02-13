@@ -84,7 +84,7 @@ This repository contains ready-to-import n8n workflows across four categories:
 ### 1️⃣ Import a Workflow
 
 1. Navigate to any automation folder above
-2. Download the `workflow.json` file
+2. Download the `.json` workflow file (named after the automation)
 3. In n8n, go to **Workflows → Import from File**
 4. Select the downloaded JSON file
 
@@ -99,7 +99,7 @@ Each workflow README lists required credentials. Common services include:
 
 Each automation folder includes:
 - `README.md` - Full setup instructions, features, and use cases
-- `workflow.json` - Ready-to-import n8n workflow
+- `[AutomationName].json` - Ready-to-import n8n workflow
 
 ---
 
