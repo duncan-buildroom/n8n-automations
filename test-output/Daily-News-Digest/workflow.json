@@ -1,0 +1,580 @@
+{
+  "name": "Daily News Digest",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        320
+      ],
+      "id": "33efe548-c5f8-4a71-851d-9cea6fad8579",
+      "name": "Schedule Interval"
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/generativeAI/new/.rss?limit=100",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        320
+      ],
+      "id": "cc702f4f-711a-423a-9598-9ea09402ed1a",
+      "name": "Fetch GenerativeAI"
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        768,
+        272
+      ],
+      "id": "b223e4d3-2d11-40bc-857a-c0e306d83f54",
+      "name": "Merge RSS Feeds"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "content"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        320
+      ],
+      "id": "f7901bca-b488-4fef-8614-f6ed774f2199",
+      "name": "Aggregate for AI"
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/n8n/new/.rss?limit=100",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        128
+      ],
+      "id": "8b466d66-a400-41da-b6e2-e60b9f7690f8",
+      "name": "Fetch n8n"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fb96946d-c097-495e-9495-6cd3a09c0d6d",
+              "leftValue": "={{ $json.isoDate?.toDateTime() }}",
+              "rightValue": "={{ $now.minus({ hours: 6 }) }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "afterOrEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        320
+      ],
+      "id": "7446d7ae-1f68-4842-b0b3-9c2ceba14d9c",
+      "name": "Filter Last 6 Hours"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.2-pro",
+          "mode": "list",
+          "cachedResultName": "GPT-5.2-PRO"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are a \u201cReddit Signal Extractor\u201d for startup/AI/automation communities.\n\nINPUT\nYou will receive a list of Reddit posts as raw scraped text (often includes: Title, Author, Link, Content, occasional HTML tables/images).\nAssume posts may be incomplete (missing comments), messy, repetitive, or off-topic.\n\nGOAL\nExtract the most high-value, interesting information for a builder/founder audience.\nDo NOT be overly technical. Prefer clear, practical, human insights.\n\nWHAT \u201cHIGH-VALUE\u201d MEANS\nPrioritize items that reveal:\n1) Strong product/market patterns (why something would or wouldn\u2019t work)\n2) Real founder pain, mistakes, or durable lessons\n3) Clear positioning, niche selection, pricing, distribution tactics\n4) Concrete metrics (MRR, costs, waitlist, timeline, constraints)\n5) Emerging opportunities (unsolved problems, underserved niches)\n6) User sentiment patterns (recurring complaints, trust issues, usability issues)\n\nWHAT TO DOWNRANK / SKIP\n- Pure memes, low-effort posts, image-only without meaning\n- Very technical debugging threads unless there\u2019s a broad takeaway\n- Generic \u201cwould you use this?\u201d posts unless they contain a unique angle\n- Rants with no actionable insight (summarize only if it reveals a wider trend)\n\nOUTPUT FORMAT (STRICT)\nReturn:\n\nA) TOP SIGNALS (5\u201310 bullets)\nEach bullet must follow this template:\n- Signal: <one-sentence insight>\n  Evidence: <which post/title it came from + the specific detail that proves it>\n  Why it matters: <one sentence, non-technical>\n  Use it for: <content angle or product idea in 5\u201312 words>\n\nB) NOTABLE METRICS & FACTS (bullets)\nOnly include concrete numbers/timeframes and what they imply.\n\nC) RECURRENT THEMES (3\u20136 bullets)\nGroup related posts into patterns (e.g., \u201cAI tool fatigue\u201d, \u201cdistribution via Reddit\u201d, \u201cUX frustration with assistants\u201d).\n\n\nSTYLE RULES\n- Keep it readable, punchy, and specific.\n- No jargon. Explain like you\u2019re talking to a smart founder friend.\n- Do not invent details. If something isn\u2019t in the text, say \u201cnot provided\u201d.\n- Do not include links unless explicitly requested; refer to posts by title.\n- Avoid moralizing or preaching; be neutral and practical.\n\nIMPORTANT\nThis dataset is \u201call Reddit\u201d. Treat it as opinionated, messy, and anecdotal:\n- Extract insight, not truth claims.\n- When a post is emotional, translate it into the underlying product/UX signal.\n- You MUST include a link to the original source post\n"
+            },
+            {
+              "content": "={{ $json.content.toJsonString()}}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1664,
+        320
+      ],
+      "id": "3fda3ac9-2559-4b02-8852-bc68dd1384e2",
+      "name": "AI Signal Filter"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "209fd5ca-207b-4aff-9903-d6e96c839ddd",
+              "name": "content",
+              "value": "=Title:\n{{ $json.title }}\nAuthor:\n{{ $json.author }}\nLink:\n{{ $json.link }}\n\nContent:\n{{ $json.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1216,
+        320
+      ],
+      "id": "21e7cd52-8b66-4b87-95ee-f651c687f6ae",
+      "name": "Format Content"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appWjeET7aNbeO86u",
+          "mode": "list",
+          "cachedResultName": "AI-Update-Research",
+          "cachedResultUrl": "https://airtable.com/appWjeET7aNbeO86u"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblXBuZZ1zhD2PdKc",
+          "mode": "list",
+          "cachedResultName": "AI-Update-Research",
+          "cachedResultUrl": "https://airtable.com/appWjeET7aNbeO86u/tblXBuZZ1zhD2PdKc"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Time Stamp": "={{ $now }}",
+            "Summary": "={{ $json.output[0].content[0].text }}",
+            "Status": "New"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Time Stamp",
+              "displayName": "Time Stamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Viewed",
+                  "value": "Viewed"
+                },
+                {
+                  "name": "New",
+                  "value": "New"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2032,
+        320
+      ],
+      "id": "91c083f2-8d7b-457b-b820-2e167858fb8d",
+      "name": "Save to Airtable"
+    },
+    {
+      "parameters": {
+        "content": "## 1. Data Ingestion\nFetch the latest 100 posts from **r/LocalLLaMA**, **r/generativeAI**, and **r/n8n** RSS feeds.",
+        "height": 998,
+        "width": 632,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        288,
+        -128
+      ],
+      "id": "a02366ad-d7d7-4292-a13b-d899e34daf8f",
+      "name": "Sticky Note 1"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Processing & Filtering\nKeep only posts from the **last 6 hours** (via logic), format the fields for readability, and aggregate them into a single list.",
+        "height": 272,
+        "width": 664,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        944,
+        208
+      ],
+      "id": "cb57d09a-137b-47cb-8a21-2ba387fc0c5f",
+      "name": "Sticky Note 2"
+    },
+    {
+      "parameters": {
+        "content": "## 3. Intelligence & Storage\nSend the aggregated list to GPT-5.2 to separate signal from noise, then save the high-quality digest to Airtable.",
+        "height": 272,
+        "width": 614,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        208
+      ],
+      "id": "2aa474c5-0a40-473d-88b8-5d6c17e5d12a",
+      "name": "Sticky Note 3"
+    },
+    {
+      "parameters": {
+        "sendTo": "duncan@buildroom.ai",
+        "subject": "={{ $json.output[0].content[0].text.subject }}",
+        "message": "={{ $json.output[0].content[0].text.body_html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2240,
+        528
+      ],
+      "id": "a4a34ed4-fd08-4f53-9744-2e98ec03c421",
+      "name": "Send a message",
+      "webhookId": "f5a1a89a-bea6-464f-9a9b-b6b8fbc93b31"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.2",
+          "mode": "list",
+          "cachedResultName": "GPT-5.2"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "={{ $json.output[0].content[0].text }}"
+            },
+            {
+              "role": "system",
+              "content": "=Role\nYou turn curated Reddit posts into a daily email for founders, builders, and operators.\n\nYour job is not to analyze trends.\nYour job is to surface copyable ideas, mechanisms, and angles that already show demand.\n\nCore Principle (Read This First)\n\nWrite like Alex Hormozi explaining a business idea in 20 seconds:\n\nLead with the mechanism\n\nCompress aggressively\n\nLet numbers do the convincing\n\nKill all fluff, hedging, and meta-analysis\n\nIf it doesn\u2019t make the reader think\n\n\u201cOh \u2014 I could build that\u201d\nit\u2019s too abstract.\n\nSource Rules (Non-Negotiable)\n\nAll inputs come from Reddit\n\nEvery idea must include an embedded Reddit link\n\nIf a link is missing:\nWrite exactly: Source: Link missing in input\n\nNever invent or infer links\n\nTone & Style Rules\n\nOutcome-first\n\nPlain English\n\nConfident, direct, slightly blunt\n\nNo \u201cuseful because,\u201d \u201chighlights,\u201d or \u201cthis suggests\u201d\n\nNo trend language\n\nNo founder backstories unless they prove demand\n\nHard Formatting Rules\n1. One idea = one Reddit post\n\nDo not merge multiple posts into one idea.\n\n2. One or two sentences max per idea\n\nIf it needs more, compress harder.\n\n3. Metrics = proof, not trivia\n\nOnly include numbers that show:\n\nRevenue\n\nTime saved\n\nSpeed\n\nCost\n\nUsage\n\nReach\n\nMetrics must live inside the idea, not in a separate section.\n\nRequired Structure per Idea\n\nUse this exact structure:\n\n\u2022 [Thing that does X] \u2014 [target user]\n\u2192 One sentence explaining what it does or replaces\n\u2192 One short sentence explaining the result or opportunity\n\nProof (if present):\n\nBullet list of metrics pulled directly from the post\n\nSource: Reddit link (or \u201cLink missing in input\u201d)\n\nEmail Structure (HTML)\n\nSubject line\n\nShort, concrete, builder-focused\n\nExample:\n\u201c10 simple product ideas from Reddit today\u201d\n\nIntro (1 sentence max)\n\nExample:\n\u201cHere are X simple product and growth ideas pulled from Reddit today.\u201d\n\nIdeas list\n\n7\u201310 items max\n\nEach idea fully self-contained\n\nNo cross-referencing\n\nOptional: Worth Ignoring\n\nOnly obvious noise\n\nOne line per item\n\nNo analysis\n\nBanned Phrases (Never Use)\n\n\u201cUseful because\u201d\n\n\u201cThis highlights\u201d\n\n\u201cThis suggests\u201d\n\n\u201cShows a trend\u201d\n\n\u201cIndicates demand\u201d\n\n\u201cFounders report\u201d\n\n\u201cIt\u2019s interesting that\u2026\u201d\n\nReplace with:\n\n\u201cReplaces\u2026\u201d\n\n\u201cResult:\u201d\n\n\u201cWhy it wins:\u201d\n\nOr say nothing at all\n\nOutput Format\n\nReturn only valid JSON:\n\n{\n  \"subject\": \"...\",\n  \"body\": \"<HTML email body>\"\n}\n\nFinal Quality Check\n\nBefore returning output, verify:\n\nEvery idea can stand alone if screenshot\n\nEvery metric clearly belongs to one idea\n\nEvery idea sounds buildable in under 60 seconds of reading\n\nIf yes \u2192 ship."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_schema",
+              "schema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"subject\": { \"type\": \"string\" },\n    \"body_html\": { \"type\": \"string\" }\n  },\n  \"required\": [\"subject\", \"body_html\"],\n  \"additionalProperties\": false\n}\n",
+              "strict": true
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1952,
+        528
+      ],
+      "id": "730de3b3-919d-487e-a1ba-e4ec5dd918c0",
+      "name": "emailComposer"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/x8bG45fCKelLxXzA.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        -64
+      ],
+      "id": "e31675a0-cd53-4866-a47f-9f40f63ff349",
+      "name": "Fetch MicroSaaS"
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/chatgpt/new/.rss?limit=100",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        512
+      ],
+      "id": "535adc9d-d036-4c6a-80fd-71350b75f1cf",
+      "name": "Fetch ChatGPT"
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/automation/.rss?limit=100",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        704
+      ],
+      "id": "2f24a7eb-7d8f-4160-b872-1f9a5b9f53a5",
+      "name": "Fetch Automation"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Interval": {
+      "main": [
+        [
+          {
+            "node": "Fetch MicroSaaS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch GenerativeAI",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch n8n",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Automation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch ChatGPT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch GenerativeAI": {
+      "main": [
+        [
+          {
+            "node": "Merge RSS Feeds",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge RSS Feeds": {
+      "main": [
+        [
+          {
+            "node": "Filter Last 6 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate for AI": {
+      "main": [
+        [
+          {
+            "node": "AI Signal Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch n8n": {
+      "main": [
+        [
+          {
+            "node": "Merge RSS Feeds",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Filter Last 6 Hours": {
+      "main": [
+        [
+          {
+            "node": "Format Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Signal Filter": {
+      "main": [
+        [
+          {
+            "node": "Save to Airtable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "emailComposer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Content": {
+      "main": [
+        [
+          {
+            "node": "Aggregate for AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "emailComposer": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch MicroSaaS": {
+      "main": [
+        [
+          {
+            "node": "Merge RSS Feeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch ChatGPT": {
+      "main": [
+        [
+          {
+            "node": "Merge RSS Feeds",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Fetch Automation": {
+      "main": [
+        [
+          {
+            "node": "Merge RSS Feeds",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e8e2ce13-e635-479f-98ce-391523c734ed",
+  "meta": {
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "kxhBEuORsLkvlO69",
+  "tags": []
+}

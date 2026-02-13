@@ -1,0 +1,790 @@
+{
+  "name": "The Newsjacker Social Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "value": "oCAEibQtPGKXcF5MM",
+          "mode": "list",
+          "cachedResultName": "Twitter Trends Scraper (karamelo/twitter-trends-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/oCAEibQtPGKXcF5MM/input"
+        },
+        "customBody": "{\n    \"country\": \"2\",\n    \"day2\": false,\n    \"day3\": false,\n    \"hour1\": true,\n    \"hour12\": false,\n    \"hour24\": false,\n    \"hour3\": true,\n    \"hour6\": true,\n    \"live\": true,\n    \"proxyOptions\": {\n        \"useApifyProxy\": true\n    }\n}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        2144,
+        -16
+      ],
+      "id": "cfde74e6-88ff-494f-b38a-1c239aa3c241",
+      "name": "Scrape Twitter Trends"
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId }}",
+        "limit": 1000,
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        2368,
+        -16
+      ],
+      "id": "ef4537f0-6cd8-4a89-a98c-c7803680f69d",
+      "name": "Get Trends Data"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a Strict Editorial Gatekeeper.\n\nI will provide a list of Trending Topics.\nYOUR GOAL: Filter these trends for the niche: {{ $('On form submission').item.json['Niche/Topic'] }}.\n\nEXECUTION LOGIC (Follow Strictly):\n\nSTEP 1: SCAN FOR DIRECT MATCHES\n Look for trends that are explicitly part of the niche.\n Example (Niche: Soccer): \"Chelsea\", \"Mbappe\", \"Offside\", \"World Cup\".\n Example (Niche: AI): \"ChatGPT\", \"Nvidia\", \"Sam Altman\".\n ACTION: If you find these, return ALL of them (up to 5). STOP HERE.\n\nSTEP 2: THE EMERGENCY FALLBACK (Only if Step 1 is empty)\n IF AND ONLY IF you found ZERO direct matches in Step 1:\n Scan the list for the single most \"High Profile\" global news event (e.g., a holiday, a massive viral meme, or major breaking news).\n Create a creative \"Bridge\" to the niche for this ONE topic.\n ACTION: Return exactly 1 topic.\n\nOUTPUT FORMAT (Strict JSON):\n{\n  \"topics\": [\n    {\n      \"topic\": \"Trend Name\",\n      \"reasoning\": \"Direct Match\" OR \"Emergency Fallback: [Reason]\"\n    }\n  ]\n}",
+              "role": "model"
+            },
+            {
+              "content": "={{ $json.trend.toJsonString() }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        3072,
+        -16
+      ],
+      "id": "dc0b4917-b900-4d00-8dca-7aa9d8e54fa7",
+      "name": "AI Selects Top Topics"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "trend"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2848,
+        -16
+      ],
+      "id": "0f77ad73-66b8-4378-8c4f-2f7c46726b67",
+      "name": "Combine Trends List"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a2ca48f0-c4f5-45ff-8cf7-ae7a489d0e54",
+              "name": "trend",
+              "value": "={{ $json.trend }} - {{ $json.volume }} - {{ $json.time }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2624,
+        -16
+      ],
+      "id": "895b6754-782f-4973-96dc-0c4134a030d9",
+      "name": "Format Trend String"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "49294d3a-74bf-4c5a-a00d-c581a0da0ce2",
+              "name": "content.parts[0].text",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3424,
+        -16
+      ],
+      "id": "713e8bfa-fd15-4f95-85c4-79e79a405250",
+      "name": "Format AI Response"
+    },
+    {
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "value": "TzcgQa7ZXU5J9UcN3",
+          "mode": "list",
+          "cachedResultName": "Twitter Search Scraper (powerai/twitter-search-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/TzcgQa7ZXU5J9UcN3/input"
+        },
+        "customBody": "={\n    \"maxResults\": 15,\n    \"query\": \"{{ $json.topic }}\",\n    \"searchType\": \"Latest\"\n}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        4080,
+        0
+      ],
+      "id": "2f648aea-e452-4d40-b852-ba354ee54bc2",
+      "name": "Scrape Context Tweets"
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId }}",
+        "limit": 100,
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        4304,
+        0
+      ],
+      "id": "383792e6-ed39-402c-bbda-eeb07cd6303e",
+      "name": "Get Context Data"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "content.parts[0].text.topics",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        3648,
+        -16
+      ],
+      "id": "d97cee6e-fe7d-429c-bdd1-c1d02992bd79",
+      "name": "Split Into Topics"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        4528,
+        0
+      ],
+      "id": "cd91776b-e625-4f39-8b20-d913d3b430d0",
+      "name": "Combine Context Tweets"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a social media strategist.\n\nRead the context to understand what is trending.\n\nWrite a \"Hot Take\" relevant to {{ $('On form submission').item.json['Niche/Topic'] }}.\n\nEnsure the tone is {{ $('On form submission').item.json['Post\\'s Tone'] }}.",
+              "role": "model"
+            },
+            {
+              "content": "={{ $json.text.toJsonString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        4752,
+        0
+      ],
+      "id": "13841baa-68a6-44f3-94f3-be2c12b18c44",
+      "name": "AI Writes Hot Take"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=You are a Viral Social Media Art Director.\n\nINPUT DATA:\n NICHE: \"{{ $('On form submission').item.json['Niche/Topic'] }}\"\n TONE: \"{{ $('On form submission').item.json['Post\\'s Tone'] }}\"\n POST CONTENT: \"{{ $json.content.parts[0].text }}\"\n\nYOUR GOAL:\nGenerate a SQUARE (1:1) social media image that perfectly synthesizes these three elements.\n\nSTEP 1: DETERMINE THE STYLE (Based on TONE)\n IF TONE IS \"Sarcastic and troll\":\n     Aesthetic: \"Internet Ugly\", Kitsch 3D, Claymation, or \"Bad Stock Photo\" style.\n     Vibe: Chaotic, funny, exaggerated.\n     Colors: Neon, clashing colors, or pastel \"vaporwave\".\n     Font: Bubble letters or Pixel font.\n IF TONE IS \"Direct and clear\":\n     Aesthetic: High-End Editorial, Swiss Design, Matte 3D, Minimalist.\n     Vibe: Professional, trustworthy, clean.\n     Colors: Monochrome, dark mode, or limited high-contrast palette.\n     Font: Bold Sans-Serif (Helvetica style).\n\nSTEP 2: DETERMINE THE SUBJECT (Based on NICHE)\n Use visual objects strictly related to the NICHE: \"{{ $('On form submission').item.json['Niche/Topic'] }}\".\n Example: If Niche is \"Coding\" -> Use brackets `{}`, laptops, coffee, bugs.\n Example: If Niche is \"Marketing\" -> Use megaphones, funnels, targets.\n\nSTEP 3: DETERMINE THE LAYOUT (Based on POST CONTENT)\n Is it a List/Steps? -> Create a floating 3D Checklist or Staircase.\n Is it a Hard Truth/Quote? -> Create a Poster with the text as the hero object.\n Is it Data/Trend? -> Create a Graph or Chart (Drawn in crayon if sarcastic; High-gloss 3D if serious).\n\nFINAL OUTPUT:\nGenerate the image now.\n FORMAT: Square Image (1:1 Aspect Ratio).\n COMPOSITION: Keep all text and main objects in the center (safe zone).\n TEXT: You MUST include a 2-5 word \"Punchline\" from the Post Content in the image.\n Ensure the visual style matches the TONE and the objects match the NICHE.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        5104,
+        0
+      ],
+      "id": "13e6e2b6-55dd-44f5-9472-728b4d81104b",
+      "name": "Generate Metaphor Image",
+      "retryOnFail": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "name": "={{ $('AI Writes Hot Take').item.json.content.parts[0].text.substring(0,45) }} - {{ $now }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1L1bpy5DzGttr1CE7Q1SQHSN-M3TJgLV1",
+          "mode": "list",
+          "cachedResultName": "The \"Newsjacker\" Social Engine",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1L1bpy5DzGttr1CE7Q1SQHSN-M3TJgLV1"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        5328,
+        0
+      ],
+      "id": "ccd29c34-d241-48ae-8ac9-195d9e17a666",
+      "name": "Upload Image to GDrive"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appofs1S8TUKuLp40",
+          "mode": "list",
+          "cachedResultName": "The \"Newsjacker\" Social Engine",
+          "cachedResultUrl": "https://airtable.com/appofs1S8TUKuLp40"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblZdLqmJjYmMCpXK",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appofs1S8TUKuLp40/tblZdLqmJjYmMCpXK"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "imagelink": "={{ $json.webViewLink }}",
+            "Post": "={{ $('AI Writes Hot Take').item.json.content.parts[0].text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "imagelink",
+              "displayName": "imagelink",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Post",
+              "displayName": "Post",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        5552,
+        0
+      ],
+      "id": "2dfb9b76-0e06-4cb0-a035-720155477999",
+      "name": "Save to Airtable"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3872,
+        -16
+      ],
+      "id": "22b720fb-cc0b-414c-a99e-490b02ed3ded",
+      "name": "Loop Topics"
+    },
+    {
+      "parameters": {
+        "content": "## 1. Trend Discovery\nScrapes X (Twitter) via Apify to find the most current trending topics globally or in a specific region.",
+        "height": 344,
+        "width": 687
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1856,
+        -128
+      ],
+      "id": "61fb06ba-e038-4704-9c9c-8ed30f399580",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Topic Filtering\nFormatted the scraped data, aggregates it, and sends it to Gemini AI. The AI selects the top 2 Sports topics, which are then split into individual items.",
+        "height": 344,
+        "width": 1228,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2560,
+        -128
+      ],
+      "id": "cec70825-57b5-459c-8a2c-178a9cb2d054",
+      "name": "Sticky Note 1"
+    },
+    {
+      "parameters": {
+        "content": "## 3. Context & Copywriting\nLoops through selected topics, performs a Twitter search for context, aggregates tweets, and has Gemini write a \"Hot Take\" post.",
+        "height": 400,
+        "width": 1212,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3808,
+        -160
+      ],
+      "id": "c051869a-6a9b-46be-a8b0-8e5e3b702161",
+      "name": "Sticky Note 2"
+    },
+    {
+      "parameters": {
+        "content": "## 4. Visuals & Publishing\nGenerates a conceptual infographic using Gemini, uploads the image to Google Drive, and saves the final post to Airtable.",
+        "height": 400,
+        "width": 704,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5040,
+        -160
+      ],
+      "id": "922ecb67-2f8f-4832-a02a-64f5ca57ac3c",
+      "name": "Sticky Note 3"
+    },
+    {
+      "parameters": {
+        "formTitle": "The \"Newsjacker\" Social Engine",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Niche/Topic",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Post's Tone",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Sacarstic and troll"
+                  },
+                  {
+                    "option": "Direct and clear"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        1920,
+        -16
+      ],
+      "id": "79ad038e-4631-4932-a64c-e51757b48cdc",
+      "name": "On form submission",
+      "webhookId": "3bb37228-a5da-4621-87a0-8a5f01249e9b"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "42a06fa4-a96d-4d2b-9760-234bc996dbac",
+              "name": "fields.imagelink",
+              "value": "={{ $json.fields.imagelink }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4816,
+        -144
+      ],
+      "id": "030c8c27-bbed-4f37-b606-6277fda8f3f1",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "Scrape Twitter Trends": [
+      {
+        "json": {
+          "id": "KmOzmsTbtzKlVOB59",
+          "actId": "oCAEibQtPGKXcF5MM",
+          "userId": "GBTx6TbzYSOrVn1EK",
+          "startedAt": "2026-01-13T23:18:58.664Z",
+          "finishedAt": "2026-01-13T23:19:05.509Z",
+          "status": "SUCCEEDED",
+          "statusMessage": "Finished! Total 1 requests: 1 succeeded, 0 failed.",
+          "isStatusMessageTerminal": true,
+          "meta": {
+            "origin": "API",
+            "userAgent": "axios/1.12.0"
+          },
+          "stats": {
+            "inputBodyLen": 160,
+            "migrationCount": 0,
+            "rebootCount": 0,
+            "restartCount": 0,
+            "durationMillis": 6745,
+            "resurrectCount": 0,
+            "runTimeSecs": 6.745,
+            "metamorph": 0,
+            "computeUnits": 0.00046840277777777776,
+            "memAvgBytes": 118881020.21817848,
+            "memMaxBytes": 154189824,
+            "memCurrentBytes": 0,
+            "cpuAvgUsage": 27.254064771164543,
+            "cpuMaxUsage": 81.15458157736303,
+            "cpuCurrentUsage": 0,
+            "netRxBytes": 57677,
+            "netTxBytes": 25205
+          },
+          "options": {
+            "build": "0.0.29",
+            "timeoutSecs": 3600,
+            "memoryMbytes": 256,
+            "maxItems": 1988,
+            "diskMbytes": 2048
+          },
+          "buildId": "vvcAp59UaiZkEqWp6",
+          "exitCode": 0,
+          "defaultKeyValueStoreId": "jy4PhxqRS9YDRWGin",
+          "defaultDatasetId": "k3PEIRO5qD8WJJwVI",
+          "defaultRequestQueueId": "ZMz0R3xqN9CPa0ucM",
+          "pricingInfo": {
+            "unitName": "results",
+            "pricingModel": "PRICE_PER_DATASET_ITEM",
+            "isPriceChangeNotificationSuppressed": false,
+            "reasonForChange": "Due to raised maintenance cost and  time and also lots of spam from free plan users.",
+            "startedAt": "2025-11-14T16:30:50.936Z",
+            "createdAt": "2025-10-31T16:30:51.474Z",
+            "apifyMarginPercentage": 0.2,
+            "notifiedAboutFutureChangeAt": "2025-10-31T16:31:12.756Z",
+            "pricePerUnitUsd": 0.00039
+          },
+          "platformUsageBillingModel": "DEVELOPER",
+          "integrationTracking": {
+            "platform": "n8n",
+            "appId": null,
+            "isAiTool": false
+          },
+          "generalAccess": "FOLLOW_USER_SETTING",
+          "buildNumber": "0.0.29",
+          "containerUrl": "https://cl8i7bvvfhlp.runs.apify.net",
+          "consoleUrl": "https://console.apify.com/view/runs/KmOzmsTbtzKlVOB59"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "On form submission": [
+      {
+        "json": {
+          "Niche/Topic": "Soccer",
+          "Post's Tone": "Sacarstic and troll",
+          "submittedAt": "2026-01-13T14:59:27.747-08:00",
+          "formMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Scrape Twitter Trends": {
+      "main": [
+        [
+          {
+            "node": "Get Trends Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Trends Data": {
+      "main": [
+        [
+          {
+            "node": "Format Trend String",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Trends List": {
+      "main": [
+        [
+          {
+            "node": "AI Selects Top Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Trend String": {
+      "main": [
+        [
+          {
+            "node": "Combine Trends List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Selects Top Topics": {
+      "main": [
+        [
+          {
+            "node": "Format AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format AI Response": {
+      "main": [
+        [
+          {
+            "node": "Split Into Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Context Tweets": {
+      "main": [
+        [
+          {
+            "node": "Get Context Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Into Topics": {
+      "main": [
+        [
+          {
+            "node": "Loop Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Context Data": {
+      "main": [
+        [
+          {
+            "node": "Combine Context Tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Context Tweets": {
+      "main": [
+        [
+          {
+            "node": "AI Writes Hot Take",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Writes Hot Take": {
+      "main": [
+        [
+          {
+            "node": "Generate Metaphor Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Metaphor Image": {
+      "main": [
+        [
+          {
+            "node": "Upload Image to GDrive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image to GDrive": {
+      "main": [
+        [
+          {
+            "node": "Save to Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Topics": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Scrape Context Tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Airtable": {
+      "main": [
+        [
+          {
+            "node": "Loop Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Scrape Twitter Trends",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0c41fd39-6109-4aed-8062-aea6b1d5c4e3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "AQi90STFxJOxmFfH",
+  "tags": []
+}

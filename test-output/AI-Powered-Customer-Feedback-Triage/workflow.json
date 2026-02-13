@@ -1,0 +1,1028 @@
+{
+  "name": "AI-Powered Customer Feedback & Feature Request Triage",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 2,
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -672,
+        -32
+      ],
+      "id": "c54bc105-4547-4a8a-ac8d-f8a2ff31d348",
+      "name": "Trigger: Every 2 Days"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "31946ee3-e6d5-4084-93b4-4ef0f62c8cfe",
+              "name": "appId",
+              "type": "string",
+              "value": "6670324846"
+            },
+            {
+              "id": "4b88dc12-53e3-430e-9b88-f55903f943bf",
+              "name": "country",
+              "type": "string",
+              "value": "US"
+            },
+            {
+              "id": "22cec944-85bc-4786-b988-0c2cc71abad3",
+              "name": "lang",
+              "type": "string",
+              "value": "en"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b8760061-d1b7-43c9-ab1f-4ee5e3f7cdfd",
+      "name": "Set: App Store Parameters",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -416,
+        160
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "url": "=https://itunes.apple.com/rss/customerreviews/page=1/id={{$json[\"appId\"]}}/sortby=mostrecent/json?l={{$json[\"lang\"]}}&cc={{$json[\"country\"]}}",
+        "options": {}
+      },
+      "id": "ff5ac383-a44c-430b-88b5-9a2c8cad83ae",
+      "name": "HTTP: Get App Store Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -192,
+        160
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "jsCode": "const jsonData = JSON.parse($input.all()[0].json.data);\n\nconst reviews = jsonData.feed.entry || [];\n\nreturn reviews.map(review => ({\n  rating: review['im:rating']?.label,\n  title: review.title?.label,\n  content: review.content?.label,\n  author: review.author?.name?.label,\n  version: review['im:version']?.label,\n  date: review.updated?.label,\n  reviewId: review.id?.label\n}));"
+      },
+      "id": "53030d4c-ca18-42ba-811e-b03d00aa9083",
+      "name": "Code: Parse Review Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        32,
+        160
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst twoDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);\nconst newOnes = [];\n\nfor (const item of items) {\n  const reviewDate = new Date(item.json.date);\n  if (reviewDate > twoDaysAgo) {\n    newOnes.push(item);\n  }\n}\n\nreturn newOnes;"
+      },
+      "id": "03534356-4ff4-4229-99d0-76b805ea2561",
+      "name": "Filter: Recent Reviews (48h)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        256,
+        160
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "getAll",
+        "guildId": {
+          "__rl": true,
+          "value": "1438892011590647912",
+          "mode": "list",
+          "cachedResultName": "Xekhai's Sandbox",
+          "cachedResultUrl": "https://discord.com/channels/1438892011590647912"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1438892195791900774",
+          "mode": "list",
+          "cachedResultName": "support",
+          "cachedResultUrl": "https://discord.com/channels/1438892011590647912/1438892195791900774"
+        },
+        "returnAll": true,
+        "options": {
+          "simplify": true
+        }
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        -416,
+        -224
+      ],
+      "id": "f0cd0be1-2a26-438a-b5d5-93fc58c81d7c",
+      "name": "Discord: Fetch Support Messages",
+      "webhookId": "4229fe0a-253e-4eeb-b3ca-15a2b930878a"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "searchText": "@paystackSupport ",
+        "limit": 5,
+        "additionalFields": {
+          "startTime": "={{ $now.minus({ hour: 48 }) }}",
+          "tweetFieldsObject": [
+            "author_id",
+            "text"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        -32
+      ],
+      "id": "6a3f116f-bda4-4048-80e0-a4ea3c30c8d5",
+      "name": "Twitter: Search Support Message"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "326d65f3-6f54-4646-bffb-a5fe28ac41d1",
+              "name": "author-username",
+              "value": "={{ $json.author.username }}",
+              "type": "string"
+            },
+            {
+              "id": "a05772cc-35e1-45d0-9bd1-d02b87be9264",
+              "name": "content",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "0f7a29de-abcf-415c-a857-34c178d87632",
+              "name": "timestamp",
+              "value": "={{ $json.timestamp }}",
+              "type": "string"
+            },
+            {
+              "id": "b21440aa-0307-4938-93e3-512d714ec67c",
+              "name": "source",
+              "value": "discord",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        -224
+      ],
+      "id": "5eeb7cf4-1d64-44e0-8ee8-987c1583fa0f",
+      "name": "Transform: Discord Message Format"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "326d65f3-6f54-4646-bffb-a5fe28ac41d1",
+              "name": "author-username",
+              "value": "={{ $json.author_id }}",
+              "type": "string"
+            },
+            {
+              "id": "a05772cc-35e1-45d0-9bd1-d02b87be9264",
+              "name": "content",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "b21440aa-0307-4938-93e3-512d714ec67c",
+              "name": "source",
+              "value": "x",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        -32
+      ],
+      "id": "3f76452b-cb87-42a2-9966-34edc2bcb53f",
+      "name": "Transform: Twitter Message Format"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "326d65f3-6f54-4646-bffb-a5fe28ac41d1",
+              "name": "author-username",
+              "value": "={{ $json.author }}",
+              "type": "string"
+            },
+            {
+              "id": "a05772cc-35e1-45d0-9bd1-d02b87be9264",
+              "name": "content",
+              "value": "={{ $json.title }}\n{{ $json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "b21440aa-0307-4938-93e3-512d714ec67c",
+              "name": "source",
+              "value": "app-store",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        160
+      ],
+      "id": "4db7b672-715a-45e9-b82c-aa110d45abcf",
+      "name": "Transform: App Store Review Format"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2ea3ef27-852c-4d47-9672-f70cf17df8b8",
+              "leftValue": "={{ $json.timestamp }}",
+              "rightValue": "={{ $now.minus({ day: 60 }) }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "after"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        -224
+      ],
+      "id": "52561f99-9481-422e-821a-d77aeb156610",
+      "name": "Filter: Recent Discord Messages"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        704,
+        -48
+      ],
+      "id": "df2d9765-860a-408a-89f3-6437669fdfdd",
+      "name": "Merge: All Feedback Sources"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "GPT-5-NANO"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are an intelligent message classification assistant for a fintech AI company. Analyze the user message and classify it according to the following criteria, then assign it to the most appropriate team member.\n\nClassification Categories:\n- Priority Level:\n  - urgent: Critical issues affecting production, security vulnerabilities, complete system failures, data loss\n  - high: Major bugs affecting multiple users, broken core features, significant performance issues\n  - medium: Non-critical bugs, feature requests with business impact, important feedback\n  - low: Minor bugs, cosmetic issues, nice-to-have features, general inquiries\n\n- Message Type:\n  - bug: Something is broken or not working as expected\n  - feature_request: Request for new functionality or enhancement\n  - feedback: General comments, suggestions, or opinions about the product\n  - support: Questions, help requests, how-to inquiries, account issues\n\n- Sentiment:\n  - positive: Constructive, appreciative, satisfied tone\n  - negative: Frustrated, angry, disappointed tone\n  - neutral: Factual, objective tone without strong emotion\n\nTeam Members & Specializations:\n- ID: recEPyCFWG4Az8UUG, Name: Samantha Lin, Email: samantha.lin@xekhai942d.com, Role: Engineering - FE, Assigns To: UI bugs, frontend features, browser issues, visual problems\n- ID: recQEtPTZvwBcbLXL, Name: Marcus Rivera, Email: marcus.rivera@xekhai52ef.com, Role: QA Engineer, Assigns To: Test failures, regression issues, quality concerns, edge cases\n- ID: reclHgzxGgwmyRz7z, Name: Priya Desai, Email: priya.desai@xekhai78b7.com, Role: Product Management, Assigns To: Feature requests, product feedback, roadmap questions, general support\n- ID: recCoIqtWPDau0oQu, Name: Daniel Chen, Email: daniel.chen@xekhai2505.com, Role: Engineering - BE, Assigns To: API issues, database problems, server errors, performance issues, integrations\n- ID: reclZ6yN8z6kVRPjN, Name: Ava Thompson, Email: ava.thompson@xekhai62d7.com, Role: UI/UX Designer, Assigns To: Design feedback, UX issues, accessibility, user flow problems\n\nAssignment Logic:\n- Bugs: Assign based on the component (frontend \u2192 Samantha, backend \u2192 Daniel, design-related \u2192 Ava)\n- Feature Requests: Default to Priya (Product), unless it's clearly a design request \u2192 Ava\n- Feedback: Assign to Priya unless it's design-specific \u2192 Ava\n- Support: Assign to Priya for general support, or to specific engineer if technical\n- Quality/Testing issues: Always assign to Marcus\n\nResponse Format:\nReturn ONLY a valid JSON object with this exact structure (no markdown, no additional text):\n{\n  \"priority\": \"low|medium|high|urgent\",\n  \"type\": \"bug|feature_request|feedback|support\",\n  \"sentiment\": \"positive|negative|neutral\",\n  \"ticket_title\": \"Clear, concise title (max 80 characters)\",\n  \"ticket_description\": \"Detailed description with key information, steps to reproduce (for bugs, if provided in the message), or context\",\n  \"assigned_to\": {\n    \"id\": \"team_member_id\",\n    \"name\": \"Team Member Name\",\n    \"email\": \"email@domain.com\",\n    \"role\": \"Role Title\"\n  },\n  \"reasoning\": \"Brief explanation of why this classification and assignment was chosen\"\n}\n\nTitle Guidelines:\n- Keep it concise and descriptive (max 80 characters)\n- Start with action words for bugs: \"Fix\", \"Resolve\", \"Address\"\n- Start with \"Add\", \"Implement\", \"Create\" for features\n- Include the key component or area affected\n- Examples: \"Fix checkout button on mobile Chrome\", \"Add export to CSV feature\"\n\nDescription Guidelines:\n- For Bugs: Include what's broken, where it occurs, impact on users, and steps to reproduce if available\n- For Features: Describe the desired functionality, use case, and expected benefit\n- For Feedback: Summarize the main points and context\n- For Support: Clarify the user's question or issue and any relevant details\n\nExample Input/Output:\nInput: \"The checkout button doesn't work on mobile Chrome. I can't complete my purchase!\"\nOutput:\n{\n  \"priority\": \"high\",\n  \"type\": \"bug\",\n  \"sentiment\": \"negative\",\n  \"ticket_title\": \"Fix checkout button not working on mobile Chrome\",\n  \"ticket_description\": \"User reports that the checkout button is unresponsive on mobile Chrome browser, preventing purchase completion. This is a critical revenue-impacting issue affecting the checkout flow. The button appears to load but does not respond to tap/click events. Needs immediate investigation of mobile-specific frontend JavaScript and touch event handlers.\",\n  \"assigned_to\": {\n    \"id\": \"recEPyCFWG4Az8UUG\",\n    \"name\": \"Samantha Lin\",\n    \"email\": \"samantha.lin@xekhai942d.com\",\n    \"role\": \"Engineering - FE\"\n  },\n  \"reasoning\": \"Critical frontend bug affecting revenue on mobile platform, requires immediate attention from frontend engineer\"\n}\n\nNow analyze the following message:\n{{ $json.content }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "reasoning": {
+            "reasoningOptions": {
+              "effort": "low"
+            }
+          },
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        912,
+        -32
+      ],
+      "id": "1bd54a77-7d69-43b5-9f9f-3276d94b8c87",
+      "name": "AI: Classify & Route Feedback"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appCOVBScZ1NJeNzF",
+          "mode": "list",
+          "cachedResultName": "Support & Feedback Hub",
+          "cachedResultUrl": "https://airtable.com/appCOVBScZ1NJeNzF"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl5Noa0GPRn8uJTW",
+          "mode": "list",
+          "cachedResultName": "Tickets",
+          "cachedResultUrl": "https://airtable.com/appCOVBScZ1NJeNzF/tbl5Noa0GPRn8uJTW"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket Title": "={{ $json.output[0].content[0].text.ticket_title }}",
+            "Description": "={{ $json.output[0].content[0].text.ticket_description }}",
+            "Status": "Open",
+            "Priority": "={{ $json.output[0].content[0].text.priority }}",
+            "Type": "={{ $json.output[0].content[0].text.type }}",
+            "Assigned to": "={{ [$json.output[0].content[0].text.assigned_to.id] }}",
+            "Original Message": "={{ $('Merge: All Feedback Sources').item.json.content }}\n\nSource:\n{{ $('Merge: All Feedback Sources').item.json.source }}\n\nAuthor:\n{{ $('Merge: All Feedback Sources').item.json['author-username'] }}",
+            "Sentiment": "={{ $json.output[0].content[0].text.sentiment }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ticket Title",
+              "displayName": "Ticket Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Original Message",
+              "displayName": "Original Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Open",
+                  "value": "Open"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Resolved",
+                  "value": "Resolved"
+                },
+                {
+                  "name": "Closed",
+                  "value": "Closed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "low",
+                  "value": "low"
+                },
+                {
+                  "name": "medium",
+                  "value": "medium"
+                },
+                {
+                  "name": "high",
+                  "value": "high"
+                },
+                {
+                  "name": "urgent",
+                  "value": "urgent"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "bug",
+                  "value": "bug"
+                },
+                {
+                  "name": "feature_request",
+                  "value": "feature_request"
+                },
+                {
+                  "name": "feedback",
+                  "value": "feedback"
+                },
+                {
+                  "name": "support",
+                  "value": "support"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "positive",
+                  "value": "positive"
+                },
+                {
+                  "name": "negative",
+                  "value": "negative"
+                },
+                {
+                  "name": "neutral",
+                  "value": "neutral"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Assigned to",
+              "displayName": "Assigned to",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Submission Date",
+              "displayName": "Submission Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Resolution Notes",
+              "displayName": "Resolution Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1264,
+        -32
+      ],
+      "id": "825f17f1-2914-4d9d-bd5c-499e0099d048",
+      "name": "Airtable: Create Support Ticket",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "fields['Original Message']"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        -32
+      ],
+      "id": "eff2d494-6142-4f23-930a-807c1da828a4",
+      "name": "Aggregate: Feedback for Analysis"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "GPT-5-NANO"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=System: You are an expert product analyst specializing in user feedback analysis. Your task is to analyze aggregated user feedback from multiple sources and generate a comprehensive, well-structured report.\n\nInput Data Sources\nThe feedback data includes information from:\n- Support Tickets: Direct customer service inquiries and issues\n- Discord: Community discussions and real-time user reactions\n- Twitter: Public sentiment and viral issues\n- App Store Reviews: Ratings and structured feedback from iOS/Android users\n\nReport Structure\n\nGenerate a comprehensive report in JSON format. Use each of the following report section headers as JSON object keys, with the analyzed content as the corresponding values. Each value must be plain text (string), not an array or object:\n\n- Executive Summary\n- Sentiment Overview\n- Topic Analysis\n- Feature Request Priority Matrix\n- Positive Highlights\n\nIn each section, include the same information as previously described under each heading (e.g., bullet points, percentages, key findings, quotes, etc.), aggregated and summarized per previous instructions. However, all content must be formatted as plain text for each section; do not use arrays or lists in the output, only text.\n\nOutput Requirements\n\n- AGGREGATE and SUMMARIZE: Do NOT list every individual piece of feedback\n- Group similar feedback items together and report counts/patterns\n- Extract only the most representative 2-3 quotes per major theme (presented in text, not arrays)\n- Focus on trends, patterns, and insights rather than exhaustive lists\n- Use percentages and statistics instead of listing individual items\n- Be specific and data-driven with aggregated numbers (e.g., \"23% of users mentioned...\", \"15 users requested...\")\n- Include only 2-3 representative user quotes per section (sanitized of personal info), integrated into the text\n- Maintain an objective, analytical tone\n- Provide actionable insights with strategic recommendations\n- Keep the report concise and executive-friendly (aim for 2-4 pages if converted to text)\n- Ensure the JSON report is ready to share with stakeholders without requiring further editing\n\nRespond with only the JSON report. No markdown tags and no extra text. Output must only contain text, not arrays or lists, for each JSON value.\n\nExample JSON Report:\n\n{\n  \"Executive Summary\": \"The product is generally well-received but latency issues and requests for more customization are common themes.\",\n  \"Sentiment Overview\": \"Overall sentiment was 68% positive, 23% negative, and 9% neutral. Users commented, 'Love the new interface\\u2014so much easier to use!', and also noted, 'Performance could be improved, as some features are laggy.' Another user said, 'Overall happy but would like more control over notifications.'\",\n  \"Topic Analysis\": \"Performance was mentioned in 35% of feedback (53 mentions), with comments such as 'Loading times have improved but still not ideal.' and 'Lag spikes occur when switching tabs.' Customization was cited by 20% (31 mentions), for example, 'Would love to see more theme options!'\",\n  \"Feature Request Priority Matrix\": \"High priority was given to advanced filters (15 requests), followed by faster onboarding (10 requests, medium priority).\",\n  \"Positive Highlights\": \"Users frequently mentioned the fast and helpful support team, consistent updates with new features, and the user-friendly onboarding flow.\"\n}\n\n{{ $json.fields['Original Message'] }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        1728,
+        -32
+      ],
+      "id": "f6921d96-7b97-4541-8e95-43e31229492e",
+      "name": "AI: Generate Analytics Report"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appCOVBScZ1NJeNzF",
+          "mode": "list",
+          "cachedResultName": "Support & Feedback Hub",
+          "cachedResultUrl": "https://airtable.com/appCOVBScZ1NJeNzF"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblcDBLmSI5wLffRP",
+          "mode": "list",
+          "cachedResultName": "Summaries",
+          "cachedResultUrl": "https://airtable.com/appCOVBScZ1NJeNzF/tblcDBLmSI5wLffRP"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Executive Summary": "={{ $json.output[0].content[0].text['Executive Summary'] }}",
+            "Sentiment Overview": "={{ $json.output[0].content[0].text['Sentiment Overview'] }}",
+            "Topic Analysis": "={{ $json.output[0].content[0].text['Topic Analysis'] }}",
+            "Feature Request": "={{ $json.output[0].content[0].text['Feature Request Priority Matrix'] }}",
+            "Highlights": "={{ $json.output[0].content[0].text['Positive Highlights'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Executive Summary",
+              "displayName": "Executive Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sentiment Overview",
+              "displayName": "Sentiment Overview",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Topic Analysis",
+              "displayName": "Topic Analysis",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Feature Request",
+              "displayName": "Feature Request",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Highlights",
+              "displayName": "Highlights",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Run Time",
+              "displayName": "Run Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2080,
+        -32
+      ],
+      "id": "2fef6b05-a5f1-42b3-89d4-fd26908da2e0",
+      "name": "Airtable: Save Summary Report"
+    },
+    {
+      "parameters": {
+        "content": "## Workflow Trigger & Configuration\nSets up the automation schedule",
+        "height": 704,
+        "width": 256,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -752,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "46b200cd-6af8-4418-b953-dfd3149ed0a4",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## App Store Review & Social Media Collection Pipeline \nFetches, parses, and filters recent App Store reviews\nGathers user feedback from Discord and Twitter/X platforms",
+        "height": 704,
+        "width": 1120,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "1995a893-92b4-4584-b3cb-8bf9d3945263",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Data Processing & AI Classification\nCombines all feedback sources and uses AI to categorize and route tickets",
+        "height": 704,
+        "width": 528,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        656,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "19c74118-ea51-4b92-b8aa-affafaf4fed4",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Ticket Management System\nCreates and manages support tickets in Airtable database",
+        "height": 704,
+        "width": 224,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "bbac15a3-e0a0-4bbe-a796-adca73da957f",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Analytics & Reporting\nAggregates data and generates comprehensive feedback analysis reports",
+        "height": 704,
+        "width": 816,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1440,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "7182aef2-d52d-4a9f-9293-541c205364a2",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Trigger: Every 2 Days": {
+      "main": [
+        [
+          {
+            "node": "Discord: Fetch Support Messages",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Twitter: Search Support Message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set: App Store Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: App Store Parameters": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Get App Store Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Get App Store Reviews": {
+      "main": [
+        [
+          {
+            "node": "Code: Parse Review Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Parse Review Data": {
+      "main": [
+        [
+          {
+            "node": "Filter: Recent Reviews (48h)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Recent Reviews (48h)": {
+      "main": [
+        [
+          {
+            "node": "Transform: App Store Review Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord: Fetch Support Messages": {
+      "main": [
+        [
+          {
+            "node": "Transform: Discord Message Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twitter: Search Support Message": {
+      "main": [
+        [
+          {
+            "node": "Transform: Twitter Message Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform: Discord Message Format": {
+      "main": [
+        [
+          {
+            "node": "Filter: Recent Discord Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform: Twitter Message Format": {
+      "main": [
+        [
+          {
+            "node": "Merge: All Feedback Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Transform: App Store Review Format": {
+      "main": [
+        [
+          {
+            "node": "Merge: All Feedback Sources",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Filter: Recent Discord Messages": {
+      "main": [
+        [
+          {
+            "node": "Merge: All Feedback Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: All Feedback Sources": {
+      "main": [
+        [
+          {
+            "node": "AI: Classify & Route Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Classify & Route Feedback": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Create Support Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Create Support Ticket": {
+      "main": [
+        [
+          {
+            "node": "Aggregate: Feedback for Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate: Feedback for Analysis": {
+      "main": [
+        [
+          {
+            "node": "AI: Generate Analytics Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Generate Analytics Report": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Save Summary Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8ef316cf-dad2-4c43-a363-c3306a9f4bcc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "65HZf6mCBO4Fe5E5",
+  "tags": []
+}

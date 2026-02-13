@@ -1,0 +1,921 @@
+{
+  "name": "The \"Pitch Deck\" Roaster",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 1. Ingestion & Text Analysis\nReceives the pitch deck, uploads it to Gemini, and generates the cynical text-based critique JSON.",
+        "height": 300,
+        "width": 1866,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2976,
+        -64
+      ],
+      "id": "c7cf94a6-469d-4279-a716-4e91bd99d95a",
+      "name": "Note: Text Analysis"
+    },
+    {
+      "parameters": {
+        "content": "## 2. PDF Deconstruction\nConverts the original PDF into individual JPG images so the AI can visually annotate them.",
+        "height": 324,
+        "width": 1552,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3296,
+        -416
+      ],
+      "id": "63b5fc5b-9e78-423b-84b7-11f9927049f7",
+      "name": "Note: Deconstruction"
+    },
+    {
+      "parameters": {
+        "content": "## 3. The \"Red Pen\" Loop\nMerges the text critique with the slide images. \nIterates through each slide and uses Gemini Vision to draw red marker corrections.",
+        "height": 350,
+        "width": 1148,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4880,
+        -112
+      ],
+      "id": "4b5b0da8-b4f7-43e8-9abf-df5308b59d31",
+      "name": "Note: Annotation Loop"
+    },
+    {
+      "parameters": {
+        "content": "## 4. Reassembly & Output\nCollects all annotated images, compiles them back into a single PDF, and returns the download link.",
+        "height": 350,
+        "width": 2128,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        6048,
+        -112
+      ],
+      "id": "fab7e0cb-24ea-4cbb-847b-9152fd07436d",
+      "name": "Note: Reassembly"
+    },
+    {
+      "parameters": {
+        "formTitle": "The \"Pitch Deck\" Roaster",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Upload Pitch Deck",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        3056,
+        32
+      ],
+      "id": "6108dc18-bdad-493f-987a-847447abb5aa",
+      "name": "Form Trigger (Receive PDF)",
+      "webhookId": "308ff61c-e68a-4c54-a5bf-d98ca94a48bc"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "inputType": "binary",
+        "binaryPropertyName": "Upload_Pitch_Deck"
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        3472,
+        32
+      ],
+      "id": "e71e73a5-0280-4310-8d3b-803913695837",
+      "name": "Gemini (Upload File)"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "redirect",
+        "redirectUrl": "={{ $json.webViewLink }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.3,
+      "position": [
+        7968,
+        16
+      ],
+      "id": "7df7b768-234f-47f6-b2d0-df868e18113e",
+      "name": "Form Response (Deliver Link)",
+      "webhookId": "86912d3d-bc18-4963-82c4-aaaa7b601360"
+    },
+    {
+      "parameters": {
+        "resource": "document",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "text": "=You are \"The Pitch Roaster,\" a cynical, high-stakes Silicon Valley Venture Capitalist.\n\nAnalyze the provided pitch deck. Your goal is to provide a single, comprehensive response that includes both an overall critique and specific feedback for each page.\n\n**CRITICAL OUTPUT INSTRUCTIONS:**\n1. Output a SINGLE valid JSON object.\n2. Do not use Markdown formatting (no ```json code blocks).\n3. Do not include any introductory or concluding text.\n4. Escape all newlines in the \"body\" string (use \\n).\n\n**REQUIRED JSON SCHEMA:**\n{\n  \"title\": \"[A short, punchy, humiliating headline for the deck]\",\n  \"body\": \"[Start with 2-3 sentences of brutal overall feedback. Then, include a section titled 'PAGE-BY-PAGE ANNOTATIONS:'. For every page in the PDF, list the page number and a specific 'Fix This' instruction (e.g., 'Page 3: Delete this graph, the Y-axis makes no sense.').]\"\n}",
+        "documentUrls": "={{ $json.fileUri }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        4064,
+        32
+      ],
+      "id": "c8274203-72f3-4d3b-8052-0a598ae6de26",
+      "name": "Gemini (Generate Text Critique)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b448212f-8f49-4bc4-b465-f22ba1efefcc",
+              "name": "content",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4704,
+        32
+      ],
+      "id": "26e2ebbd-5d6b-43b4-b0ed-cf9bc96f09ec",
+      "name": "Set (Extract JSON)",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdf.co/v1/pdf/convert/to/jpg",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.webContentLink }}"
+            },
+            {
+              "name": "async",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3584,
+        -320
+      ],
+      "id": "7cb269b2-db5c-4d3e-9472-bb85ba299f71",
+      "name": "PDF.co (Convert to JPG)"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "Upload_Pitch_Deck",
+        "name": "={{ $json['Upload Pitch Deck'].filename }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1zMaQRwKpdxCc-LBox7ps4YsDMFP0XKsu",
+          "mode": "list",
+          "cachedResultName": "The \"Pitch Deck\" Roaster",
+          "cachedResultUrl": "[https://drive.google.com/drive/folders/1zMaQRwKpdxCc-LBox7ps4YsDMFP0XKsu](https://drive.google.com/drive/folders/1zMaQRwKpdxCc-LBox7ps4YsDMFP0XKsu)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3360,
+        -320
+      ],
+      "id": "c6369100-3905-4700-818e-02571c07c4ad",
+      "name": "Drive (Backup Original)"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4480,
+        -320
+      ],
+      "id": "4c4cc56a-ffa8-4119-8b8f-12dbd83808d9",
+      "name": "PDF.co (Get JPG URLs)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4f40b270-a597-45fc-bf4f-341bc2b598f1",
+              "name": "data",
+              "value": "={{ $json.data }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4704,
+        -320
+      ],
+      "id": "6ea37785-e2f9-4a7d-b9ae-8b86be8c851b",
+      "name": "Set (Format JPG Data)"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4960,
+        16
+      ],
+      "id": "9ec67289-df6a-48b5-8357-96ef25a3e131",
+      "name": "Merge (Roast + Images)"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        5184,
+        16
+      ],
+      "id": "1d817e1a-0b96-478d-9584-60e57f55c4bd",
+      "name": "Loop (Per Slide)"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=You are the \"Red Pen\" visual editor completing the VC pitch deck roast.\n\nContext:\nBelow is the full textual roast of the pitch deck, which contains specific notes for various pages.\nRoast Title: {{ $('Merge (Roast + Images)').item.json.content.title }}\nRoast Body Summary & Page Notes: {{ $('Merge (Roast + Images)').item.json.content.body }}\n\nYour Task:\n1. Analyze the provided image, which is one single slide from the deck.\n2. Read through the 'PAGE-BY-PAGE ANNOTATIONS' section in the text above to find the specific critique that matches the content of this slide image.\n3. Visually annotate this image as if you are an angry VC using a thick red marker.\n4. Apply the specific feedback found in the text onto the image.\n    * Draw bright red circles or arrows pointing to the problematic areas mentioned in the critique (e.g., confusing charts, vague titles).\n    * Cross out bad content with big red 'X' marks.\n    * Write a short, punchy summary of the critique directly onto the slide in a red handwriting style.\n\nIf you cannot definitively match this slide image to a specific note in the text, draw a large red question mark across the center.",
+        "images": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        5632,
+        16
+      ],
+      "id": "055fdd15-5abd-4aea-855d-622d8af50f2c",
+      "name": "Gemini (Visual Red Pen)"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        5408,
+        16
+      ],
+      "id": "f6ea0591-1879-4ee6-9236-36448bef41af",
+      "name": "HTTP (Fetch Image)"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "edited",
+        "name": "={{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1zMaQRwKpdxCc-LBox7ps4YsDMFP0XKsu",
+          "mode": "list",
+          "cachedResultName": "The \"Pitch Deck\" Roaster",
+          "cachedResultUrl": "[https://drive.google.com/drive/folders/1zMaQRwKpdxCc-LBox7ps4YsDMFP0XKsu](https://drive.google.com/drive/folders/1zMaQRwKpdxCc-LBox7ps4YsDMFP0XKsu)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        5856,
+        16
+      ],
+      "id": "ebef9c63-0035-4647-b6f1-064d3c3b313f",
+      "name": "Drive (Save Annotated Slide)"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "webContentLink"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        6192,
+        16
+      ],
+      "id": "312a04b6-1695-402e-ac10-3d593a4e92ae",
+      "name": "Aggregate (Collect Slides)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdf.co/v1/pdf/convert/from/image",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.webContentLink.toString() }}"
+            },
+            {
+              "name": "async",
+              "value": "true"
+            },
+            {
+              "name": "expiration",
+              "value": "15"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        6416,
+        16
+      ],
+      "id": "d855564c-59f1-4d91-860d-e61cca927bd8",
+      "name": "PDF.co (Images to PDF)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdf.co/v1/job/check",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "jobid",
+              "value": "={{ $json.jobId }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4000,
+        -320
+      ],
+      "id": "240aa623-81ee-4ee4-abea-42873a3d496c",
+      "name": "PDF.co (Check Job Status)"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        6640,
+        16
+      ],
+      "id": "eb55d4d3-ad55-4d41-990f-68614c66e78f",
+      "name": "Wait (Compilation)",
+      "webhookId": "eb0b990a-452e-4f79-b667-a51ffbb1c4f8"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3808,
+        -320
+      ],
+      "id": "0717be18-53a2-4661-a612-56d345401d40",
+      "name": "Wait (Conversion)",
+      "webhookId": "eb0b990a-452e-4f79-b667-a51ffbb1c4f8"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8fe619fe-767a-413b-81fc-948741cc936b",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        4256,
+        -320
+      ],
+      "id": "2abb5e55-2431-4275-af67-c7c516d97554",
+      "name": "If (Conversion Success)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8fe619fe-767a-413b-81fc-948741cc936b",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        7088,
+        16
+      ],
+      "id": "0452832c-fc4f-4fbf-b575-b7f32e6f158e",
+      "name": "If (Compilation Success)"
+    },
+    {
+      "parameters": {
+        "name": "compiled",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1zMaQRwKpdxCc-LBox7ps4YsDMFP0XKsu",
+          "mode": "list",
+          "cachedResultName": "The \"Pitch Deck\" Roaster",
+          "cachedResultUrl": "[https://drive.google.com/drive/folders/1zMaQRwKpdxCc-LBox7ps4YsDMFP0XKsu](https://drive.google.com/drive/folders/1zMaQRwKpdxCc-LBox7ps4YsDMFP0XKsu)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        7664,
+        16
+      ],
+      "id": "525e4491-c706-4fe4-97a0-e47e5ddf2bd9",
+      "name": "Drive (Save Final Result)"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        7360,
+        16
+      ],
+      "id": "add9be49-2d44-4c8f-8ea3-5e72e49c8cc4",
+      "name": "PDF.co (Download Final PDF)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdf.co/v1/job/check",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "jobid",
+              "value": "={{ $json.jobId }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        6880,
+        16
+      ],
+      "id": "afcc9888-ee14-4162-985a-f80093093ec6",
+      "name": "PDF.co (Check Job Status)1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Form Trigger (Receive PDF)": {
+      "main": [
+        [
+          {
+            "node": "Drive (Backup Original)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gemini (Upload File)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (Upload File)": {
+      "main": [
+        [
+          {
+            "node": "Gemini (Generate Text Critique)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (Generate Text Critique)": {
+      "main": [
+        [
+          {
+            "node": "Set (Extract JSON)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set (Extract JSON)": {
+      "main": [
+        [
+          {
+            "node": "Merge (Roast + Images)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "PDF.co (Convert to JPG)": {
+      "main": [
+        [
+          {
+            "node": "Wait (Conversion)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drive (Backup Original)": {
+      "main": [
+        [
+          {
+            "node": "PDF.co (Convert to JPG)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF.co (Get JPG URLs)": {
+      "main": [
+        [
+          {
+            "node": "Set (Format JPG Data)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set (Format JPG Data)": {
+      "main": [
+        [
+          {
+            "node": "Merge (Roast + Images)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge (Roast + Images)": {
+      "main": [
+        [
+          {
+            "node": "Loop (Per Slide)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop (Per Slide)": {
+      "main": [
+        [
+          {
+            "node": "HTTP (Fetch Image)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP (Fetch Image)": {
+      "main": [
+        [
+          {
+            "node": "Gemini (Visual Red Pen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (Visual Red Pen)": {
+      "main": [
+        [
+          {
+            "node": "Drive (Save Annotated Slide)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drive (Save Annotated Slide)": {
+      "main": [
+        [
+          {
+            "node": "Aggregate (Collect Slides)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate (Collect Slides)": {
+      "main": [
+        [
+          {
+            "node": "PDF.co (Images to PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF.co (Images to PDF)": {
+      "main": [
+        [
+          {
+            "node": "Wait (Compilation)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (Compilation)": {
+      "main": [
+        [
+          {
+            "node": "PDF.co (Check Job Status)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (Conversion)": {
+      "main": [
+        [
+          {
+            "node": "PDF.co (Check Job Status)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF.co (Check Job Status)": {
+      "main": [
+        [
+          {
+            "node": "If (Conversion Success)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (Conversion Success)": {
+      "main": [
+        [
+          {
+            "node": "PDF.co (Get JPG URLs)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait (Conversion)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (Compilation Success)": {
+      "main": [
+        [
+          {
+            "node": "PDF.co (Download Final PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait (Compilation)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF.co (Download Final PDF)": {
+      "main": [
+        [
+          {
+            "node": "Drive (Save Final Result)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drive (Save Final Result)": {
+      "main": [
+        [
+          {
+            "node": "Form Response (Deliver Link)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF.co (Check Job Status)1": {
+      "main": [
+        [
+          {
+            "node": "If (Compilation Success)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "714d309f-63ab-46e4-a086-defdb129df82",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "BG9rsLQLDExyEs2x",
+  "tags": []
+}

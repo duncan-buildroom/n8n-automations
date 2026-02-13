@@ -1,0 +1,620 @@
+{
+  "name": "DONE - Slide Designer",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "### 1. User Input\nCollects the presentation topic and context from the user via a web form.",
+        "height": 320,
+        "width": 416,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -816,
+        -416
+      ],
+      "id": "b0b3568a-3dad-427f-95aa-128b7ac5095e",
+      "name": "Note - Input"
+    },
+    {
+      "parameters": {
+        "content": "### 2. AI Strategy & Structure\nUses LLMs to research the topic, define a visual theme, and draft the content for 6-10 minimalist slides.",
+        "height": 646,
+        "width": 452,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -416
+      ],
+      "id": "9406facf-1656-49d9-9777-3fef6c82de66",
+      "name": "Note - AI"
+    },
+    {
+      "parameters": {
+        "content": "### 3. Visual Generation\nSplits the text into individual slides and uses Gemini to generate a high-fidelity image for every slide.",
+        "height": 368,
+        "width": 704,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -416
+      ],
+      "id": "cf5ab1b0-e47c-414c-b8e1-4d67fb7627ba",
+      "name": "Note - Images"
+    },
+    {
+      "parameters": {
+        "content": "### 4. PDF Compilation\nCollects all generated images and sends them to PDF.co to be merged into a single document.",
+        "height": 368,
+        "width": 1356,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        800,
+        -416
+      ],
+      "id": "f705c98b-4ae4-4f81-b943-ff0f55ace7a5",
+      "name": "Note - PDF"
+    },
+    {
+      "parameters": {
+        "content": "### 5. Storage & Delivery\nSaves the finished deck to Google Drive and redirects the user to the download link.",
+        "height": 368,
+        "width": 450,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        -416
+      ],
+      "id": "9bd301af-c5e1-4112-89c0-a4bf33648e1a",
+      "name": "Note - Delivery"
+    },
+    {
+      "parameters": {
+        "formTitle": "What should the slide be about?",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Slide Topic & Context",
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -592,
+        -272
+      ],
+      "id": "bc79b967-4dda-4135-8b33-547395caf8a3",
+      "name": "Trigger: Topic Submission",
+      "webhookId": "aba2b4c1-006a-4a47-afce-b392ffa11159"
+    },
+    {
+      "parameters": {
+        "model": "perplexity/sonar-reasoning-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -144
+      ],
+      "id": "8ce54eef-a2a3-4275-8f6f-826095a99204",
+      "name": "Perplexity Reasoner"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a clean, impactful slide deck on this topic: {{ $json['Slide Topic & Context'] }}\n\nDESIGN PHASE (General Theme):\nDefine a minimal, modern visual direction:\n- Specify color palette (2-3 colors maximum)\n- Typography style (clean, bold, readable)\n- Visual mood (e.g., \"Airy minimalist with soft gradients\" or \"Bold modern with high contrast\")\n- Suggest visual elements: icons, illustrations, or photography style\n\nCONTENT PHASE (Slides):\nCreate 6-10 slides. Each slide should be MINIMAL:\n\nStructure:\n1. Title Slide - Bold headline only\n2. Problem - One sentence + one striking visual\n3. Key Insight 1 - One data point + source\n4. Key Insight 2 - One data point + source\n5. Key Insight 3 - One data point + source\n6. Solution - One clear benefit\n7. Impact - One powerful statistic\n8. Conclusion - One memorable call to action\n\nStrict Rules:\n- Maximum 3 bullet points per slide (prefer 1-2)\n- Maximum 10 words per bullet point\n- One key message per slide\n- Headlines: 5-8 words maximum\n- If you have more to say, create additional slides\n- Think: \"What's the ONE thing I want them to remember from this slide?\"\n\nExample of good slide content:\nTopic: \"Team Connection Drives Results\"\nContent: \n- 73% higher employee engagement (Gallup, 2024)\n- Stronger collaboration across departments\n- Retention improves by 40%\n\nNOT this (too much):\nTopic: \"The Business Case for Team Building\"\nContent:\n- Research shows that companies investing in team building see significant improvements across multiple metrics\n- Employee engagement increases substantially when teams connect\n- Studies indicate retention rates improve\n- Collaboration becomes more effective\n- [5 more bullets...]\n\nDeliver a deck that's visually striking, instantly clear, and unforgettable. Quality over quantity.",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an elite Lead Presentation Designer..."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -288,
+        -272
+      ],
+      "id": "b2f51546-d70a-44fe-8b4a-68525d38f87e",
+      "name": "Generate Slide Content"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"General Theme\": \"Dark blue...\",\n\t\"Slides\": [{\"topic\":\"\",\"content\":\"\"}]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -224,
+        -32
+      ],
+      "id": "3d3c5935-ea29-417d-bfe3-1b5b8c0f6d54",
+      "name": "Format as JSON"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -224,
+        80
+      ],
+      "id": "58f7883e-d901-4143-9ca4-129ed556fefd",
+      "name": "GPT-4o Mini (Parser)"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.Slides",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        144,
+        -272
+      ],
+      "id": "ced91427-74bd-4d2f-b9bd-dd339ecd3013",
+      "name": "Loop Through Slides"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "=models/gemini-3-pro-image-preview",
+          "mode": "id"
+        },
+        "prompt": "=You are an expert presentation slide designer creating complete, professional slides.\n\nContext: {{ $('Generate Slide Content').item.json.output['General Theme'] }}\n\nCreate a complete, high-quality presentation slide image that includes both visuals and text for:\n\nTopic: {{ $json.topic }}\nContent: {{ $json.content }}\n\nDesign Requirements:\n- Create a fully designed slide with the topic as the headline and content clearly displayed\n- Use modern, professional typography with excellent readability\n- Implement a clean visual hierarchy: large bold title, well-organized body content\n- Incorporate relevant background imagery, illustrations, or abstract graphics that enhance the message\n- Use complementary color schemes with high contrast between text and background\n- Apply professional design elements: subtle gradients, strategic use of whitespace, visual accents\n- Format content using bullet points, short paragraphs, or visual callouts as appropriate\n- Balance text and visuals - imagery should support, not overpower the content\n- Ensure all text is crisp, legible, and professionally formatted\n- Style should match corporate/business presentation standards\n- 16:9 aspect ratio, landscape orientation\n- Include visual elements like icons, shapes, or graphics that reinforce key points\n- The slide should look polished and ready to use immediately in a presentation\n- Maintain consistency with the overall theme throughout the design\n\nGenerate a complete, finished slide that combines compelling visuals with clearly presented text content - ready to be exported directly to PDF.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -272
+      ],
+      "id": "5fdbf68b-8e94-40fe-9ed9-699e2ee094ac",
+      "name": "Gemini: Visual Slide Creator"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "redirect",
+        "redirectUrl": "={{ $json.webViewLink }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.3,
+      "position": [
+        2464,
+        -272
+      ],
+      "id": "55cdfdcc-3371-44f7-a3f3-aeb612a9eb68",
+      "name": "Send User to Download",
+      "webhookId": "88a52cb1-ef89-49c9-a0f4-a650f4f4aae6"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "webContentLink"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        864,
+        -272
+      ],
+      "id": "0aa667bc-f721-4539-88a5-af7a9779ffa7",
+      "name": "Collect All Image Links"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1312,
+        -272
+      ],
+      "id": "91807e72-1466-4a59-9444-2e09744bc134",
+      "name": "Wait for Processing",
+      "webhookId": "496b5539-dcbc-4ac3-9f31-4938ceea14b5"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Trigger: Topic Submission').item.json['Slide Topic & Context'] }}",
+        "driveId": "My Drive",
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2240,
+        -272
+      ],
+      "id": "6c852547-1142-4a1e-89af-54021e1b3dc9",
+      "name": "Google Drive: Save PDF"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1984,
+        -272
+      ],
+      "id": "c697eb49-6d8d-4f89-82ee-25628ea64b78",
+      "name": "Download Finished File"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Loop Through Slides').item.json.topic }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1AsY9ifNUC1wjqAxx4wYu7leffCfpcwj3",
+          "mode": "list",
+          "cachedResultName": "Deck Maker",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1AsY9ifNUC1wjqAxx4wYu7leffCfpcwj3"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        608,
+        -272
+      ],
+      "id": "93749a7b-decb-4d68-985a-20efe2762988",
+      "name": "Google Drive: Save Temp Images"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdf.co/v1/pdf/convert/from/image",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.webContentLink.toString() }}"
+            },
+            {
+              "name": "async",
+              "value": "true"
+            },
+            {
+              "name": "expiration",
+              "value": "15"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1072,
+        -272
+      ],
+      "id": "36108d71-2a2e-4702-8bfd-baa4b9c0f1a5",
+      "name": "PDF.co (Images to PDF)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdf.co/v1/job/check",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "jobid",
+              "value": "={{ $json.jobId }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1520,
+        -320
+      ],
+      "id": "c53dcb69-d254-450a-8b8d-2e3ad3be1b08",
+      "name": "PDF.co (Check Job Status)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8fe619fe-767a-413b-81fc-948741cc936b",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1776,
+        -256
+      ],
+      "id": "a3dfd66e-91ab-4d93-9d4c-22e9999c6061",
+      "name": "If (Compilation Success)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Trigger: Topic Submission": {
+      "main": [
+        [
+          {
+            "node": "Generate Slide Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity Reasoner": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Slide Content",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Slide Content": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Slides",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format as JSON": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Slide Content",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-4o Mini (Parser)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Format as JSON",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Through Slides": {
+      "main": [
+        [
+          {
+            "node": "Gemini: Visual Slide Creator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect All Image Links": {
+      "main": [
+        [
+          {
+            "node": "PDF.co (Images to PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Processing": {
+      "main": [
+        [
+          {
+            "node": "PDF.co (Check Job Status)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: Save PDF": {
+      "main": [
+        [
+          {
+            "node": "Send User to Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Finished File": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: Save PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: Visual Slide Creator": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: Save Temp Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: Save Temp Images": {
+      "main": [
+        [
+          {
+            "node": "Collect All Image Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF.co (Images to PDF)": {
+      "main": [
+        [
+          {
+            "node": "Wait for Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF.co (Check Job Status)": {
+      "main": [
+        [
+          {
+            "node": "If (Compilation Success)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (Compilation Success)": {
+      "main": [
+        [
+          {
+            "node": "Download Finished File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1b0f5440-4ff6-4ea4-bb6f-37015157fc2b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "PMc5qB5l58Ml31gi",
+  "tags": []
+}

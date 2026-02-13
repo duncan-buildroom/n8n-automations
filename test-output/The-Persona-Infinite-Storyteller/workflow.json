@@ -1,0 +1,1477 @@
+{
+  "name": "The \"Persona\" Infinite Storyteller",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "get",
+        "subreddit": "={{ $json.subreddit }}",
+        "postId": "={{ $json.postId }}"
+      },
+      "type": "n8n-nodes-base.reddit",
+      "typeVersion": 1,
+      "position": [
+        176,
+        -112
+      ],
+      "id": "0df53e0a-74b1-451d-8b70-4af5529c8b8c",
+      "name": "Get a post"
+    },
+    {
+      "parameters": {
+        "formTitle": "Enter Reddit post URL",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Reddit Post",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -272,
+        -112
+      ],
+      "id": "487d7627-0333-46db-880d-a5b85a363cbd",
+      "name": "On form submission",
+      "webhookId": "3d846431-9a1f-4553-a875-07445759bb39"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst updatedItems = items.map((item) => {\n  const url = item?.json[\"Reddit Post\"];\n  const regex = /r\\/([^\\/]+)\\/comments\\/([^\\/]+)/;\n  const match = url.match(regex);\n  if (match) {\n    return {\n      json: { subreddit: match[1], postId: match[2] },\n      pairedItem: item.pairedItem,\n    };\n  } else {\n    return {\n      json: { error: \"Invalid Reddit URL\" },\n      pairedItem: item.pairedItem,\n    };\n  }\n});\nreturn updatedItems;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        -112
+      ],
+      "id": "d4408eab-9e85-4769-ad10-87f0bea9c0d5",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research Topic: {{ $json.title }}\nReddit Link: {{ $('On form submission').item.json['Reddit Post'] }}\n\n1. Find out why this is trending on reddit\n2. Verify the facts using credible sources.\n3. Write the Full Story. Do not summarize it. Write the actual article.\n4. List the source URLs used.\n\nOutput ONLY valid JSON matching the schema provided.",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "==You are a Viral Scriptwriter and Investigative Journalist. You are writing for a high-retention \"Faceless\" video persona.\n\nYOUR MISSION:\n1. RESEARCH: Search the internet/Reddit for the specific trending story related to: {{ $json.title }}\n2. VERIFY: Ensure the details are accurate (or clearly labeled as a viral saga).\n3. DRAMATIZE: Write a 60-second script (approx. 160-190 words).\n\nSCRIPT RULES (CRITICAL):\n- NO INTROS: Do not say \"In this story\" or \"Today I found.\" Start *in the action*.\n- THE HOOK: The first sentence must stop the scroll (e.g., \"She thought it was just a bad gift, but it was actually a warning sign.\")\n- SENTENCE STRUCTURE: Short, punchy sentences. varying rhythm. Designed for text-to-speech.\n- TONE: Empathetic, slightly dramatic, authoritative.\n- ENDING: End with a lingering question or a philosophical mic-drop.\n- Do Not refer to youself in first person in any of the out fields\n\nOUTPUT FORMAT (JSON ONLY):\nReturn valid JSON with this exact structure:\n{\n  \"headline\": \"A clickbait-style 5-word title\",\n  \"event_date\": \"Month Year\",\n  \"virality_hook\": \"The psychological trigger (e.g., 'Betrayal', 'Karma', 'Glitch in Matrix')\",\n  \"narrative_script\": \"THE SCRIPT. It was Christmas morning and the house was silent... [Continue story in first-person or third-person omniscient. No scene directions in this text, just the spoken words.]\",\n  \"source_links\": [\"url1\", \"url2\"]\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        432,
+        -112
+      ],
+      "id": "8508ed64-d9b9-4cdf-9e8d-74201be5e8fd",
+      "name": "LLM: Generate Full Story"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        608,
+        336
+      ],
+      "id": "8c7ab315-50c9-4ef7-8456-1cc90c4b9ef0",
+      "name": "OpenRouter Chat Model1"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"headline\": \"A clickbait-style 5-word title\",\n  \"event_date\": \"Month Year\",\n  \"virality_hook\": \"The psychological trigger (e.g., 'Betrayal', 'Karma', 'Glitch in Matrix')\",\n  \"narrative_script\": \"THE SCRIPT. It was Christmas morning and the house was silent... [Continue story in first-person or third-person omniscient. No scene directions in this text, just the spoken words.]\",\n  \"source_links\": [\"url1\", \"url2\"]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        128
+      ],
+      "id": "81f55c2c-462f-408d-bc1a-d0a305b3c870",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "perplexity/sonar-pro-search",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        400,
+        128
+      ],
+      "id": "3adef48b-e817-4638-97a5-628d5d7e14c9",
+      "name": "OpenRouter Chat Model"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an Expert AI Video Director and Gen-Z Storyteller.\n\nINPUT DATA:\nHeadline: {{ $json.output.headline }}\nContext: {{ $json.output.virality_hook }}\nFull Script: {{ $json.output.narrative_script }}\n\nYOUR MISSION:\nAdapt the \"Full Script\" above into a viral story consisting of EXACTLY 12 sequential scenes. You must rephrase the input text to fit a \"Gen-Z/Bestie\" persona (natural, casual, high-energy) while keeping the facts accurate.\n\nSTRICT CONSTRAINTS:\n\n1. SCENE COUNT (CRITICAL):\n   - You MUST generate EXACTLY 12 scenes. No more, no less.\n   - Pacing Strategy: \n     - Scene 1: The Hook.\n     - Scenes 2-10: The Story (break it down into small, punchy updates).\n     - Scene 11: The Climax/Result.\n     - Scene 12: The Kicker/Reaction.\n\n2. TONE & DELIVERY (GEN-Z VIBE):\n   - The vibe is \"FaceTime with a best friend.\" It should sound improvised, not read from a teleprompter.\n   - THE HOOK (Scene 1): Must be a scroll-stopper (e.g., \"Sit down, you need to hear this,\" or \"I am literally shaking right now.\").\n   - LANGUAGE: Use casual transitions (e.g., \"So get this,\" \"And then literally,\" \"Wait for it\").\n   - CONTINUITY: Use pronouns to link scenes naturally.\n\n3. WORD COUNT & GRAMMAR:\n   - SPOKEN TEXT: Roughly 10-17 words per scene.\n   - GRAMMAR: Each scene must be a complete grammatical unit ending in punctuation. DO NOT split a sentence in half across two scenes.\n\n4. VISUAL COMPOSITION (THE STORYTELLER):\n   - FOREGROUND CHARACTER: Refer to her as \"The storyteller (natural woman in her 20s).\"\n   - APPEARANCE: She should look like a real person, not a glammed-up model. Casual hair, minimal/natural makeup, relatable style.\n   - STARTING POSE: Every `image_prompt` MUST define a specific pose matching the conversational beat (e.g., \"leaning in to whisper,\" \"sipping an iced matcha,\" \"fixing her hair,\" \"holding phone up high\").\n\n5. VIDEO PROMPTS (DYNAMIC MOTION):\n   - STYLE: \"Handheld camera\" or \"Selfie mode\" feel.\n   - ACTION: The storyteller must be moving. Describe gestures like \"talking with hands,\" \"covering mouth in shock,\" or \"walking while talking.\"\n   - BACKGROUND: A vivid visual representation of the story context (set behind her).\n\nOUTPUT FORMAT (JSON ONLY - NO MARKDOWN):\n{scenes : [\n  {\n    \"scene_number\": 1,\n    \"spoken_text\": \"The rephrased Gen-Z script for this scene (max 17 words).\",\n    \"image_prompt\": \"Foreground: The storyteller (natural woman in her 20s) is [specific starting pose, e.g., extremely close to lens, eyes wide], looking at camera. Background: [Detailed description of the story context], depth of field, cinematic lighting, 8k.\",\n    \"video_prompt\": \"Handheld selfie shot. The storyteller [dynamic action, e.g., looks around nervously then whispers] while speaking. In the background, [describe the story action happening behind her], high fidelity.\"\n  }\n]}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {
+          "temperature": 1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        -112
+      ],
+      "id": "c269f1d9-07e4-445b-85be-aef6cdd64f9b",
+      "name": "Message a model"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3015f6de-06cf-4758-b403-1e234d16523e",
+              "name": "Scenes",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1248,
+        -112
+      ],
+      "id": "50ec0e63-396d-4d23-92b9-d6cced6a495c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "Scenes.scenes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        -112
+      ],
+      "id": "bccdac86-5729-47c1-85ed-8b0b3191a3a3",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1904,
+        304
+      ],
+      "id": "9dafc867-d494-44d9-ae03-4d3723d29877",
+      "name": "Wait: Image Gen2",
+      "webhookId": "6462057b-6ff3-496c-ac2b-5b861fef6c61"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2128,
+        224
+      ],
+      "id": "d6aa1fb8-8dde-4eaa-b03e-f1cc77bf8604",
+      "name": "API: Check Image Status2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b625e6ed-e264-484f-908a-be3d08e74196",
+              "leftValue": "={{ $json.allDone }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2576,
+        224
+      ],
+      "id": "b2e4af15-535e-4655-aba4-de798b0f2674",
+      "name": "If: Images Ready?2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst allDone = items.every((item) => item?.json?.data?.state === \"success\");\nconst resultJsons = items.map((item) => item?.json?.data?.resultJson);\nconst taskIds = items.map((item) => item?.json?.data?.taskId);\n\nconst result = allDone\n  ? { \n      allDone, \n      data: { \n          // Changed .map() to .flatMap() to merge the arrays into one list of strings\n          resultJson: resultJsons.flatMap(json => JSON.parse(json).resultUrls) \n      } \n    }\n  : { allDone, data: { taskId: taskIds } };\n\nreturn [{ json: result }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2352,
+        224
+      ],
+      "id": "cbbe822e-377e-49cf-b8b7-9cdc2b256fdc",
+      "name": "Code: Check Image Completion1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data.taskId",
+        "options": {
+          "destinationFieldName": "data.taskId"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2800,
+        304
+      ],
+      "id": "40e89799-0f1a-450d-b9e9-5022a5fe8071",
+      "name": "Split: Retry Image Tasks1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f65576b1-d6a7-414d-8124-8730566ec66f",
+              "name": "data",
+              "value": "={taskId:\"{{ $json['data.taskId'] }}\"}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3024,
+        304
+      ],
+      "id": "70d9e4a6-1f80-4938-90ed-ea40b7878eb7",
+      "name": "Set: Prep Image Loop1"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "video_prompt"
+            },
+            {
+              "fieldToAggregate": "spoken_text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        -112
+      ],
+      "id": "bba0da38-e3a8-4e61-a3c5-25a0297a9dfa",
+      "name": "Aggregate: Video Prompts"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2816,
+        -96
+      ],
+      "id": "e4cb2486-556e-42c7-ae76-426665449ebc",
+      "name": "Merge: Images + Prompts"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Access the incoming data from the first item\nconst inputData = items[0].json;\n\n// 1. Get the array of images (located inside data.resultJson)\n// Ensure this path is still correct for your data\nconst images = inputData.data.resultJson || [];\n\n// 2. Get the array of prompts (located at the root level)\nconst prompts = inputData.video_prompt || [];\n\n// === NEW SECTION ===\n// 3. Get the array of spoken text\n// IMPORTANT: Replace 'spoken_text_array' below with the exact key name\n// found in your incoming inputData. E.g., it might be inputData.voiceover or inputData.data.text\nconst spokenTexts = inputData.spoken_text || [];\n// ===================\n\n\n// 4. Combine them by mapping over the images (the primary data source)\nreturn images.map((imageUrl, index) => {\n  return {\n    json: {\n      image_url: imageUrl,\n\n      // Match the prompt by index. Fallback if array is shorter than images array.\n      video_prompt: prompts[index] || \"No prompt available\",\n\n      // === NEW OUTPUT ===\n      // Match the spoken text by index. Fallback if array is shorter than images array.\n      spoken_text: spokenTexts[index] || \"No spoken text available\"\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3136,
+        -96
+      ],
+      "id": "943956b7-3118-498f-bb4f-45cb6d3a820c",
+      "name": "Code: Match Images to Prompts"
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3776,
+        -96
+      ],
+      "id": "7db7f464-6199-40ee-9d87-ea62e6ea0980",
+      "name": "Wait: Video Gen1",
+      "webhookId": "21c34d4b-279b-4e4b-b5fc-50f919e0d891"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/veo/record-info",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3776,
+        -672
+      ],
+      "id": "563a9e09-0763-4476-b13e-a8b2ec5ad9cc",
+      "name": "API: Check Video Status1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b625e6ed-e264-484f-908a-be3d08e74196",
+              "leftValue": "={{ $json.allDone }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4176,
+        -368
+      ],
+      "id": "ea39eee6-faea-432e-800f-492e57b4a5b5",
+      "name": "If: Videos Ready?1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Check if every item has successFlag === 1 (Success)\nconst allDone = items.every((item) => item?.json?.data?.successFlag === 1);\n\n// Extract Task IDs for the \"not done\" state\nconst taskIds = items.map((item) => item?.json?.data?.taskId);\n\nconst result = allDone\n  ? { \n      allDone, \n      data: { \n          // Access the array directly at data.response.resultUrls\n          // Using flatMap to merge arrays if multiple items exist\n          resultJson: items.flatMap(item => item?.json?.data?.response?.resultUrls || []) \n      } \n    }\n  : { \n      allDone, \n      data: { taskId: taskIds } \n    };\n\nreturn [{ json: result }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3776,
+        -368
+      ],
+      "id": "25db9a6d-144c-4891-b2e3-688741a9adb2",
+      "name": "Code: Check Video Completion1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data.taskId",
+        "options": {
+          "destinationFieldName": "data.taskId"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        4752,
+        -96
+      ],
+      "id": "500a8ba9-aa81-4e1b-9636-31d5c03565fc",
+      "name": "Split: Retry Video Tasks1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f65576b1-d6a7-414d-8124-8730566ec66f",
+              "name": "data",
+              "value": "={taskId:\"{{ $json['data.taskId'] }}\"}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4944,
+        -96
+      ],
+      "id": "8dac9c2c-ce7d-45c8-a0e6-77ce57513993",
+      "name": "Set: Prep Video Loop1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/veo/generate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": \"{{ $json.video_prompt }}. AUDIO INSTRUCTIONS: Insert about 1 second of silence/room tone before speech begins. Voice should be female, cool, detached, low-pitch, authoritative, and slightly raspy. DYNAMIC SFX: Analyze the spoken text and generate subtle cinematic sound effects that match the topic (e.g., ominous low drones for warnings, digital glitches for tech, cold silence for facts). RESTRICTIONS: No music, no melodies, only atmospheric sound design. Saying: '{{ $json.spoken_text }}'\",\n  \"imageUrls\": [\"{{ $json.image_url }}\"],\n  \"model\": \"veo3_fast\",\n  \"aspect_ratio\": \"9:16\",\n  \"seeds\": 12345,\n  \"enableFallback\": false,\n  \"enableTranslation\": true,\n  \"generationType\": \"REFERENCE_2_VIDEO\"\n}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 10,
+              "batchInterval": 2500
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3776,
+        -864
+      ],
+      "id": "53b0c220-f6c8-4ab0-a0b7-e64905f371fe",
+      "name": "API: Create Video"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.creatomate.com/v2/renders",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"template_id\": \"e0306b16-38f3-4e8d-b882-36c304e5027f\",\n  \"modifications\": {\n    \"Video-Q9Z1.source\": \"{{ $json.data.resultJson[0] }}\",\n    \"Video-Q9Z1-JFB.source\": \"{{ $json.data.resultJson[1] }}\",\n    \"Video-Q9Z1-LXD.source\": \"{{ $json.data.resultJson[2] }}\",\n    \"Video-Q9Z1-2MN.source\": \"{{ $json.data.resultJson[3] }}\",\n    \"Video-Q9Z1-57D.source\": \"{{ $json.data.resultJson[4] }}\",\n    \"Video-Q9Z1-FTZ.source\": \"{{ $json.data.resultJson[5] }}\",\n    \"Video-Q9Z1-NLT.source\": \"{{ $json.data.resultJson[6] }}\",\n    \"Video-Q9Z1-QPJ.source\": \"{{ $json.data.resultJson[7] }}\",\n    \"Video-Q9Z1-2BJ.source\": \"{{ $json.data.resultJson[8] }}\",\n    \"Video-Q9Z1-4S9.source\": \"{{ $json.data.resultJson[9] }}\",\n    \"Video-Q9Z1-ZLT.source\": \"{{ $json.data.resultJson[10] }}\",\n    \"Video-Q9Z1-JKP.source\": \"{{ $json.data.resultJson[11] }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4976,
+        -336
+      ],
+      "id": "447fcc40-57eb-427f-a611-6d528a150059",
+      "name": "API: Render Final Video1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "47f960bc-72f7-4426-95de-89335536b607",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "succeeded"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "succeeded"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "0887a3d0-4f56-4586-97de-e0c42c9fabc5",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "failed"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "failed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "0facf4d6-acb0-4863-ac2d-7a78f9e9cbfe",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "(planned|transcribing|waiting|rendering)"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "being processed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b9bdf3d9-fbd1-4274-8950-c28d4a6fe397",
+      "name": "Switch: Is Render Done?1",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        5632,
+        -352
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "id": "1817e903-4d94-4281-9c9a-1c0da91c00f2",
+      "name": "Wait: Rendering1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        5184,
+        -336
+      ],
+      "webhookId": "99e5dc8b-aca6-4a71-a0a8-3ed3e91376a6",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "url": "=https://api.creatomate.com/v2/renders/{{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "9ec019da-d699-4374-9108-50e5e17f9775",
+      "name": "API: Check Render Status1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        5408,
+        -336
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        5968,
+        -368
+      ],
+      "id": "0301e220-9550-4be6-b906-f0bc24980007",
+      "name": "HTTP: Download MP"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nano-banana-pro\",\n  \"input\": {\n \"prompt\": \"A medium close-up of the young lady storyteller (based strictly on image_input reference) positioned in the sharp foreground looking at camera while presenting the dynamic scene happening behind her where the background action is {{ $json.image_prompt }}, featuring shallow depth of field with focus on the storyteller and dramatic lighting from the background action realistically rim-lighting her figure to integrate her naturally into the environment, cinematic 8k.\",\n\"image_input\": [\"https://lh3.googleusercontent.com/d/13mAtBQy6aia5fdpmkbseNr0BPUHtqBnV\"],\n    \"image_size\": \"9:16\",\n    \"resolution\": \"1K\",\n    \"output_format\": \"png\"\n  }\n}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 2500
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1712,
+        304
+      ],
+      "id": "7a124421-b937-412c-abd8-635ac4962fc2",
+      "name": "API: Start Image Gen : Main Character Scenes1"
+    },
+    {
+      "parameters": {
+        "name": "={{ $now.toLocaleString()}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1z-OQx2CTNOuTw762BWyhM9V4y47z-uQh",
+          "mode": "list",
+          "cachedResultName": "Completed \"Persona\" Infinite Storyteller",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1z-OQx2CTNOuTw762BWyhM9V4y47z-uQh"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        6176,
+        -368
+      ],
+      "id": "5d477da7-e0b8-45d0-ae18-300c814e3ef4",
+      "name": "Upload file"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"bytedance/seedance-1.5-pro\",\n  \"input\": {\n    \"prompt\": \"{{ $json.video_prompt }}. AUDIO INSTRUCTIONS: Start speech immediately with no delay. Voice should be female (20s), energetic, casual, and highly expressive. Use natural inflections, slightly faster pacing, and vary the pitch like a friend sharing exciting news on FaceTime. Insert 0.5 seconds of natural room tone/silence AFTER the speech ends to ensure a clean edit. DYNAMIC SFX: Analyze the visual context and add subtle REALISTIC ambience (e.g., distant city noise, quiet room tone, cafe chatter). Avoid heavy cinematic drones; prioritize naturalism. Saying: '{{ $json.spoken_text }}'\",\n    \"input_urls\": [\n      \"{{ $json.image_url }}\"\n    ],\n    \"aspect_ratio\": \"9:16\",\n    \"resolution\": \"480p\",\n    \"duration\": \"8\",\n    \"generate_audio\": true\n  }\n}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 10,
+              "batchInterval": 2500
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3520,
+        -96
+      ],
+      "id": "fd17f60c-75fc-4319-a51c-b2d17493b169",
+      "name": "API: Create Video1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"model\": \"grok-imagine/image-to-video\",\n\"input\": {\n  \"prompt\": \"{{ $json.video_prompt }}. AUDIO INSTRUCTIONS: Insert about 1 second of silence/room tone before speech begins. Voice should be female, cool, detached, low-pitch, authoritative, and slightly raspy. DYNAMIC SFX: Analyze the spoken text and generate subtle cinematic sound effects that match the topic (e.g., ominous low drones for warnings, digital glitches for tech, cold silence for facts). RESTRICTIONS: No music, no melodies, only atmospheric sound design. Saying: '{{ $json.spoken_text }}'\",\n  \"image_urls\": [\n    \"{{ $json.image_url }}\"\n  ],\n  \"index\": 0,\n  \"mode\": \"normal\"\n}\n}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 10,
+              "batchInterval": 2500
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3520,
+        -256
+      ],
+      "id": "6a678e53-7ef8-41a4-821c-fe144ab9f9c8",
+      "name": "API: Create Video2"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4016,
+        -96
+      ],
+      "id": "d3ec33a4-a3f0-4a70-bcce-fd3c59ea7823",
+      "name": "API: Check Video Status"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// 1. Check if everything is successful\nconst allDone = items.every((item) => item?.json?.data?.state === \"success\");\n\n// 2. Check if at least one has explicitly failed\nconst anyFailed = items.some((item) => item?.json?.data?.state === \"fail\");\n\nconst resultJsons = items.map((item) => item?.json?.data?.resultJson);\nconst taskIds = items.map((item) => item?.json?.data?.taskId);\n\nlet result;\n\nif (anyFailed) {\n  // Return a fail object if any item has state === \"fail\"\n  result = {\n    status: \"error\",\n    message: \"One or more tasks failed\",\n    data: { taskId: taskIds }\n  };\n} else if (allDone) {\n  // All successful\n  result = { \n    allDone, \n    data: { \n      resultJson: resultJsons.flatMap(json => JSON.parse(json).resultUrls) \n    } \n  };\n} else {\n  // Still in progress (none failed, but not all are success yet)\n  result = { allDone: false, data: { taskId: taskIds } };\n}\n\nreturn [{ json: result }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4240,
+        -96
+      ],
+      "id": "3f656922-dabb-4a18-a3f3-0b5a7ac8cb73",
+      "name": "Code: Check Video Completion"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "25823e82-3191-4b92-aa92-e74c9e8cd33c",
+                    "leftValue": "={{ $json.allDone }}",
+                    "rightValue": false,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "bcd14dc5-21e9-4392-a7af-0412014ad078",
+                    "leftValue": "={{ $json.allDone }}",
+                    "rightValue": false,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "error",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "23b1d715-b606-47d1-bec3-a18c2b500522"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        4448,
+        -112
+      ],
+      "id": "e7c15b27-e203-497f-bc34-0d7734f4a3bb",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.creatomate.com/v2/renders",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"template_id\": \"e0306b16-38f3-4e8d-b882-36c304e5027f\",\n  \"modifications\": {\n    \"Video-Q9Z1.source\": \"https://creatomate.com/files/assets/45ad429d-904d-488c-91a9-03c82652165a\",\n    \"Video-Q9Z1-JFB.source\": \"https://creatomate.com/files/assets/c6e9f905-badf-4269-b554-ae2ac1604e36\",\n    \"Video-Q9Z1-LXD.source\": \"https://creatomate.com/files/assets/ea4d0886-5c08-4510-976c-8d9dc53c44d6\",\n    \"Video-Q9Z1-2MN.source\": \"https://creatomate.com/files/assets/ea4d0886-5c08-4510-976c-8d9dc53c44d6\",\n    \"Video-Q9Z1-57D.source\": \"https://creatomate.com/files/assets/ea4d0886-5c08-4510-976c-8d9dc53c44d6\",\n    \"Video-Q9Z1-FTZ.source\": \"https://creatomate.com/files/assets/ea4d0886-5c08-4510-976c-8d9dc53c44d6\",\n    \"Video-Q9Z1-NLT.source\": \"https://creatomate.com/files/assets/ea4d0886-5c08-4510-976c-8d9dc53c44d6\",\n    \"Video-Q9Z1-QPJ.source\": \"https://creatomate.com/files/assets/ea4d0886-5c08-4510-976c-8d9dc53c44d6\",\n    \"Video-Q9Z1-2BJ.source\": \"https://creatomate.com/files/assets/ea4d0886-5c08-4510-976c-8d9dc53c44d6\",\n    \"Video-Q9Z1-4S9.source\": \"https://creatomate.com/files/assets/ea4d0886-5c08-4510-976c-8d9dc53c44d6\",\n    \"Video-Q9Z1-ZLT.source\": \"https://creatomate.com/files/assets/ea4d0886-5c08-4510-976c-8d9dc53c44d6\",\n    \"Video-Q9Z1-JKP.source\": \"https://creatomate.com/files/assets/ea4d0886-5c08-4510-976c-8d9dc53c44d6\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4928,
+        -512
+      ],
+      "id": "79fb9cea-73ef-4bd3-9097-e09dab5f0f43",
+      "name": "API: Render Final Video"
+    }
+  ],
+  "pinData": {
+    "API: Create Video": [
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "ce9b285ae67760926528183c5160ae35"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "44cbba7a3117540469ad93618ce0afdd"
+          }
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "6413993a13bc74f686cf27a762e8c364"
+          }
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "45b01cf4c752b04d4a7268c53bf2c9e9"
+          }
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "02619d94d2b77778d8303d3cbed45f97"
+          }
+        },
+        "pairedItem": {
+          "item": 4
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "948b5e5b86657d61d95959742b3a7ca4"
+          }
+        },
+        "pairedItem": {
+          "item": 5
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "afcbfddf462ee8ab1a8a920a8ca23196"
+          }
+        },
+        "pairedItem": {
+          "item": 6
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "b224e5fc3c0179e423cc26c515463136"
+          }
+        },
+        "pairedItem": {
+          "item": 7
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "b960e2c1528bebe468fe14cece2ce195"
+          }
+        },
+        "pairedItem": {
+          "item": 8
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Get a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: Generate Full Story": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "LLM: Generate Full Story",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LLM: Generate Full Story",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a post": {
+      "main": [
+        [
+          {
+            "node": "LLM: Generate Full Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Image Gen2": {
+      "main": [
+        [
+          {
+            "node": "API: Check Image Status2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Check Image Status2": {
+      "main": [
+        [
+          {
+            "node": "Code: Check Image Completion1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Images Ready?2": {
+      "main": [
+        [
+          {
+            "node": "Merge: Images + Prompts",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Split: Retry Image Tasks1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Check Image Completion1": {
+      "main": [
+        [
+          {
+            "node": "If: Images Ready?2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split: Retry Image Tasks1": {
+      "main": [
+        [
+          {
+            "node": "Set: Prep Image Loop1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Prep Image Loop1": {
+      "main": [
+        [
+          {
+            "node": "Wait: Image Gen2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Aggregate: Video Prompts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "API: Start Image Gen : Main Character Scenes1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate: Video Prompts": {
+      "main": [
+        [
+          {
+            "node": "Merge: Images + Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Match Images to Prompts": {
+      "main": [
+        [
+          {
+            "node": "API: Create Video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Video Gen1": {
+      "main": [
+        [
+          {
+            "node": "API: Check Video Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Check Video Status1": {
+      "main": [
+        []
+      ]
+    },
+    "If: Videos Ready?1": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "Code: Check Video Completion1": {
+      "main": [
+        []
+      ]
+    },
+    "Split: Retry Video Tasks1": {
+      "main": [
+        [
+          {
+            "node": "Set: Prep Video Loop1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Prep Video Loop1": {
+      "main": [
+        [
+          {
+            "node": "Wait: Video Gen1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Create Video": {
+      "main": [
+        [
+          {
+            "node": "Code: Check Video Completion1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: Images + Prompts": {
+      "main": [
+        [
+          {
+            "node": "Code: Match Images to Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Render Final Video1": {
+      "main": [
+        [
+          {
+            "node": "Wait: Rendering1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: Is Render Done?1": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Download MP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Wait: Rendering1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Rendering1": {
+      "main": [
+        [
+          {
+            "node": "API: Check Render Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Check Render Status1": {
+      "main": [
+        [
+          {
+            "node": "Switch: Is Render Done?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Start Image Gen : Main Character Scenes1": {
+      "main": [
+        [
+          {
+            "node": "Wait: Image Gen2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Download MP": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Create Video2": {
+      "main": [
+        []
+      ]
+    },
+    "Code: Check Video Completion": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Check Video Status": {
+      "main": [
+        [
+          {
+            "node": "Code: Check Video Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "API: Render Final Video1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split: Retry Video Tasks1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API: Create Video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Create Video1": {
+      "main": [
+        [
+          {
+            "node": "Wait: Video Gen1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3c2f50f2-2e23-4076-a2c3-2e3580746da9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "JsQpn7nkcYuae5lPi_UJ7",
+  "tags": []
+}

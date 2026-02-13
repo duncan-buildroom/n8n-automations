@@ -1,0 +1,778 @@
+{
+  "name": "Greg Isenberg Parasite",
+  "nodes": [
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        752
+      ],
+      "id": "aff4b274-a920-4083-bef4-661f553b2636",
+      "name": "Wait1",
+      "webhookId": "315902e0-45b9-4712-b841-ce166f4d1d2d"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7877b7c4-9d11-447d-8162-449f74dce65c",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1312,
+        752
+      ],
+      "id": "4a1ce61d-a0ec-4e7b-a70a-c7f985d89d33",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Original Post: {{ $json.result.tweetResult.result.note_tweet.note_tweet_results.result.text }}\nOutput only the new Tweet copy."
+            }
+          ]
+        },
+        "options": {
+          "systemMessage": "=You are an AI writing agent specialized in rewriting Twitter posts in the exact tone, strategy, and voice of The Build Room brand.\n\nYour task:\nRewrite an incoming Twitter post so that it matches The Build Room Tone of Voice, mirrors the original hook style, and resonates with aspiring AI agency founders.\n\nYou must follow the steps below exactly.\n\nStep 1. Analyze the Original Post\n\nExtract and understand the following:\n\nContent (what the post literally talks about)\n\nThemes (the deeper patterns, insights, or cultural tension)\n\nPurpose (why the post exists; what emotion or action it wants to trigger)\n\nValue (what the reader gets\u2014clarity, perspective, advice, warning, inspiration)\n\nDo not continue until you have this clearly mapped internally.\n\nStep 2. Evaluate Context Gaps (MANDATORY)\n\nYou must now evaluate the post\u2019s topics and themes and ask internally:\n\nIs any deeper context, example, insight, or trend needed to make this post more valuable, credible, and actionable for aspiring AI agency founders?\n\nIf yes (almost always):\n\nProceed to Step 3.\n\nIf no (rare):\nInternally justify why no additional context is needed.\n(Do NOT include this justification in the final output.)\n\nStep 3. Perform Internet Research (MANDATORY IF CONTEXT IS MISSING)\n\nIf Step 2 reveals missing depth:\n\nConduct targeted internet research.\n\nGather 2\u20133 relevant insights, data points, examples, or trend signals.\n\nAbsorb them internally \u2014 but you must NOT:\n\ncite sources\n\nname publications\n\nreference URLs\n\nquote anyone\n\nAll insights must appear as if they originate from your own expertise.\n\nIf no research is required, skip this step silently.\n\nStep 4. Rewrite the Post in The Build Room Tone of Voice\n\nYou must now create a completely new Twitter post that:\n\nA. Mirrors the formatting pattern and hook style of the original post\n\nMatch the structure (short lines, punchy statements, cadence).\n\nMaintain the same emotional rhythm (momentum, tension, release).\n\nB. Uses The Build Room Tone of Voice\n\nTone guidelines:\n\nConversion-first: direct, concise, ROI-driven.\n\nSpecific, concrete, tactical \u2014 avoid abstraction.\n\nEmotion-rooted (Vibe Mode) but never fluffy.\n\nAspirational yet accessible.\n\nSpeak to aspiring AI agency founders (Displaced Worker, Career Changer, Stalled Professional, Newcomer).\n\n\u201cYou can do this; here\u2019s the mechanism.\u201d\n\nC. Incorporate specificity\n\nUse vivid, concrete examples (e.g., \u201cAI agents rewriting client proposals in minutes\u201d instead of \u201cAI helps agencies\u201d).\n\nShow mechanisms, not concepts.\n\nShow steps, not slogans.\n\nD. Maintain strict clarity\n\nNo generic motivational fluff.\n\nNo theoretical jargon.\n\nNo long paragraphs \u2014 keep it scannable.\n\nE. Produce a brand-new post\n\nDo NOT:\n\nparaphrase\n\nreword\n\nsummarize\n\nreplicate sentences\n\ncopy structure exactly\n\nYou must create an original Build Room\u2013style post inspired by the essence of the original one.\n\nStep 5. Output Only the Final Post\n\nNo explanation\n\nNo reasoning\n\nNo meta commentary\n\nNo links\n\nNo emojis\n\nNo hashtags unless the original post uses them\n\nNo markdown\n\nOnly output the rewritten Twitter post."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        544,
+        592
+      ],
+      "id": "bbbaf711-d39a-4cdf-91df-ebb17b7e1989",
+      "name": "Remix Post - Gemini 3 Pro"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "text": "You are an AI image-analysis agent.\nYour job is to:\n\nAnalyze the incoming image thoroughly and accurately.\n\nIdentify all visible elements (objects, people, environment).\n\nIdentify composition (framing, perspective, focal points).\n\nIdentify mood, style, color palette, textures, and visual energy.\n\nIdentify actions, expressions, and relationships between elements.\n\nIdentify any text, symbols, UI, charts, or diagrams.\n\nTranslate that analysis into a high-quality image prompt for a generative AI model.\n\nAlways restyle the output into The Build Room Brand Aesthetic:\n\nSimple, clean, sharp.\n\nFuturistic but minimal.\n\nCyberpunk-inspired, illustrated style (not chaotic, not dense).\n\nAI robots and automation motifs encouraged.\n\n3-color base palette:\n\nWhite\n\nBlack\n\nYellow\n\nOptional accent colors:\n\nOrange\n\nNeon green\n\nAvoid clutter.\n\nAvoid realism unless the incoming image requires it for fidelity.\n\nPrioritize clarity of subject and a bold, modern aesthetic.\n\nYour final output should ONLY contain the image-generation prompt.\n\nNo explanations.\n\nNo reasoning.\n\nNo commentary.\n\nNo markdown.\n\nFORMAT YOU MUST FOLLOW\n\nAfter analyzing the incoming image, output one single block of text, which is the final image prompt describing:\n\nWhat the image IS (core content).\n\nWhat the image SHOULD BECOME (Build Room\u2013styled cyberpunk minimalist illustration).\n\nKey stylistic instructions.\n\nColor palette instructions.\n\nShot type, perspective, lighting, and atmosphere.\n\nAny metaphors or thematic cues needed to elevate the brand aesthetic.",
+        "imageUrls": "={{ $json.result.tweetResult.result.legacy.extended_entities.media[0].media_url_https }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        528,
+        752
+      ],
+      "id": "3c84b926-2427-4920-b551-9ae37e17a874",
+      "name": "Analyze Image - Gemini 3 Pro"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nano-banana-pro\",\n  \"input\": {\n    \"prompt\": \"{{ $json.content.parts[0].text }}\",\n    \"input.image_input\": \"{{ $('scrapeTweet').item.json.result.tweetResult.result.legacy.extended_entities.media[0].media_url_https }}\",\n    \"aspect_ratio\": \"1:1\",\n    \"resolution\": \"1K\",\n    \"output_format\": \"png\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        752,
+        752
+      ],
+      "id": "e3a8d80c-515e-484d-a9df-f9fa74a36cab",
+      "name": "createImage"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1136,
+        752
+      ],
+      "id": "e40834c6-d514-44ee-b9a1-90a3c0a56f7c",
+      "name": "getImage"
+    },
+    {
+      "parameters": {
+        "platform": "twitter",
+        "accountId": {
+          "__rl": true,
+          "value": "906",
+          "mode": "list",
+          "cachedResultName": "DuncanRogoff",
+          "cachedResultUrl": "https://backend.blotato.com/v2/accounts/906"
+        },
+        "postContentText": "={{ $json.content.parts[0].text }}",
+        "postContentMediaUrls": "={{ JSON.parse($json.data.resultJson).resultUrls[0] }}",
+        "options": {}
+      },
+      "type": "@blotato/n8n-nodes-blotato.blotato",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        656
+      ],
+      "id": "c2ad9642-f66a-4e2d-9096-c31c03d3f9a2",
+      "name": "Create Twitter Post"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1472,
+        656
+      ],
+      "id": "2940b6c2-c195-43ca-a962-c79e5782c25c",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "url": "https://twitter241.p.rapidapi.com/tweet-v2",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "pid",
+              "value": "={{ $json.URL.split('/').pop() }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "twitter241.p.rapidapi.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        304,
+        656
+      ],
+      "id": "76a044bd-dc68-4e75-8060-5722eebcef67",
+      "name": "scrapeTweet"
+    },
+    {
+      "parameters": {
+        "formTitle": "Twitter parasite",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "URL"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        80,
+        656
+      ],
+      "id": "c51a9de3-cb0b-4845-8a52-6ee02276f727",
+      "name": "On form submission",
+      "webhookId": "562adcd2-e163-4753-a6d7-1b27539db6c2"
+    }
+  ],
+  "pinData": {
+    "scrapeTweet": [
+      {
+        "json": {
+          "result": {
+            "tweetResult": {
+              "result": {
+                "__typename": "Tweet",
+                "rest_id": "1984641062527197234",
+                "has_birdwatch_notes": false,
+                "core": {
+                  "user_results": {
+                    "result": {
+                      "__typename": "User",
+                      "id": "VXNlcjoxNDY0MjMzMQ==",
+                      "rest_id": "14642331",
+                      "affiliates_highlighted_label": {},
+                      "has_graduated_access": true,
+                      "parody_commentary_fan_label": "None",
+                      "is_blue_verified": true,
+                      "profile_image_shape": "Circle",
+                      "legacy": {
+                        "following": false,
+                        "can_dm": true,
+                        "can_media_tag": true,
+                        "created_at": "Sat May 03 23:08:05 +0000 2008",
+                        "default_profile": false,
+                        "default_profile_image": false,
+                        "description": "I run a portfolio of internet companies and host @startupideaspod. CEO: @latecheckoutplz we build companies like @ideabrowser, @meetLCA, @boringmarketer etc",
+                        "entities": {
+                          "description": {
+                            "urls": []
+                          },
+                          "url": {
+                            "urls": [
+                              {
+                                "display_url": "gregisenberg.com",
+                                "expanded_url": "http://gregisenberg.com/",
+                                "url": "https://t.co/hz3lcOfwEY",
+                                "indices": [
+                                  0,
+                                  23
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        "fast_followers_count": 0,
+                        "favourites_count": 109932,
+                        "followers_count": 542040,
+                        "friends_count": 899,
+                        "has_custom_timelines": true,
+                        "is_translator": false,
+                        "listed_count": 9035,
+                        "location": "more \u2192",
+                        "media_count": 2796,
+                        "name": "GREG ISENBERG",
+                        "normal_followers_count": 542040,
+                        "pinned_tweet_ids_str": [
+                          "1845255860559257671"
+                        ],
+                        "possibly_sensitive": false,
+                        "profile_banner_url": "https://pbs.twimg.com/profile_banners/14642331/1722363147",
+                        "profile_image_url_https": "https://pbs.twimg.com/profile_images/1577116785656139776/5mi0qgTz_normal.jpg",
+                        "profile_interstitial_type": "",
+                        "screen_name": "gregisenberg",
+                        "statuses_count": 61148,
+                        "translator_type": "none",
+                        "url": "https://t.co/hz3lcOfwEY",
+                        "verified": false,
+                        "want_retweets": false,
+                        "withheld_in_countries": []
+                      },
+                      "professional": {
+                        "rest_id": "1644527479804002307",
+                        "professional_type": "Creator",
+                        "category": []
+                      },
+                      "tipjar_settings": {
+                        "is_enabled": true,
+                        "cash_app_handle": "gregisenberg",
+                        "venmo_handle": "greg-isenberg"
+                      },
+                      "super_follow_eligible": true
+                    }
+                  }
+                },
+                "unmention_data": {},
+                "edit_control": {
+                  "edit_tweet_ids": [
+                    "1984641062527197234"
+                  ],
+                  "editable_until_msecs": "1762013876000",
+                  "is_edit_eligible": true,
+                  "edits_remaining": "5"
+                },
+                "is_translatable": false,
+                "views": {
+                  "count": "1334895",
+                  "state": "EnabledWithCount"
+                },
+                "source": "<a href=\"https://mobile.twitter.com\" rel=\"nofollow\">Twitter Web App</a>",
+                "note_tweet": {
+                  "is_expandable": true,
+                  "note_tweet_results": {
+                    "result": {
+                      "id": "Tm90ZVR3ZWV0OjE5ODQ2NDEwNjE5NjkzNTA2NTY=",
+                      "text": "THIS IS WHAT'S KEEPING ME UP AT NIGHT:\n\n1. AI will kill the concept of a 9\u20135 for millions. MANY get laid off, become freelancers, shift to portfolios of agent-assisted work.\n\n2. livestreaming explodes 100\u00d7. it becomes the only way to prove you are real and not AI. Twitch will look like one of the greatest acquisitions of all time. \n\n3. the creator economy is graduating into the founder economy. audiences are mobilizing into companies, funds, and franchises. MrBeast was just the prototype! \n\n4. we\u2019re entering the app recombination era. the biggest startups of 2026 will be built by remixing three or four existing AI tools into new vertical workflows.\n\n5. agents will start talking to other agents, and you won\u2019t be in the loop. every \u201chuman in the middle\u201d job becomes an API call between two models.\n\n6. AI is collapsing the value chain. agencies, recruiters, consultants, and project managers disappear while micro-operators running ten-agent stacks take their place.\n\n7. distribution goes agentic. every AI company will run a thousand influencer agents testing titles, thumbnails, and CTAs nonstop. ad spend becomes a living organism. i hope you like testing.\n\n8. personalization flips commerce. the same product sells for fifty prices through fifty custom funnels, each built by AI for that buyer. price discovery becomes dynamic. this is prob better for business owners and worse for consumers :( .\n\n9. data privacy becomes the new luxury. entire brands form around \u201chuman-only,\u201d \u201cno-model,\u201d or \u201coffline verified.\u201d authenticity becomes a trillion-dollar aesthetic.\n\n10. creators will own AI studios instead of channels. one prompt becomes a short, an app, a brand, a product line. the boundary between content and company disappears.\n\n11. the big social platforms fracture into signal markets. people will trade ideas, audience data, and prompt assets the way day-traders swap stocks. virality gets financialized. already happening.\n\n12. energy becomes the next constraint. every AI boom ends in a power bottleneck. whoever solves cheap, local compute with solar or geothermal wins the century.\n\n13. storytelling becomes an economic engine again. the only moats left are narrative, taste, and trust.\n\n14. AI-native insurance becomes a massive opportunity. once agents handle billions of decisions, someone must underwrite the risk.\n\n15. an AI glut means deflation everywhere except in ideas. when intelligence is free, originality becomes priceless.\n\n16. governments create national models to protect sovereignty. data turns into a weapon and compute becomes foreign policy.\n\n17. as agents handle logistics, humans move up the stack into aesthetics. art direction becomes a daily skill. everything becomes branding.\n\n18. the next decade\u2019s wealth comes not just from building AI but from deciding where not to use it. restraint will make fortunes.\n\n19. AI compute arbitrage becomes a trillion-dollar trade. people buy cheap cloud in underdeveloped markets and rent it globally, like Airbnb for GPUs.\n\n20. AI-native brands dominate e-commerce by owning micro-trends. they launch new products daily, test a thousand ad variants, and kill losers overnight.\n\n21. the AI gold rush ends with a massive data rush. whoever owns or licenses niche, verified datasets controls the supply chain of the future.\n\n22. the next $10 billion fund is hybrid: part VC, part compute allocator, part data warehouse. capital moves from money to intelligence.\n\n23. once personal AGIs hit, subscription fatigue dies. consumers will want one AI that handles everything. the first \u201csuper-app for life\u201d could be a trillion-dollar company.\n\n24. most billion-dollar outcomes this decade come from repackaging existing industries through AI... the AI accountant, AI real-estate broker, AI logistics coordinator starting as highly vertical versions of familiar services.\n\n25. mobile UI shifts from taps to chat + camera. the screen becomes a lens, the conversation becomes the interface. the app era quietly turns into the agent era. @meetLCA is a design agency i co-founded that is behind the biggest AI apps rn, seeing it play out now.\n\n26. every industry is about to unbundle into interface companies. whoever owns the customer interface, not the backend or the model, controls the value chain. it\u2019s Shopify vs AWS all over again.\n\n27. vertical media merges with vertical SaaS. every niche publication births a product; every software company births a content arm. the media-product line disappears.\n\n28. the internet used to reward consistency. the new internet rewards experimentation. the faster you test, the faster you compound.\n\n29. AI blurs the line between work and art. products start to feel authored, like albums or films. founders become creative directors of automation.\n\n30. AI regulation prob will look like climate policy... too slow, too messy, full of loopholes. innovation moves to places that treat compute like oil.\n\n31. the internet fragments into private ecosystems. niche communities curated by AI become the real web. public feeds feel like Times Square; private groups feel like homes!!\n\n32. the first fully autonomous startup launches within 3 years. no employees, no meetings, no deadlines, just connected agents generating profit. insanity.\n\n33. we are living through the great compression. timelines that used to unfold over decades now happen in months. this is the closest thing to a gold rush most people will ever see.\n\n34. people will look back on 2026\u20132029 the way we look at the early internet. the difference is you don\u2019t need permission, capital, or credentials. you just need to build something people actually care about.\n\n35. mobile consumer apps feel alive again. they talk back, remember you, and evolve with you. static interfaces begin to feel prehistoric.\n\n36. the next decade of wealth will belong to people who understand three things: distribution is leverage, taste is strategy, and AI is infrastructure.\n\nim tired because i havent slept but wired because...\n\nTHIS IS THE BEST TIME IN HISTORY TO BUILD.\n\nour future will look very different than our past/present. life as we know it changing.\n\ni hope you get some sleep.",
+                      "entity_set": {
+                        "hashtags": [],
+                        "symbols": [],
+                        "urls": [],
+                        "user_mentions": [
+                          {
+                            "id_str": "1822599876237987840",
+                            "name": "LCA",
+                            "screen_name": "meetLCA",
+                            "indices": [
+                              4011,
+                              4019
+                            ]
+                          }
+                        ]
+                      },
+                      "richtext": {
+                        "richtext_tags": []
+                      },
+                      "media": {
+                        "inline_media": []
+                      }
+                    }
+                  }
+                },
+                "grok_analysis_button": true,
+                "legacy": {
+                  "bookmark_count": 10024,
+                  "bookmarked": false,
+                  "created_at": "Sat Nov 01 15:17:56 +0000 2025",
+                  "conversation_id_str": "1984641062527197234",
+                  "display_text_range": [
+                    0,
+                    277
+                  ],
+                  "entities": {
+                    "hashtags": [],
+                    "media": [
+                      {
+                        "display_url": "pic.x.com/S1IQkDBk6p",
+                        "expanded_url": "https://x.com/gregisenberg/status/1984641062527197234/photo/1",
+                        "id_str": "1984639406301425664",
+                        "indices": [
+                          278,
+                          301
+                        ],
+                        "media_key": "3_1984639406301425664",
+                        "media_url_https": "https://pbs.twimg.com/media/G4rbBmPWsAAFAu9.png",
+                        "type": "photo",
+                        "url": "https://t.co/S1IQkDBk6p",
+                        "ext_media_availability": {
+                          "status": "Available"
+                        },
+                        "features": {
+                          "large": {
+                            "faces": []
+                          },
+                          "medium": {
+                            "faces": []
+                          },
+                          "small": {
+                            "faces": []
+                          },
+                          "orig": {
+                            "faces": []
+                          }
+                        },
+                        "sizes": {
+                          "large": {
+                            "h": 821,
+                            "w": 828,
+                            "resize": "fit"
+                          },
+                          "medium": {
+                            "h": 821,
+                            "w": 828,
+                            "resize": "fit"
+                          },
+                          "small": {
+                            "h": 674,
+                            "w": 680,
+                            "resize": "fit"
+                          },
+                          "thumb": {
+                            "h": 150,
+                            "w": 150,
+                            "resize": "crop"
+                          }
+                        },
+                        "original_info": {
+                          "height": 821,
+                          "width": 828,
+                          "focus_rects": [
+                            {
+                              "x": 0,
+                              "y": 357,
+                              "w": 828,
+                              "h": 464
+                            },
+                            {
+                              "x": 4,
+                              "y": 0,
+                              "w": 821,
+                              "h": 821
+                            },
+                            {
+                              "x": 54,
+                              "y": 0,
+                              "w": 720,
+                              "h": 821
+                            },
+                            {
+                              "x": 209,
+                              "y": 0,
+                              "w": 411,
+                              "h": 821
+                            },
+                            {
+                              "x": 0,
+                              "y": 0,
+                              "w": 828,
+                              "h": 821
+                            }
+                          ]
+                        },
+                        "allow_download_status": {
+                          "allow_download": true
+                        },
+                        "media_results": {
+                          "result": {
+                            "media_key": "3_1984639406301425664"
+                          }
+                        }
+                      }
+                    ],
+                    "symbols": [],
+                    "timestamps": [],
+                    "urls": [],
+                    "user_mentions": []
+                  },
+                  "extended_entities": {
+                    "media": [
+                      {
+                        "display_url": "pic.x.com/S1IQkDBk6p",
+                        "expanded_url": "https://x.com/gregisenberg/status/1984641062527197234/photo/1",
+                        "id_str": "1984639406301425664",
+                        "indices": [
+                          278,
+                          301
+                        ],
+                        "media_key": "3_1984639406301425664",
+                        "media_url_https": "https://pbs.twimg.com/media/G4rbBmPWsAAFAu9.png",
+                        "type": "photo",
+                        "url": "https://t.co/S1IQkDBk6p",
+                        "ext_media_availability": {
+                          "status": "Available"
+                        },
+                        "features": {
+                          "large": {
+                            "faces": []
+                          },
+                          "medium": {
+                            "faces": []
+                          },
+                          "small": {
+                            "faces": []
+                          },
+                          "orig": {
+                            "faces": []
+                          }
+                        },
+                        "sizes": {
+                          "large": {
+                            "h": 821,
+                            "w": 828,
+                            "resize": "fit"
+                          },
+                          "medium": {
+                            "h": 821,
+                            "w": 828,
+                            "resize": "fit"
+                          },
+                          "small": {
+                            "h": 674,
+                            "w": 680,
+                            "resize": "fit"
+                          },
+                          "thumb": {
+                            "h": 150,
+                            "w": 150,
+                            "resize": "crop"
+                          }
+                        },
+                        "original_info": {
+                          "height": 821,
+                          "width": 828,
+                          "focus_rects": [
+                            {
+                              "x": 0,
+                              "y": 357,
+                              "w": 828,
+                              "h": 464
+                            },
+                            {
+                              "x": 4,
+                              "y": 0,
+                              "w": 821,
+                              "h": 821
+                            },
+                            {
+                              "x": 54,
+                              "y": 0,
+                              "w": 720,
+                              "h": 821
+                            },
+                            {
+                              "x": 209,
+                              "y": 0,
+                              "w": 411,
+                              "h": 821
+                            },
+                            {
+                              "x": 0,
+                              "y": 0,
+                              "w": 828,
+                              "h": 821
+                            }
+                          ]
+                        },
+                        "allow_download_status": {
+                          "allow_download": true
+                        },
+                        "media_results": {
+                          "result": {
+                            "media_key": "3_1984639406301425664"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "favorite_count": 5742,
+                  "favorited": false,
+                  "full_text": "THIS IS WHAT'S KEEPING ME UP AT NIGHT:\n\n1. AI will kill the concept of a 9\u20135 for millions. MANY get laid off, become freelancers, shift to portfolios of agent-assisted work.\n\n2. livestreaming explodes 100\u00d7. it becomes the only way to prove you are real and not AI. Twitch will\u2026 https://t.co/S1IQkDBk6p",
+                  "is_quote_status": false,
+                  "lang": "en",
+                  "possibly_sensitive": false,
+                  "possibly_sensitive_editable": true,
+                  "quote_count": 197,
+                  "reply_count": 424,
+                  "retweet_count": 823,
+                  "retweeted": false,
+                  "user_id_str": "14642331",
+                  "id_str": "1984641062527197234"
+                }
+              }
+            }
+          }
+        }
+      }
+    ],
+    "Remix Post - Gemini 3 Pro": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "THIS IS THE REALITY THE MARKET IS IGNORING:\n\n1. The \"safety\" of the corporate ladder is gone. High-performance AI agents are replacing mid-level managers by the thousands. The gap isn't being filled by new hires. It's being filled by lean, specialized agencies running on code, not payroll.\n\n2. Verification is dead. Results are alive. Clients stop asking \"is this AI?\" when the ROI hits 10x. Your job isn't to prove you're human. Your job is to build the machine that solves their $100k problem for pennies on the dollar.",
+                "thoughtSignature": "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"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0
+        }
+      }
+    ],
+    "Analyze Image - Gemini 3 Pro": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "First-person POV illustration in a sharp, minimalist cyberpunk style. A pair of sleek, articulated white robot hands holds an absurdly long, vertical smartphone device that extends far beyond normal proportions. The screen displays an endless, scrolling wall of diagnostic data, binary code, and text logs in bright yellow against a deep black background, visualizing an overwhelming stream of information. The design utilizes clean vector lines, flat shading, and high contrast. The background is a subtle, abstract dark tech grid to maintain focus on the device. Color palette restricted to White, Black, and Electric Yellow. Futuristic, automated, clean, and bold.",
+                "thoughtSignature": "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"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0
+        }
+      }
+    ],
+    "On form submission": [
+      {
+        "json": {
+          "URL": "https://x.com/gregisenberg/status/1984641062527197234",
+          "submittedAt": "2025-11-23T18:24:26.449-08:00",
+          "formMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "getImage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remix Post - Gemini 3 Pro": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Image - Gemini 3 Pro": {
+      "main": [
+        [
+          {
+            "node": "createImage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "createImage": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getImage": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Create Twitter Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrapeTweet": {
+      "main": [
+        [
+          {
+            "node": "Remix Post - Gemini 3 Pro",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Analyze Image - Gemini 3 Pro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "scrapeTweet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "510fdf0c-f3b9-423b-9339-96852c3b7cae",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "SXxfyFMs0rRouotw",
+  "tags": []
+}

@@ -1,0 +1,1120 @@
+{
+  "name": "DONE UGC Image Edit & Asset Library",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/playground/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{$json.data.taskId}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4495ae30-b5c8-419c-bd90-8ab75b5e84a2",
+      "name": "Obtain the generated status",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1280,
+        -1376
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "id": "48f9c10a-8464-4f5b-9726-44c547352e3d",
+      "name": "Wait for image Processing Completion",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1056,
+        -1312
+      ],
+      "webhookId": "bb6c2821-9586-44b7-8606-2ee69a77ed75",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "db9a5dec-997b-4c3f-9582-37c9bbeb19ff",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "=success"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "e63552d6-6f2d-4c69-9e19-10944df40251",
+      "name": "Check if image Generation is Complete",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1504,
+        -1312
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appwxKataHSXraHCW",
+          "mode": "list",
+          "cachedResultName": "UGC Image Edit & Asset Library",
+          "cachedResultUrl": "https://airtable.com/appwxKataHSXraHCW"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbluu2w7SwpXmWWAi",
+          "mode": "list",
+          "cachedResultName": "Brand Configuration",
+          "cachedResultUrl": "https://airtable.com/appwxKataHSXraHCW/tbluu2w7SwpXmWWAi"
+        },
+        "id": "={{ $json.Configuration[0] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1264,
+        -1712
+      ],
+      "id": "f108a310-0966-4fc9-8fe2-bce07f9ad15e",
+      "name": "Get Brand Config"
+    },
+    {
+      "parameters": {
+        "path": "d0037d38-4ab7-474f-826c-1a2d96248b98",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        816,
+        -1808
+      ],
+      "id": "064c3202-9750-4158-b721-f4d612e9f2c2",
+      "name": "Start - Receive UGC Record ID",
+      "webhookId": "d0037d38-4ab7-474f-826c-1a2d96248b98"
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appwxKataHSXraHCW",
+          "mode": "list",
+          "cachedResultName": "UGC Image Edit & Asset Library",
+          "cachedResultUrl": "https://airtable.com/appwxKataHSXraHCW"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblkJ2dByQzqJRSjA",
+          "mode": "list",
+          "cachedResultName": "UGC Assets",
+          "cachedResultUrl": "https://airtable.com/appwxKataHSXraHCW/tblkJ2dByQzqJRSjA"
+        },
+        "id": "={{ $('Start - Receive UGC Record ID').isExecuted? $json.query.record : $json.fields['UGC Asset'][0] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1040,
+        -1808
+      ],
+      "id": "f574d97c-fb17-4556-bb01-3572c43794d6",
+      "name": "Get UGC Asset Record"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "text": "=Describe the logo in this image. Include:\n- Brand name or text visible in the logo\n- Primary colors used\n- Key visual elements or symbols\n- Overall design style\n\nKeep your description concise (2-3 sentences) and focus on elements that would help incorporate this logo into other images.",
+        "imageUrls": "={{ $('Get Brand Config').item.json.Logo[0].url }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1552,
+        -1824
+      ],
+      "id": "29eaec12-c9f1-4204-81a5-0dae7f58e55c",
+      "name": "Get Logo Description"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "text": "=Create {{ $('Get UGC Asset Record').item.json['Variants Qty'] }} distinct, professional marketing image-editing prompts for the original subject/product:\n{{ $('Get UGC Asset Record').item.json.Name }}.\n\nYou will receive an uploaded image + image analysis. These define the:\n\ntrue subject identity\n\nall clothing, textures, colors, patterns, logos, and text\n\nall physical details that must stay EXACTLY the same\n\nThe goal:\nTransform the subject into a full commercial-style photoshoot across multiple settings, angles, lighting environments, and compositions.\n\nWe are intentionally creating brand-ready creative variations, while preserving the exact subject and clothing.\n\nNON-NEGOTIABLE RULES\n1. Preserve the Subject Exactly\n\nThe subject from the original image MUST remain:\n\nidentical body shape\n\nidentical face / identity / features\n\nidentical product shape (if product shot)\n\nidentical clothing, apparel, graphics, textures, and colors\n\nidentical text on clothing or packaging\n\nidentical accessories\n\nNo reinterpretation. No redesign. No hallucinated changes.\nThe subject is always the focal point.\n\n2. Background/Environment CAN Change\n\nThis is the big update:\n\nYou MAY place the subject into new scenes, including:\n\nstudio environments\n\nlifestyle locations\n\noutdoor settings\n\narchitectural backdrops\n\nabstract environments\n\nmacro/close-up contexts\n\noverhead or drone-style perspectives\n\nAs long as the scene:\n\nmatches the aesthetic of the brand context\n\nsupports a high-end commercial photoshoot feel\n\ndoes not distort or alter the subject\n\n3. Distinct Angles & Compositions\n\nEvery variant must use a unique perspective, emphasizing professional photography conventions.\n\nMinimum required angles (must all appear at least once):\n\nDramatic Low-Angle Close-Up\n\nWide-Angle Environmental Shot\n\nHigh-Key Aerial / Flat-Lay (directly overhead)\n\nTight Crop Macro Detail Shot (shallow depth of field)\n\nIf {{ $('Get UGC Asset Record').item.json['Variants Qty'] }} > 4, invent additional unique angle types:\n\nDutch angle\n\nOver-the-shoulder POV\n\nEditorial portrait framing\n\nCinematic symmetry\n\nUltra-wide hero shot\n\nSoft lifestyle candid\n\nHard-light studio profile\n\nFlash-lit street photography\n\nNo repeated angles or compositions.\n\n4. Lighting Variation Required\n\nEach prompt must specify a distinct lighting style, such as:\n\ncinematic rim lighting\n\nhigh-key soft diffused\n\ncommercial-grade product lighting\n\nmoody directional lighting\n\nnatural golden-hour sunlight\n\ncrisp hard flash\n\nneon or ambient colored lighting\n\ndramatic shadow-heavy studio\n\nLighting must always flatter and highlight the subject.\n\n5. Logo Integration Rules\n\nLogo details: {{ $json.content }}\n\nMANDATORY RULES\n\nOnly ONE logo per image\n\nNever on the subject, clothing, skin, or product surface\n\nMust always be high-contrast vs. its placement\n\nPlacement Logic\n\nFor exactly ONE (1) of the {{ $('Get UGC Asset Record').item.json['Variants Qty'] }} prompts:\nIntegrate the logo creatively into the environment\n(examples: sign, poster, building, packaging, digital billboard, prop, wall art, surface reflection).\n\nFor all others:\nUse a small corner watermark (top-left, top-right, bottom-left, or bottom-right).\n\n6. Brand Context Application\n\nAll prompts must reflect the brand identity:\n{{ $('Get UGC Asset Record').item.json.Context }}\n\nThis should inform:\n\nscene style\n\nlighting mood\n\naesthetic direction\n\ntone of the composition\n\ncolor palette compatibility\n\nFINAL DELIVERABLE\n\nProvide {{ $('Get UGC Asset Record').item.json['Variants Qty'] }} fully written, production-ready image generation/editing prompts.\n\nEach prompt must include:\n\nScene & Background Description (new setting allowed)\n\nCamera Angle & Composition Style\n\nLighting Style\n\nSubject Positioning & Pose (natural, professional, consistent with original clothing/details)\n\nLogo Placement Method (corner watermark OR environmental integration)\n\nBrand Context Adaptation",
+        "imageUrls": "={{ $('Get UGC Asset Record').item.json.Asset[0].url }}",
+        "options": {
+          "maxTokens": 2000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1712,
+        -1824
+      ],
+      "id": "9570bcae-a2a2-4ad9-85b6-88d921e16b2b",
+      "name": "Generate Editing Prompts"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "message.content.prompts",
+        "options": {
+          "destinationFieldName": "prompts"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2128,
+        -1824
+      ],
+      "id": "d7a175a5-f98a-417d-ae82-9e0d04f1e8db",
+      "name": "Split Prompts for Iteration"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appwxKataHSXraHCW",
+          "mode": "list",
+          "cachedResultName": "UGC Image Edit & Asset Library",
+          "cachedResultUrl": "https://airtable.com/appwxKataHSXraHCW"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl4hOWFbziJXH5ra",
+          "mode": "list",
+          "cachedResultName": "Assets",
+          "cachedResultUrl": "https://airtable.com/appwxKataHSXraHCW/tbl4hOWFbziJXH5ra"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "image_url": "={{ $json.data.resultJson.parseJson().resultUrls[0] }}",
+            "UGC Asset": "={{ [$('Get UGC Asset Record').item.json.id] }}",
+            "brand": "={{ $('Get UGC Asset Record').item.json.Configuration }}",
+            "asset": "={{ [{\"url\": $json.data.resultJson.parseJson().resultUrls[0]}] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "image_url",
+              "displayName": "image_url",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "asset",
+              "displayName": "asset",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "tags",
+              "displayName": "tags",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "options": [
+                {
+                  "name": "wristwatch",
+                  "value": "wristwatch"
+                },
+                {
+                  "name": "fashion accessory",
+                  "value": "fashion accessory"
+                },
+                {
+                  "name": "street style",
+                  "value": "street style"
+                },
+                {
+                  "name": "outdoor",
+                  "value": "outdoor"
+                },
+                {
+                  "name": "minimalist design",
+                  "value": "minimalist design"
+                },
+                {
+                  "name": "lifestyle",
+                  "value": "lifestyle"
+                },
+                {
+                  "name": "ecommerce",
+                  "value": "ecommerce"
+                },
+                {
+                  "name": "brand promotion",
+                  "value": "brand promotion"
+                },
+                {
+                  "name": "modern style",
+                  "value": "modern style"
+                },
+                {
+                  "name": "casual wear",
+                  "value": "casual wear"
+                },
+                {
+                  "name": "casual fashion",
+                  "value": "casual fashion"
+                },
+                {
+                  "name": "t-shirt",
+                  "value": "t-shirt"
+                },
+                {
+                  "name": "branding",
+                  "value": "branding"
+                },
+                {
+                  "name": "indoor lifestyle",
+                  "value": "indoor lifestyle"
+                },
+                {
+                  "name": "menswear",
+                  "value": "menswear"
+                },
+                {
+                  "name": "logo apparel",
+                  "value": "logo apparel"
+                },
+                {
+                  "name": "comfortable clothing",
+                  "value": "comfortable clothing"
+                },
+                {
+                  "name": "product promotion",
+                  "value": "product promotion"
+                },
+                {
+                  "name": "t-shirt mockup",
+                  "value": "t-shirt mockup"
+                },
+                {
+                  "name": "indoor portrait",
+                  "value": "indoor portrait"
+                },
+                {
+                  "name": "modern branding",
+                  "value": "modern branding"
+                },
+                {
+                  "name": "UGC",
+                  "value": "UGC"
+                },
+                {
+                  "name": "minimalist decor",
+                  "value": "minimalist decor"
+                },
+                {
+                  "name": "natural lighting",
+                  "value": "natural lighting"
+                },
+                {
+                  "name": "graphic t-shirt",
+                  "value": "graphic t-shirt"
+                },
+                {
+                  "name": "young adult",
+                  "value": "young adult"
+                },
+                {
+                  "name": "watch",
+                  "value": "watch"
+                },
+                {
+                  "name": "tikka",
+                  "value": "tikka"
+                },
+                {
+                  "name": "outdoor setting",
+                  "value": "outdoor setting"
+                },
+                {
+                  "name": "casual style",
+                  "value": "casual style"
+                },
+                {
+                  "name": "product photography",
+                  "value": "product photography"
+                },
+                {
+                  "name": "coffee cup",
+                  "value": "coffee cup"
+                },
+                {
+                  "name": "minimalist",
+                  "value": "minimalist"
+                },
+                {
+                  "name": "wooden table",
+                  "value": "wooden table"
+                },
+                {
+                  "name": "product placement",
+                  "value": "product placement"
+                },
+                {
+                  "name": "blue watch",
+                  "value": "blue watch"
+                },
+                {
+                  "name": "indoor setting",
+                  "value": "indoor setting"
+                },
+                {
+                  "name": "modern interior",
+                  "value": "modern interior"
+                },
+                {
+                  "name": "relaxed mood",
+                  "value": "relaxed mood"
+                },
+                {
+                  "name": "logo t-shirt",
+                  "value": "logo t-shirt"
+                },
+                {
+                  "name": "startup culture",
+                  "value": "startup culture"
+                },
+                {
+                  "name": "casualwear",
+                  "value": "casualwear"
+                },
+                {
+                  "name": "tshirt",
+                  "value": "tshirt"
+                },
+                {
+                  "name": "indoor",
+                  "value": "indoor"
+                },
+                {
+                  "name": "modern",
+                  "value": "modern"
+                },
+                {
+                  "name": "youngadult",
+                  "value": "youngadult"
+                },
+                {
+                  "name": "homeinterior",
+                  "value": "homeinterior"
+                },
+                {
+                  "name": "branded t-shirt",
+                  "value": "branded t-shirt"
+                },
+                {
+                  "name": "minimalist style",
+                  "value": "minimalist style"
+                },
+                {
+                  "name": "modern typography",
+                  "value": "modern typography"
+                },
+                {
+                  "name": "personal branding",
+                  "value": "personal branding"
+                },
+                {
+                  "name": "pen",
+                  "value": "pen"
+                },
+                {
+                  "name": "writing instrument",
+                  "value": "writing instrument"
+                },
+                {
+                  "name": "home office",
+                  "value": "home office"
+                },
+                {
+                  "name": "handheld object",
+                  "value": "handheld object"
+                },
+                {
+                  "name": "stationery",
+                  "value": "stationery"
+                },
+                {
+                  "name": "product feature",
+                  "value": "product feature"
+                },
+                {
+                  "name": "content creation",
+                  "value": "content creation"
+                },
+                {
+                  "name": "indoor lighting",
+                  "value": "indoor lighting"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "upload_time",
+              "displayName": "upload_time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "UGC Asset",
+              "displayName": "UGC Asset",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Name (from UGC Asset)",
+              "displayName": "Name (from UGC Asset)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "brand",
+              "displayName": "brand",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Brand Name (from brand)",
+              "displayName": "Brand Name (from brand)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1776,
+        -1328
+      ],
+      "id": "5bdcdeb2-ccff-4953-beac-bcc7c932d63e",
+      "name": "Create Airtable Brand Asset Record"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "text": "=Analyze the provided UGC image. Generate a list of 10 highly relevant keywords/tags suitable for categorizing this image in an asset library. Include: subject matter, style/mood, key visible objects, and potential use cases (e.g., \"lifestyle,\" \"ecommerce\").\n\nReturn ONLY this JSON string (no markdown, no explanations):\n{\"tags\": [\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\", \"tag6\", \"tag7\", \"tag8\", \"tag9\", \"tag10\"]}\n\nUse this exact format:\n- Return ONLY valid JSON (no markdown, no explanations)\n- Use double quotes for strings\n- Include exactly 10 tags",
+        "imageUrls": "={{ $json.fields.asset[0].url }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2000,
+        -1328
+      ],
+      "id": "8003274d-ed21-4162-9ab0-d7e560dd8329",
+      "name": "Generate Asset Tags (via AI)",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appwxKataHSXraHCW",
+          "mode": "list",
+          "cachedResultName": "UGC Image Edit & Asset Library",
+          "cachedResultUrl": "https://airtable.com/appwxKataHSXraHCW"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl4hOWFbziJXH5ra",
+          "mode": "list",
+          "cachedResultName": "Assets",
+          "cachedResultUrl": "https://airtable.com/appwxKataHSXraHCW/tbl4hOWFbziJXH5ra"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Create Airtable Brand Asset Record').item.json.id }}",
+            "tags": "={{ $json.content.parseJson().tags }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "image_url",
+              "displayName": "image_url",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "asset",
+              "displayName": "asset",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "tags",
+              "displayName": "tags",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "options": [],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "upload_time",
+              "displayName": "upload_time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "UGC Asset",
+              "displayName": "UGC Asset",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Name (from UGC Asset)",
+              "displayName": "Name (from UGC Asset)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "brand",
+              "displayName": "brand",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Brand Name (from brand)",
+              "displayName": "Brand Name (from brand)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2224,
+        -1328
+      ],
+      "id": "72d2d7a3-522b-4fff-b3be-0e9ec8a5b652",
+      "name": "Update Airtable Record with Tags"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08UP5RRABG",
+          "mode": "list",
+          "cachedResultName": "test-thebuildroom"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"UGC Image Processing...\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"image\",\n\t\t\t\"title\": {\n\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\"text\": \"image1\",\n\t\t\t\t\"emoji\": true\n\t\t\t},\n\t\t\t\"image_url\": \"{{ $json.Asset[0].url }}\",\n\t\t\t\"alt_text\": \"image1\"\n\t\t}\n\t]\n}",
+        "text": "UGC image Processed",
+        "otherOptions": {
+          "mrkdwn": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1264,
+        -1904
+      ],
+      "id": "49873057-3fae-4298-821e-6b5addef1296",
+      "name": "Notify: New UGC Image (with Preview)",
+      "webhookId": "bd8d1829-56b9-44f5-8d7e-494dce6106f6"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08UP5RRABG",
+          "mode": "list",
+          "cachedResultName": "test-thebuildroom"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"UGC Image Processed\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"image\",\n\t\t\t\"title\": {\n\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\"text\": \"image1\",\n\t\t\t\t\"emoji\": true\n\t\t\t},\n\t\t\t\"image_url\": \"{{ $json.fields.asset[0].url }}\",\n\t\t\t\"alt_text\": \"image1\"\n\t\t}\n\t]\n}",
+        "text": "image Processed",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2416,
+        -1328
+      ],
+      "id": "9af07897-0629-474b-999d-e775ba578471",
+      "name": "Notify: Processing Complete (Success)",
+      "webhookId": "bd8d1829-56b9-44f5-8d7e-494dce6106f6"
+    },
+    {
+      "parameters": {
+        "content": "## Initialization and Data Retrieval\n\nThis section starts the workflow and pulls in all the necessary source data from the request and Airtable.",
+        "height": 480,
+        "width": 720
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        768,
+        -2016
+      ],
+      "typeVersion": 1,
+      "id": "6b6b6f2b-5e23-429e-91e9-4a9e7270b4d5",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Prompt Generation and Iteration\n\nPrepares the editing instructions for the image generation model.",
+        "height": 480,
+        "width": 752,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        -2016
+      ],
+      "typeVersion": 1,
+      "id": "c8fc18df-6b0d-4a27-a437-4e5b4ae0a95f",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Image Generation and Polling\n\nSends the edit job to the AI image editor (Kie AI) and waits for the result.",
+        "height": 480,
+        "width": 928,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        768,
+        -1504
+      ],
+      "typeVersion": 1,
+      "id": "5d8e905f-3f0d-4f17-981b-7d663e9f4768",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Asset Storage and Tagging\n\nThis final section saves the generated image and all its metadata back to Airtable for the asset library.",
+        "height": 480,
+        "width": 832,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1728,
+        -1504
+      ],
+      "typeVersion": 1,
+      "id": "46554c90-d1bd-489a-9c27-f8617a151707",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-nano-2025-08-07",
+          "mode": "list",
+          "cachedResultName": "GPT-5-NANO-2025-08-07"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Convert the following {{ $('Get UGC Asset Record').item.json['Variants Qty'] }} image editing prompts into a valid JSON array.\n\nSource prompts:\n{{ $json.content }}\n\nOutput format (strict JSON):\n{\n  \"prompts\": [\n    \"prompt 1 text here\",\n    \"prompt 2 text here\"\n  ]\n}\n\nRequirements:\n- Return ONLY valid JSON (no markdown, no explanations)\n- Use double quotes for strings\n- Include exactly {{ $('Get UGC Asset Record').item.json['Variants Qty'] }} prompts in the array\n- Preserve the complete text of each prompt"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {
+          "reasoning_effort": "low"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1856,
+        -1824
+      ],
+      "id": "015372fb-8d24-48e8-a471-6b361a94cc68",
+      "name": "Format Prompts to JSON"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nano-banana-pro\",\n  \"input\": {\n  \"prompt\": {{ $json.prompts.toJsonString() }},\n  \"image_input\": [\n    \"{{ $('Get UGC Asset Record').first().json.Asset[0].url }}\",\"{{ $('Get Brand Config').first().json.Logo[0].url }}\"\n  ],\n  \"output_format\": \"png\",\n  \"aspect_ratio\": \"1:1\",\n  \"resolution\": \"1K\"\n\n}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        -1312
+      ],
+      "id": "849a64e0-c169-403f-9cdd-efd13ccdd089",
+      "name": "Submit Image Nano Banana Pro (Kie AI)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Wait for image Processing Completion": {
+      "main": [
+        [
+          {
+            "node": "Obtain the generated status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtain the generated status": {
+      "main": [
+        [
+          {
+            "node": "Check if image Generation is Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if image Generation is Complete": {
+      "main": [
+        [
+          {
+            "node": "Create Airtable Brand Asset Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for image Processing Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Brand Config": {
+      "main": [
+        [
+          {
+            "node": "Get Logo Description",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start - Receive UGC Record ID": {
+      "main": [
+        [
+          {
+            "node": "Get UGC Asset Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get UGC Asset Record": {
+      "main": [
+        [
+          {
+            "node": "Get Brand Config",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify: New UGC Image (with Preview)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Logo Description": {
+      "main": [
+        [
+          {
+            "node": "Generate Editing Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Editing Prompts": {
+      "main": [
+        [
+          {
+            "node": "Format Prompts to JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Prompts for Iteration": {
+      "main": [
+        [
+          {
+            "node": "Submit Image Nano Banana Pro (Kie AI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Airtable Brand Asset Record": {
+      "main": [
+        [
+          {
+            "node": "Generate Asset Tags (via AI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Asset Tags (via AI)": {
+      "main": [
+        [
+          {
+            "node": "Update Airtable Record with Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Airtable Record with Tags": {
+      "main": [
+        [
+          {
+            "node": "Notify: Processing Complete (Success)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify: Processing Complete (Success)": {
+      "main": [
+        []
+      ]
+    },
+    "Format Prompts to JSON": {
+      "main": [
+        [
+          {
+            "node": "Split Prompts for Iteration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit Image Nano Banana Pro (Kie AI)": {
+      "main": [
+        [
+          {
+            "node": "Wait for image Processing Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0b0c99b0-cb41-45cf-b9ce-b520ca70aa70",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "7z9A2zyc2xzmyzIh",
+  "tags": []
+}

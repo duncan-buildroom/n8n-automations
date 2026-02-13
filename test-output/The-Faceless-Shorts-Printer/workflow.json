@@ -1,0 +1,2802 @@
+{
+  "name": "The \"Faceless\" Shorts Printer",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1792,
+        -1136
+      ],
+      "id": "bdc3251a-6330-4a13-9828-e802d9552c5f",
+      "name": "When clicking \u2018Execute workflow\u2019"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\ude80 1. TRIGGER & CONFIGURATION\n\nThis section initiates the workflow and sets the niche/topic for content generation.\n\n**Nodes:**\n- Manual Trigger: Starts the workflow\n- Set: Define Niche: Configures the research topic",
+        "height": 1088,
+        "width": 512,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1936,
+        -1456
+      ],
+      "typeVersion": 1,
+      "id": "61b2fea6-bd34-4568-80a5-b99fff1e1d22",
+      "name": "\ud83d\udccc Trigger & Config"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udcdd 2. STORY RESEARCH & SCRIPT WRITING\n\nUses AI to research trending stories and generate viral scripts.\n\n**Nodes:**\n- LLM: Generate Full Story: Perplexity searches for viral stories\n- Gemini: Write Viral Script: Condenses story into 90-second TTS script",
+        "height": 1088,
+        "width": 640,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1408,
+        -1456
+      ],
+      "typeVersion": 1,
+      "id": "20c6a15e-f837-4cc2-8e06-5598f7513255",
+      "name": "\ud83d\udccc Story & Script"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udd0a 3. TEXT-TO-SPEECH GENERATION\n\nConverts the script to audio using WaveSpeed/ElevenLabs API.\n\n**Nodes:**\n- Create TTS Task: Submits script to voice API\n- Wait/Check/Loop: Polls until audio is ready\n- Set Audio URL: Extracts the final audio link",
+        "height": 448,
+        "width": 1664,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -752,
+        -1456
+      ],
+      "typeVersion": 1,
+      "id": "b4572d1a-ef07-4076-aea9-d67fbd5ece23",
+      "name": "\ud83d\udccc Text-to-Speech"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83c\udfa7 4. AUDIO TRANSCRIPTION & VISUAL PLANNING\n\nTranscribes audio and creates visual storyboard with scene prompts.\n\n**Nodes:**\n- Download/Upload Audio: Prepares audio for Gemini\n- API: Transcribe Audio: Gets timestamped transcript\n- Gemini: Visual Director: Creates image/video prompts per scene",
+        "height": 624,
+        "width": 1664
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -752,
+        -992
+      ],
+      "typeVersion": 1,
+      "id": "73f8c57b-1b83-49b7-9560-51a2cc7fc9bd",
+      "name": "\ud83d\udccc Transcription & Visuals"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\uddbc\ufe0f 5. IMAGE GENERATION\n\nGenerates images for each scene using Kie AI (nano-banana).\n\n**Nodes:**\n- Main Character Image: Creates consistent character reference\n- Scene Images: Generates background or character-in-scene images\n- Sort by Scene Number: Orders images for video assembly",
+        "height": 1088,
+        "width": 2560,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        928,
+        -1456
+      ],
+      "typeVersion": 1,
+      "id": "d00be07c-c2c9-4d34-8c30-a74926ed6991",
+      "name": "\ud83d\udccc Image Generation"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83c\udfac 6. VIDEO GENERATION & FINAL RENDER\n\nMorphs images to video and renders the final short.\n\n**Nodes:**\n- API:  Create Videos: Converts images to video clips\n- Merge: Audio + Videos: Combines all assets\n- API: Render Final Video: Creatomate assembles final MP",
+        "height": 1088,
+        "width": 3648,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3504,
+        -1456
+      ],
+      "typeVersion": 1,
+      "id": "bf34d642-331d-406d-b8da-a926336be398",
+      "name": "\ud83d\udccc Video & Render"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6e2559ab-ff31-42d1-b3cc-f6699f019136",
+              "name": "Niche",
+              "value": "Relationship horror stories from reddit",
+              "type": "string"
+            },
+            {
+              "id": "ad8153f1-825a-4b2b-ad8d-6c0235c95711",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1568,
+        -1136
+      ],
+      "id": "b9ffd59f-2ee0-4675-addb-2dc75285b496",
+      "name": "Set: Define Niche"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e8fda830-859a-4b0f-ba62-fc1ae8720148",
+              "name": "script",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -688,
+        -1248
+      ],
+      "id": "5c8c43d3-7932-4dce-af13-36ad3c57ecde",
+      "name": "Set: Extract Script"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.audioURL }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -704,
+        -688
+      ],
+      "id": "9a410864-8f9f-4376-b6da-16c06d603e17",
+      "name": "Download: Audio File"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  // Check if binary data exists (usually under the key 'data')\n  if (item.binary && item.binary.data) {\n    // Force the MIME type to MP3\n    item.binary.data.mimeType = 'audio/mpeg';\n    \n    // Optional: Ensure the file extension is correct\n    if (!item.binary.data.fileName.endsWith('.mp3')) {\n       item.binary.data.fileName += '.mp3';\n    }\n  }\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        -688
+      ],
+      "id": "320540ca-5d9a-404c-aaf8-88b892b46d48",
+      "name": "Fix: Audio MIME Type"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "inputType": "binary"
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        -688
+      ],
+      "id": "29158883-b53c-409b-8490-7b216b256434",
+      "name": "Upload: Audio to Gemini"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"file_data\": {\n            \"file_uri\": \"{{ $json.fileUri }}\",\n            \"mime_type\": \"{{ $json.mimeType }}\"\n          }\n        },\n        {\n          \"text\": \"Process the audio file and generate a detailed transcription.\\n\\nRequirements:\\n1. Identify distinct speakers (e.g., Speaker 1, Speaker 2, or names if context allows).\\n2. Provide accurate timestamps for each segment (Format: MM:SS).\\n3. Detect the primary language of each segment.\\n4. If the segment is in a language different than English, also provide the English translation.\\n5. Identify the primary emotion of the speaker in this segment. You MUST choose exactly one of the following: Happy, Sad, Angry, Neutral.\\n6. Provide a brief summary of the entire audio at the beginning. Provide the total duration of the audio file in seconds\"\n        }\n      ]\n    }\n  ],\n  \"generation_config\": {\n    \"response_mime_type\": \"application/json\",\n    \"response_schema\": {\n      \"type\": \"OBJECT\",\n      \"properties\": {\n        \"summary\": {\n          \"type\": \"STRING\",\n          \"description\": \"A concise summary of the audio content.\"\n        },\n        \"total_duration\": {\n          \"type\": \"INTEGER\",\n          \"description\": \"The total length of the audio file in seconds\"\n        },\n        \"segments\": {\n          \"type\": \"ARRAY\",\n          \"description\": \"List of transcribed segments with speaker and timestamp.\",\n          \"items\": {\n            \"type\": \"OBJECT\",\n            \"properties\": {\n              \"speaker\": {\n                \"type\": \"STRING\"\n              },\n              \"timestamp\": {\n                \"type\": \"STRING\"\n              },\n              \"content\": {\n                \"type\": \"STRING\"\n              },\n              \"language\": {\n                \"type\": \"STRING\"\n              },\n              \"language_code\": {\n                \"type\": \"STRING\"\n              },\n              \"translation\": {\n                \"type\": \"STRING\"\n              },\n              \"emotion\": {\n                \"type\": \"STRING\",\n                \"enum\": [\n                  \"happy\",\n                  \"sad\",\n                  \"angry\",\n                  \"neutral\"\n                ]\n              }\n            },\n            \"required\": [\n              \"speaker\",\n              \"timestamp\",\n              \"content\",\n              \"language\",\n              \"language_code\",\n              \"emotion\"\n            ]\n          }\n        }\n      },\n      \"required\": [\n        \"summary\",\n        \"total_duration\",\n        \"segments\"\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -32,
+        -688
+      ],
+      "id": "501a8728-c614-4124-886f-aa702be74d6b",
+      "name": "API: Transcribe Audio"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1500801-0fbb-4baf-b7b4-61f7797336d9",
+              "name": "transcript",
+              "value": "={{ $json.candidates[0].content.parts[0].text }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        -688
+      ],
+      "id": "54534461-dbd5-46b4-890f-4878aacc1471",
+      "name": "Set: Extract Transcript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0833ee48-fb49-489b-8967-9484aeab6802",
+              "name": "scenes",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        736,
+        -688
+      ],
+      "id": "890d30d5-3fa0-4aa8-bc2a-396372f69af8",
+      "name": "Set: Extract Scenes"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "scenes.data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2112,
+        -1072
+      ],
+      "id": "92010209-738b-42ad-953e-a3c17c2a3ff8",
+      "name": "Split: Scenes to Items"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "video_prompt"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3568,
+        -1072
+      ],
+      "id": "a02ab6c8-338b-447e-a1db-490ef50ff678",
+      "name": "Aggregate: Video Prompts"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3792,
+        -848
+      ],
+      "id": "5ba2012a-4557-4ac3-b973-6b263edb0bee",
+      "name": "Merge: Images + Prompts"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Access the incoming data from the first item\nconst inputData = items[0].json;\n\n// 1. Get the array of images (located inside data.resultJson)\nconst images = inputData.data.resultJson || [];\n\n// 2. Get the array of prompts (located at the root level)\nconst prompts = inputData.video_prompt || [];\n\n// 3. Combine them by mapping over the images\n// We return a new array of objects, where each object has a 'json' property\nreturn images.map((imageUrl, index) => {\n  return {\n    json: {\n      image_url: imageUrl,\n      // Match the prompt by index. If the prompt list is shorter, use a fallback.\n      video_prompt: prompts[index] || \"No prompt available\"\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4048,
+        -848
+      ],
+      "id": "e599ebd7-0ac5-4cae-ae9a-ba99b8e68388",
+      "name": "Code: Match Images to Prompts"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        5504,
+        -1184
+      ],
+      "id": "db2f9439-48a3-472f-9f97-8eb1e72cbfbc",
+      "name": "Merge: Audio + Videos"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the Audio URL (assuming it's on the first item)\nconst audioUrl = $input.first().json.audioURL;\n\n// 2. Get the list of Video URLs\n// Note: Adjust 'resultJson' if your video links are stored differently\nconst videoList = $input.first().json.data.resultJson; \n\n// 3. Create the empty list for Creatomate elements\nlet videoElements = [];\n\n// 4. Loop through your video list and format them for Creatomate\n// We use a loop to dynamically add as many videos as you have\nfor (const videoUrl of videoList) {\n  videoElements.push({\n    \"type\": \"video\",\n    \"track\": 1,          // track 1 ensures they play sequentially\n    \"source\": videoUrl,  // The URL from your data\n    \"volume\": \"0%\"       // Mute video to let Audio-JNM be the main sound\n  });\n}\n\n// 5. Construct the final Payload for the API\nconst finalPayload = {\n  \"template_id\": \"3d990388-fd9f-42e3-a031-241deef254a3\",\n  \"modifications\": {\n    \"Audio-JNM.source\": audioUrl,\n    \"Composition-C5Z.elements\": videoElements\n  }\n};\n\n// 6. Return the data so the next HTTP Request node can use it\nreturn [{ json: finalPayload }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5728,
+        -1184
+      ],
+      "id": "66c2cba7-d9d8-4267-8aec-f83e9dda5d6e",
+      "name": "Code: Build Creatomate Payload"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "94fbab4d-33bb-47d4-b167-5552acf75877",
+              "name": "mainCharacterImage",
+              "value": "={{ $json.data.resultJson.parseJson().resultUrls[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "fe864f7e-cd9b-4b36-ac84-9804caa40c1e",
+              "name": "scenes.data",
+              "value": "={{ $('Set: Extract Scenes').item.json.scenes.data }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1888,
+        -1072
+      ],
+      "id": "563b7f67-3b41-40ec-866e-b2757298b006",
+      "name": "Set: Store Character & Scenes"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "65ae447f-a998-46b6-be9e-f4c17d622144",
+              "leftValue": "={{ $json.image_contains_character }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1024,
+        -688
+      ],
+      "id": "f41f0c9c-9bd5-44f3-99af-61f0e3b7ccf7",
+      "name": "If: Contains Character?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1760,
+        -816
+      ],
+      "id": "ceae7239-8d14-42fc-aa94-55d60d7983b9",
+      "name": "Merge: All Scene Images"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4f5eb6ad-650c-4fae-a54a-6c14e4fda82f",
+              "name": "data",
+              "value": "={{ $json.data }}",
+              "type": "object"
+            },
+            {
+              "id": "9b3c6ee0-7363-4607-ad69-b5f2026afc29",
+              "name": "scene_number",
+              "value": "={{ $('If: Contains Character?').item.json.scene_number }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1488,
+        -832
+      ],
+      "id": "01a1d27f-a169-436f-82b6-5ea2d12e515a",
+      "name": "Set: Scene Number (Character)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4f5eb6ad-650c-4fae-a54a-6c14e4fda82f",
+              "name": "data",
+              "value": "={{ $json.data }}",
+              "type": "object"
+            },
+            {
+              "id": "8769d59d-9f08-43b8-94cd-308a71443b48",
+              "name": "scene_number",
+              "value": "={{ $('If: Contains Character?').item.json.scene_number }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1504,
+        -560
+      ],
+      "id": "950d53a1-677a-46c4-9411-c95d615119eb",
+      "name": "Set: Scene Number (Background)"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "scene_number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        1968,
+        -816
+      ],
+      "id": "5decf89d-db88-459b-9a76-729704d7f111",
+      "name": "Sort: By Scene Number"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2192,
+        -816
+      ],
+      "id": "0ab7e737-1766-4c25-9f2b-c89a2442f2cb",
+      "name": "Wait: Image Gen2",
+      "webhookId": "6462057b-6ff3-496c-ac2b-5b861fef6c61"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2384,
+        -816
+      ],
+      "id": "cccc031e-0491-447d-b061-6e0e2d8dbbff",
+      "name": "API: Check Image Status2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b625e6ed-e264-484f-908a-be3d08e74196",
+              "leftValue": "={{ $json.allDone }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2816,
+        -816
+      ],
+      "id": "00e00516-7d63-4d9c-a99a-c694772e8dcf",
+      "name": "If: Images Ready?2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst allDone = items.every((item) => item?.json?.data?.state === \"success\");\nconst resultJsons = items.map((item) => item?.json?.data?.resultJson);\nconst taskIds = items.map((item) => item?.json?.data?.taskId);\n\nconst result = allDone\n  ? { \n      allDone, \n      data: { \n          // Changed .map() to .flatMap() to merge the arrays into one list of strings\n          resultJson: resultJsons.flatMap(json => JSON.parse(json).resultUrls) \n      } \n    }\n  : { allDone, data: { taskId: taskIds } };\n\nreturn [{ json: result }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2592,
+        -816
+      ],
+      "id": "b1dbe504-2276-4fa8-a5ea-d8794da9bf2a",
+      "name": "Code: Check Image Completion1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data.taskId",
+        "options": {
+          "destinationFieldName": "data.taskId"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        3072,
+        -736
+      ],
+      "id": "8d632bbb-4640-4d2f-912a-3ab543c82779",
+      "name": "Split: Retry Image Tasks1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f65576b1-d6a7-414d-8124-8730566ec66f",
+              "name": "data",
+              "value": "={taskId:\"{{ $json['data.taskId'] }}\"}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3280,
+        -736
+      ],
+      "id": "c8470d3e-2a21-430b-8a5e-dd817828ca03",
+      "name": "Set: Prep Image Loop1"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4528,
+        -848
+      ],
+      "id": "2b5f7dff-0288-43ee-8e0f-9d610fb7d8b2",
+      "name": "Wait: Video Gen1",
+      "webhookId": "21c34d4b-279b-4e4b-b5fc-50f919e0d891"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4768,
+        -848
+      ],
+      "id": "b1bdd37b-7a6c-42ef-9fbb-bcaffbcfa0b9",
+      "name": "API: Check Video Status1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b625e6ed-e264-484f-908a-be3d08e74196",
+              "leftValue": "={{ $json.allDone }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5248,
+        -848
+      ],
+      "id": "6f9da66f-4b1f-473d-aa34-249c2c9c8c86",
+      "name": "If: Videos Ready?1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst allDone = items.every((item) => item?.json?.data?.state === \"success\");\nconst resultJsons = items.map((item) => item?.json?.data?.resultJson);\nconst taskIds = items.map((item) => item?.json?.data?.taskId);\n\nconst result = allDone\n  ? { \n      allDone, \n      data: { \n          // Changed .map() to .flatMap() to merge the arrays into one list of strings\n          resultJson: resultJsons.flatMap(json => JSON.parse(json).resultUrls) \n      } \n    }\n  : { allDone, data: { taskId: taskIds } };\n\nreturn [{ json: result }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5008,
+        -848
+      ],
+      "id": "870ea556-57b4-447f-9373-a597c2f3c86a",
+      "name": "Code: Check Video Completion1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data.taskId",
+        "options": {
+          "destinationFieldName": "data.taskId"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        5504,
+        -848
+      ],
+      "id": "2868bc78-3aeb-4609-a053-a1a7ceaba85b",
+      "name": "Split: Retry Video Tasks1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f65576b1-d6a7-414d-8124-8730566ec66f",
+              "name": "data",
+              "value": "={taskId:\"{{ $json['data.taskId'] }}\"}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5696,
+        -848
+      ],
+      "id": "fac303f2-f7f2-4460-9de2-a4a9ea7c6219",
+      "name": "Set: Prep Video Loop1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.creatomate.com/v2/renders",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        5968,
+        -1184
+      ],
+      "id": "e8c6f446-df44-4b26-a3c7-58817eec0c85",
+      "name": "API: Render Final Video1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "47f960bc-72f7-4426-95de-89335536b607",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "succeeded"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "succeeded"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "0887a3d0-4f56-4586-97de-e0c42c9fabc5",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "failed"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "failed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "0facf4d6-acb0-4863-ac2d-7a78f9e9cbfe",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "(planned|transcribing|waiting|rendering)"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "being processed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "581674c4-b8b5-4ddc-94c1-314d881379d5",
+      "name": "Switch: Is Render Done?1",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        6624,
+        -1200
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "id": "2a9f00f1-e717-4fd7-9495-5e22bde36e33",
+      "name": "Wait: Rendering1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        6176,
+        -1184
+      ],
+      "webhookId": "99e5dc8b-aca6-4a71-a0a8-3ed3e91376a6",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "url": "=https://api.creatomate.com/v2/renders/{{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "cd577c65-073e-4d2c-a96c-6013ecab3b29",
+      "name": "API: Check Render Status1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        6400,
+        -1184
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        6960,
+        -1216
+      ],
+      "id": "3e32068b-e549-4960-84ed-4da9241bfcaf",
+      "name": "HTTP: Download MP"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research Niche: {{ $json['Niche'] }}\n\n1. Find the most compelling TRUE story in this niche from the last 24-48 hours.\n2. Verify the facts using credible sources.\n3. Write the Full Story. Do not summarize it. Write the actual script/article.\n4. List the source URLs used.\n\nOutput ONLY valid JSON matching the schema provided.",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an Elite Storyteller and Viral Content Researcher. You have access to real-time information.\n\nYOUR MISSION:\n1. SEARCH the live internet for a TRUE story related to the user's Niche from the LAST 24-48 HOURS.\n2. IDENTIFY the most dramatic, emotional, or shocking event.\n3. WRITE A FULL NARRATIVE. \n4. COLLECT the specific URLs you found the information at.\n\nWRITING STYLE GUIDELINES:\n- Do not use bullet points for the story. Write in prose.\n- Use a \"Storyteller Voice\": Start with a hook, build tension, describe the setting, and deliver a climax.\n- Focus on the human element. How did the people involved feel?\n- The `narrative_script` field should be long (approx 500-800 words) and ready to be read aloud as a YouTube script or podcast.\n\nOUTPUT FORMAT (JSON ONLY):\nReturn valid JSON with this exact structure:\n{\n  \"headline\": \"A catchy, viral-style title\",\n  \"event_date\": \"Date of occurrence\",\n  \"virality_hook\": \"One sentence explaining why this story is insane/important right now\",\n  \"narrative_script\": \"THE FULL STORY GOES HERE. It was a dark and stormy night... (The entire script, paragraph by paragraph, no bullet points)\",\n  \"visual_context\": \"Detailed description of the vibe/setting for an editor\",\n  \"source_links\": [\"https://news-site.com/article1\", \"https://source-site.com/report\"]\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -1328,
+        -1136
+      ],
+      "id": "1e692030-24cc-404b-9e30-2b9771014ba1",
+      "name": "LLM: Generate Full Story"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        -848
+      ],
+      "id": "19f9a2b4-2b74-4097-a115-fbd974a8083c",
+      "name": "OpenRouter Chat Model1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a Master Short-Form Scriptwriter. You specialize in condensing long-form true stories into viral 90-second audio scripts for ElevenLabs TTS.\n\nYOUR INPUT:\nYou will receive a long, detailed \"Narrative Script\" and a \"Headline\".\n\nYOUR JOB:\nRewrite the long story into an approx 260 word script (aiming for exactly 90 seconds speaking time).\n\nSTRUCTURE:\n1. 0-10s (The Hook): Start with the most shocking moment, mystery, or question. No \"Hello guys\".\n2. 10-80s (The Body): Compress the timeline but allow the story to breathe. Use punchy sentences but build tension slowly.\n3. 80-90s (The Twist/CTA): Deliver the final resolution or twist, followed by a quick subscribe call.\n\nAUDIO FORMATTING (CRITICAL):\nYou MUST include these tags for the Text-to-Speech engine:\n- `[breath]` : Insert at every comma or natural pause to control pacing.\n- `[whisper]` : Use for scary or secretive moments.\n- `[serious]` : When delivering hard facts.\n- `...` : For dramatic effect.\n\nOUTPUT JSON ONLY:\n{\n  \"video_title\": \"Viral Short Title\",\n  \"script_text\": \"Full script with [breath] tags included...\",\n  \"youtube_description\": \"Short SEO description\"\n}",
+              "role": "model"
+            },
+            {
+              "content": "=Headline: {{ $json.output.headline }}\n\nVirality Hook: {{ $json.output.virality_hook }}\n\nFULL STORY CONTEXT (Summarize this): \n{{ $json.output.narrative_script }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        -1136
+      ],
+      "id": "79eb43e1-5a6e-4385-b0a4-a768dfb59cee",
+      "name": "Gemini: Write Viral Script"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.wavespeed.ai/api/v3/elevenlabs/eleven-v3",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "similarity",
+              "value": "1"
+            },
+            {
+              "name": "stability",
+              "value": "0"
+            },
+            {
+              "name": "text",
+              "value": "=[pause] {{ $json.script.script_text }}"
+            },
+            {
+              "name": "use_speaker_boost",
+              "value": "true"
+            },
+            {
+              "name": "voice_id",
+              "value": "=yl2ZDV1MzN4HbQJbMihG"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -464,
+        -1248
+      ],
+      "id": "9f0f5633-d613-43b0-9f4c-02c48f561ba2",
+      "name": "Create TTS Task"
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        -1248
+      ],
+      "id": "8803719a-ba75-4a60-a760-407c83fce884",
+      "name": "Wait for Text-To-Speech",
+      "webhookId": "a59695d2-8d31-456f-827a-11f9b4ee6e75"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.urls.get }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -16,
+        -1248
+      ],
+      "id": "086c065a-0277-4c8a-b5c2-add271edb447",
+      "name": "Check TTS Status"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9ae03107-5026-4fca-bb72-f155258763cb",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        -1248
+      ],
+      "id": "54ff3361-5982-41c7-b997-29cea88423cf",
+      "name": "TTS Complete?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "49c76be7-39ab-43be-8b7e-17d42fd9a6fa",
+              "name": "audioURL",
+              "value": "={{ $json.data.outputs[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        -1200
+      ],
+      "id": "a60724d2-e83a-45e6-9d30-e74eaa06461e",
+      "name": "Set Audio URL"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert AI Visual Director for high-end true crime documentaries.\nI will provide a transcript object containing a \"total_duration\" (in seconds) and a list of \"segments\" with timestamps.\n\nYOUR GOAL:\nCreate a visual storyboard by grouping the script into ~4-second scenes, ensuring a consistent Main Character is generated and integrated where relevant, while strictly adhering to visual-audio sync.\n\nINSTRUCTIONS:\n\n1. **DEFINE MAIN CHARACTER:**\n   - Analyze the transcript to identify the primary subject.\n   - Create a specific, high-fidelity \"main_character_image_prompt\" (e.g., \"A man in his 40s, sharp jawline, receding hairline, wearing a grey hoodie, cinematic true crime lighting\").\n\n2. **SEGMENTATION:**\n   - Read the \"total_duration\" ({{ $json.transcript.total_duration }}) and create exactly {{ Math.ceil($json.transcript.total_duration / 4) }} scenes.\n   - Group transcript segments into these ~4 second windows.\n\n3. **SCENE GENERATION & CHARACTER INTEGRATION:**\n   - For each window, decide if the Main Character is present based on the script.\n   - **IF PRESENT (\"image_contains_character\": true):** You MUST merge the \"main_character_image_prompt\" details into the scene action.\n     - *Bad:* \"A person walks down the hall.\"\n     - *Good:* \"The man in his 40s with the grey hoodie walks down the dark hall.\"\n   - **IF ABSENT (\"image_contains_character\": false):** Focus entirely on the environment or objects mentioned.\n\n4. **STRICT VISUAL-AUDIO SYNC RULES (CRITICAL):**\n   - **DIRECT RELEVANCE:** The image prompt MUST visualize the specific nouns and actions mentioned in that 4-second script window.\n     - *Example:* If script says \"They found a red glove,\" the image MUST focus on a red glove.\n     - *Example:* If script says \"It was raining,\" the image MUST show rain.\n   - **NO GENERIC FILLER:** Do not generate generic \"police lights\" or \"sad man\" images unless the script specifically implies police or sadness at that exact second.\n   - **NO SPLIT SCREENS:** Never request split screens. One cohesive shot only.\n   - **VIDEO CINEMATOGRAPHY:** Include camera movement (dolly, truck, pan), lighting (volumetric, harsh, soft), and transition details.\n\nINPUT DATA:\n{{ JSON.stringify($json.transcript) }}\n\nRETURN VALID JSON:\n{\n  \"main_character_image_prompt\": \"Detailed description of the character's consistent look\",\n  \"data\": [\n    {\n      \"scene_number\": 1,\n      \"time_range\": \"00:00 - 00:04\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"Text segments covered in this window\",\n      \"image_contains_character\": true,\n      \"image_prompt\": \"Detailed prompt. IF character is true, include the description from main_character_image_prompt here + the specific action/nouns from the script.\",\n      \"video_prompt\": \"Camera movement, lighting details, and transition.\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -688
+      ],
+      "id": "4d9d4442-e984-42ee-9976-8f62deadf81a",
+      "name": "Gemini: Visual Director"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nano-banana-pro\",\n  \"input\": {\n    \"prompt\": \"{{ $json.scenes.main_character_image_prompt }}\",\n    \"aspect_ratio\": \"9:16\",\n    \"resolution\": \"1K\",\n    \"output_format\": \"png\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1040,
+        -1072
+      ],
+      "id": "2b34d2ec-baa8-40b9-9ae1-ed1a36587536",
+      "name": "API: Start Image Gen"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1248,
+        -1072
+      ],
+      "id": "e9554548-1b5f-430b-bcc1-b9d8d68b0384",
+      "name": "Wait: Image Gen",
+      "webhookId": "6462057b-6ff3-496c-ac2b-5b861fef6c61"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1456,
+        -1072
+      ],
+      "id": "6070c0bd-3d06-4a8b-a1f5-b2cd61ae5870",
+      "name": "API: Check Image Status"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b625e6ed-e264-484f-908a-be3d08e74196",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1664,
+        -1072
+      ],
+      "id": "f8744950-521d-46a0-8369-bf8b1e8067e9",
+      "name": "If: Images Ready?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nano-banana-pro\",\n  \"input\": {\n    \"prompt\": \"{{ $json.image_prompt }}\",\n    \"aspect_ratio\": \"9:16\",\n    \"resolution\": \"1K\",\n    \"output_format\": \"png\"\n  }\n}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 2000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1280,
+        -560
+      ],
+      "id": "0ac08da5-65a9-4f3e-bb76-e73581b1fbe4",
+      "name": "API: Start Image Gen : No main Character Scenes"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"google/nano-banana-edit\",\n  \"input\": {\n    \"prompt\": \"{{ $json.image_prompt }}\",\n\"image_urls\": [\"{{ $('Set: Store Character & Scenes').item.json.mainCharacterImage }}\"],\n    \"image_size\": \"9:16\",\n    \"output_format\": \"png\"\n  }\n}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 2500
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1280,
+        -832
+      ],
+      "id": "03da519a-d2ed-4451-9ea7-9d86fda17595",
+      "name": "API: Start Image Gen : Main Character Scenes"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"headline\": \"The title of the story\",\n  \"event_date\": \"2024-01-01\",\n  \"virality_hook\": \"The hook\",\n  \"narrative_script\": \"The full long-form story text goes here...\",\n  \"visual_context\": \"Visual setting description\",\n  \"source_links\": [\n    \"https://example.com/source1\",\n    \"https://example.com/source2\"\n  ]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -1200,
+        -976
+      ],
+      "id": "47b413f5-75ee-4bc6-9fec-6537785c5862",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "perplexity/sonar-pro-search",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1328,
+        -976
+      ],
+      "id": "608da392-c8f3-4f31-923d-8fcc60151fb6",
+      "name": "OpenRouter Chat Model"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"model\": \"bytedance/seedance-1.5-pro\",\n\"input\": {\n  \"prompt\": \"{{ $json.video_prompt }}\",\n  \"input_urls\": [\n    \"{{ $json.image_url }}\"\n  ],\n  \"aspect_ratio\": \"9:16\",\n  \"resolution\": \"480p\",\n  \"duration\": \"4\",\n  \"generate_audio\": false\n}\n}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 10,
+              "batchInterval": 2500
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4288,
+        -848
+      ],
+      "id": "98ad3c76-94d3-4186-994d-b7aa6365140a",
+      "name": "API: Create Video"
+    }
+  ],
+  "pinData": {
+    "API: Start Image Gen": [
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "bb61f695afa6ed026e93091d010218f8",
+            "recordId": "bb61f695afa6ed026e93091d010218f8"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Create TTS Task": [
+      {
+        "json": {
+          "code": 200,
+          "message": "success",
+          "data": {
+            "id": "6ce22fc6892042d7a561cb1441f162ec",
+            "model": "elevenlabs/eleven-v3",
+            "outputs": [],
+            "urls": {
+              "get": "https://api.wavespeed.ai/api/v3/predictions/6ce22fc6892042d7a561cb1441f162ec/result"
+            },
+            "has_nsfw_contents": [],
+            "status": "created",
+            "created_at": "2026-01-23T01:00:49.503Z",
+            "error": "",
+            "executionTime": 0,
+            "timings": {
+              "inference": 0
+            }
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Download: Audio File": [
+      {
+        "json": {
+          "audioURL": "https://d1q70pf5vjeyhc.cloudfront.net/predictions/6ce22fc6892042d7a561cb1441f162ec/1.mp3"
+        },
+        "binary": {
+          "data": {
+            "mimeType": "binary/octet-stream",
+            "fileExtension": "mp3",
+            "data": "filesystem-v2",
+            "directory": "https://d1q70pf5vjeyhc.cloudfront.net/predictions/6ce22fc6892042d7a561cb1441f162ec/1.mp3",
+            "fileName": "1.mp3",
+            "id": "filesystem-v2:workflows/yyM468XQdfyp8Qwb/executions/13934/binary_data/99df57e9-76f0-445f-b765-357742fc3878",
+            "fileSize": "1.13 MB",
+            "bytes": 1133550
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "API: Transcribe Audio": [
+      {
+        "json": {
+          "candidates": [
+            {
+              "content": {
+                "parts": [
+                  {
+                    "text": "{\"summary\":\"A man describes the shocking revelation of his wife's infidelity immediately following their 13th wedding anniversary, detailing the progression from her initial claims of an emotional connection to the eventual discovery of a physical affair.\",\"total_duration\":71,\"segments\":[{\"speaker\":\"Narrator\",\"timestamp\":\"00:00\",\"content\":\"Imagine celebrating 13 years of marriage. The champagne, the promises under the stars. Only for your wife to sit you down the very next morning and detonate a bomb that destroys your entire life.\",\"language\":\"English\",\"language_code\":\"en-US\",\"emotion\":\"neutral\"},{\"speaker\":\"Narrator\",\"timestamp\":\"00:12\",\"content\":\"She wouldn't look at me. 'I've been talking to someone,' she whispered. She swore on our children it was purely emotional, just deep talks to fill a void.\",\"language\":\"English\",\"language_code\":\"en-US\",\"emotion\":\"sad\"},{\"speaker\":\"Narrator\",\"timestamp\":\"00:21\",\"content\":\"She claimed she felt unsafe with me. Me, the man who had been faithful and present for over a decade. I tried to be understanding, but the math didn't add up.\",\"language\":\"English\",\"language_code\":\"en-US\",\"emotion\":\"angry\"},{\"speaker\":\"Narrator\",\"timestamp\":\"00:30\",\"content\":\"Weeks passed in a haze of therapy and suspicion. Then, I picked up her phone to fix a setting, and there it was. A flood of messages from a married man named John. Not just one, but hundreds.\",\"language\":\"English\",\"language_code\":\"en-US\",\"emotion\":\"neutral\"},{\"speaker\":\"Narrator\",\"timestamp\":\"00:42\",\"content\":\"'I love you. I crave you.' My hands shook as the nausea hit. She gaslighted me, claiming friends text that much. But when I cornered her, the truth finally shattered.\",\"language\":\"English\",\"language_code\":\"en-US\",\"emotion\":\"sad\"},{\"speaker\":\"Narrator\",\"timestamp\":\"00:52\",\"content\":\"It wasn't just emotional. She had been sleeping with him in hotels, then coming home to my bed, letting me hold her while she still carried his scent.\",\"language\":\"English\",\"language_code\":\"en-US\",\"emotion\":\"angry\"},{\"speaker\":\"Narrator\",\"timestamp\":\"01:04\",\"content\":\"Now she claims it was a mistake due to loneliness. But every time I look at her, I see him. Can a marriage survive this level of deceit? Subscribe for the update.\",\"language\":\"English\",\"language_code\":\"en-US\",\"emotion\":\"sad\"}]}",
+                    "thoughtSignature": "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"
+                  }
+                ],
+                "role": "model"
+              },
+              "finishReason": "STOP",
+              "index": 0
+            }
+          ],
+          "usageMetadata": {
+            "promptTokenCount": 1913,
+            "candidatesTokenCount": 554,
+            "totalTokenCount": 4392,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 141
+              },
+              {
+                "modality": "AUDIO",
+                "tokenCount": 1772
+              }
+            ],
+            "thoughtsTokenCount": 1925
+          },
+          "modelVersion": "gemini-3-flash-preview",
+          "responseId": "dchyabmgEuvVvdIPh5qz-Qw"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Upload: Audio to Gemini": [
+      {
+        "json": {
+          "fileUri": "https://generativelanguage.googleapis.com/v1beta/files/kjb9a7z0og38",
+          "mimeType": "audio/mpeg"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Gemini: Visual Director": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "{\n  \"main_character_image_prompt\": \"A man in his late 30s, short dark hair, weary eyes with visible dark circles, wearing a textured navy blue wool sweater, cinematic moody lighting, high contrast, photorealistic 8k\",\n  \"data\": [\n    {\n      \"scene_number\": 1,\n      \"time_range\": \"00:00 - 00:04\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"Imagine celebrating 13 years of marriage. The champagne\",\n      \"image_contains_character\": false,\n      \"image_prompt\": \"Two crystal champagne flutes filled with bubbling gold liquid resting on a white tablecloth, soft candlelight flickering in the background, bokeh effect, 8k resolution, cinematic lighting.\",\n      \"video_prompt\": \"Slow truck in towards the bubbles rising in the glass, warm ambient lighting, shallow depth of field.\"\n    },\n    {\n      \"scene_number\": 2,\n      \"time_range\": \"00:04 - 00:08\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"the promises under the stars. Only for your wife\",\n      \"image_contains_character\": false,\n      \"image_prompt\": \"A vast night sky filled with bright stars above a silhouette of a suburban house roof, dark blue tones, cinematic composition.\",\n      \"video_prompt\": \"Slow tilt down from the starry sky to the dark house, mysterious atmosphere, low light.\"\n    },\n    {\n      \"scene_number\": 3,\n      \"time_range\": \"00:08 - 00:12\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"to sit you down the very next morning and detonate a bomb that destroys your entire life.\",\n      \"image_contains_character\": true,\n      \"image_prompt\": \"The man in his late 30s with short dark hair and navy blue sweater sitting at a kitchen table, body tense, hands gripping the edge of the table, morning light casting harsh shadows across his face.\",\n      \"video_prompt\": \"Static shot with subtle push in on the man's tense posture, natural morning lighting but with high contrast shadows.\"\n    },\n    {\n      \"scene_number\": 4,\n      \"time_range\": \"00:12 - 00:16\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"She wouldn't look at me. 'I've been talking to someone,' she whispered.\",\n      \"image_contains_character\": false,\n      \"image_prompt\": \"A woman with long hair looking down at the floor, avoiding eye contact, profile view, blurred kitchen background, cinematic drama style.\",\n      \"video_prompt\": \"Handheld camera movement creating a slight wobble to induce unease, focus on the woman turning her head away.\"\n    },\n    {\n      \"scene_number\": 5,\n      \"time_range\": \"00:16 - 00:20\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"She swore on our children it was purely emotional, just deep talks to fill a void.\",\n      \"image_contains_character\": false,\n      \"image_prompt\": \"Close up of a framed family photograph on a mantelpiece showing two young children, slightly dusty, soft focus background.\",\n      \"video_prompt\": \"Slow pan across the photo frame, sentimental lighting turning slightly ominous.\"\n    },\n    {\n      \"scene_number\": 6,\n      \"time_range\": \"00:21 - 00:25\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"She claimed she felt unsafe with me. Me, the man who had been faithful\",\n      \"image_contains_character\": true,\n      \"image_prompt\": \"The man in his late 30s in the navy blue sweater standing near a window, looking at his own reflection in the glass with a look of confusion and hurt, rain streaking the window pane.\",\n      \"video_prompt\": \"Rack focus from the rain on the glass to the man's reflection, moody blue lighting.\"\n    },\n    {\n      \"scene_number\": 7,\n      \"time_range\": \"00:25 - 00:29\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"and present for over a decade. I tried to be understanding, but the math didn't add up.\",\n      \"image_contains_character\": true,\n      \"image_prompt\": \"The man in his late 30s sitting alone in a dim room, rubbing his temples in frustration, a wall clock visible in the background, cinematic realism.\",\n      \"video_prompt\": \"Slow dolly out from the man, emphasizing isolation, ticking clock aesthetic in the lighting.\"\n    },\n    {\n      \"scene_number\": 8,\n      \"time_range\": \"00:30 - 00:34\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"Weeks passed in a haze of therapy and suspicion. Then, I picked up her phone\",\n      \"image_contains_character\": true,\n      \"image_prompt\": \"Close up of the man in his late 30s reaching his hand out to pick up a smartphone lying on a coffee table, low angle shot.\",\n      \"video_prompt\": \"Focus pull from the phone to the hand reaching for it, suspenseful slow motion.\"\n    },\n    {\n      \"scene_number\": 9,\n      \"time_range\": \"00:34 - 00:38\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"to fix a setting, and there it was. A flood of messages\",\n      \"image_contains_character\": false,\n      \"image_prompt\": \"Extreme close-up of a smartphone screen illuminating in a dark room, displaying a notification list, blue light reflection.\",\n      \"video_prompt\": \"Camera zooms into the screen pixels, the light flaring slightly, digital anxiety atmosphere.\"\n    },\n    {\n      \"scene_number\": 10,\n      \"time_range\": \"00:38 - 00:42\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"from a married man named John. Not just one, but hundreds.\",\n      \"image_contains_character\": false,\n      \"image_prompt\": \"A smartphone screen displaying a long list of text bubbles scrolling rapidly, the name 'John' visible at the top, dark background.\",\n      \"video_prompt\": \"Fast vertical scroll animation on the screen, creating a dizzying effect.\"\n    },\n    {\n      \"scene_number\": 11,\n      \"time_range\": \"00:42 - 00:46\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"'I love you. I crave you.' My hands shook as the nausea hit.\",\n      \"image_contains_character\": true,\n      \"image_prompt\": \"The hands of the man in his late 30s trembling visibly while holding the phone, knuckles white from gripping too hard, blurred navy sweater in background.\",\n      \"video_prompt\": \"Handheld camera shaking slightly to match the trembling hands, disorienting close-up.\"\n    },\n    {\n      \"scene_number\": 12,\n      \"time_range\": \"00:46 - 00:50\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"She gaslighted me, claiming friends text that much. But when I cornered her\",\n      \"image_contains_character\": true,\n      \"image_prompt\": \"Over-the-shoulder shot of the man in his late 30s facing a blurry female figure in a hallway, the man's posture confronting and rigid.\",\n      \"video_prompt\": \"Dolly forward towards the figures, increasing tension, shadows lengthening in the hallway.\"\n    },\n    {\n      \"scene_number\": 13,\n      \"time_range\": \"00:50 - 00:54\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"the truth finally shattered. It wasn't just emotional.\",\n      \"image_contains_character\": false,\n      \"image_prompt\": \"A drinking glass falling and shattering on a hardwood floor, shards flying, frozen in time, high shutter speed photography style.\",\n      \"video_prompt\": \"Super slow motion of the glass breaking, symbolizing the realization, dramatic lighting.\"\n    },\n    {\n      \"scene_number\": 14,\n      \"time_range\": \"00:54 - 00:58\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"She had been sleeping with him in hotels, then coming home to my bed\",\n      \"image_contains_character\": false,\n      \"image_prompt\": \"A long, empty, sterile hotel corridor with patterned carpet and numbered doors, dim yellow artificial lighting.\",\n      \"video_prompt\": \"Slow steadycam glide down the hallway, ominous and impersonal feeling.\"\n    },\n    {\n      \"scene_number\": 15,\n      \"time_range\": \"00:58 - 01:02\",\n      \"duration_seconds\": 4,\n      \"script_coverage\": \"letting me hold her while she still carried his scent.\",\n      \"image_contains_character\": true,\n      \"image_prompt\": \"The man in his late 30s lying in bed in the dark, staring at the ceiling with wide, haunted eyes, a sleeping figure turned away from him next to him.\",\n      \"video_prompt\": \"Top-down shot slowly rising above the bed, cold blue moonlight filtering in.\"\n    },\n    {\n      \"scene_number\": 16,\n      \"time_range\": \"01:04 - 01:07\",\n      \"duration_seconds\": 3,\n      \"script_coverage\": \"Now she claims it was a mistake due to loneliness.\",\n      \"image_contains_character\": false,\n      \"image_prompt\": \"A woman sitting alone on the edge of a bed, silhouette against a bright window, head in hands, isolation.\",\n      \"video_prompt\": \"Static wide shot, high contrast silhouette, emphasizing emptiness around her.\"\n    },\n    {\n      \"scene_number\": 17,\n      \"time_range\": \"01:07 - 01:09\",\n      \"duration_seconds\": 2,\n      \"script_coverage\": \"But every time I look at her, I see him.\",\n      \"image_contains_character\": true,\n      \"image_prompt\": \"Extreme close-up of the man in his late 30s, his eyes looking intensely forward, a subtle double-exposure ghosting effect of a stranger's silhouette overlaid.\",\n      \"video_prompt\": \"Slow zoom into the man's eye, lighting shifting from warm to cold.\"\n    },\n    {\n      \"scene_number\": 18,\n      \"time_range\": \"01:09 - 01:11\",\n      \"duration_seconds\": 2,\n      \"script_coverage\": \"Can a marriage survive this level of deceit? Subscribe for the update.\",\n      \"image_contains_character\": false,\n      \"image_prompt\": \"A gold wedding band left alone on a dark wooden table, reflected in the surface, spotlight.\",\n      \"video_prompt\": \"Light fades out slowly on the ring until total darkness, text overlay space available.\"\n    }\n  ]\n}",
+                "thoughtSignature": "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"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "API: Start Image Gen : Main Character Scenes": [
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "5cdccfbf0bcf9bab0671339a1f898e63",
+            "recordId": "5cdccfbf0bcf9bab0671339a1f898e63"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "82d09204a2f534ff8395c08644e8f32f",
+            "recordId": "82d09204a2f534ff8395c08644e8f32f"
+          }
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "a8ed8553526951069e12d16291495fc4",
+            "recordId": "a8ed8553526951069e12d16291495fc4"
+          }
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "4452f91ca6bf6cf953effe01adcbaa6e",
+            "recordId": "4452f91ca6bf6cf953effe01adcbaa6e"
+          }
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "363f64567257bccc59070c64aa60d960",
+            "recordId": "363f64567257bccc59070c64aa60d960"
+          }
+        },
+        "pairedItem": {
+          "item": 4
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "1bf0ce5c150c7013cd263544d9351468",
+            "recordId": "1bf0ce5c150c7013cd263544d9351468"
+          }
+        },
+        "pairedItem": {
+          "item": 5
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "b0dcf6c9aeff5a05344c63f344fdc065",
+            "recordId": "b0dcf6c9aeff5a05344c63f344fdc065"
+          }
+        },
+        "pairedItem": {
+          "item": 6
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "78388109a972273ab67b1738731dbaec",
+            "recordId": "78388109a972273ab67b1738731dbaec"
+          }
+        },
+        "pairedItem": {
+          "item": 7
+        }
+      }
+    ],
+    "API: Start Image Gen : No main Character Scenes": [
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "cc5e0a596ab3314f117369689871fbf2",
+            "recordId": "cc5e0a596ab3314f117369689871fbf2"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "72866c60341c3b409cc5dbf1796650ab",
+            "recordId": "72866c60341c3b409cc5dbf1796650ab"
+          }
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "b20680ccc8297ab41fac4c9f1375c273",
+            "recordId": "b20680ccc8297ab41fac4c9f1375c273"
+          }
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "20d4628fdc65662dfcb8f45269153743",
+            "recordId": "20d4628fdc65662dfcb8f45269153743"
+          }
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "108191a5fdd6879867bab9f098839320",
+            "recordId": "108191a5fdd6879867bab9f098839320"
+          }
+        },
+        "pairedItem": {
+          "item": 4
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "6c0ad7039188fa13698ad6e35159e162",
+            "recordId": "6c0ad7039188fa13698ad6e35159e162"
+          }
+        },
+        "pairedItem": {
+          "item": 5
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "983b7d03504aa9fe51777c7996595040",
+            "recordId": "983b7d03504aa9fe51777c7996595040"
+          }
+        },
+        "pairedItem": {
+          "item": 6
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "d26e6a8c17c8f16fd81df7d6d89582a0",
+            "recordId": "d26e6a8c17c8f16fd81df7d6d89582a0"
+          }
+        },
+        "pairedItem": {
+          "item": 7
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "3a5abe91e8040043c57c2d6e3a833d10",
+            "recordId": "3a5abe91e8040043c57c2d6e3a833d10"
+          }
+        },
+        "pairedItem": {
+          "item": 8
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "ec0d1c7c39484145d000afccf51530e8",
+            "recordId": "ec0d1c7c39484145d000afccf51530e8"
+          }
+        },
+        "pairedItem": {
+          "item": 9
+        }
+      }
+    ],
+    "LLM: Generate Full Story": [
+      {
+        "json": {
+          "output": {
+            "headline": "She Left Him After Christmas Broke Something Inside\u2014The Abuse Pattern She Finally Couldn't Ignore",
+            "event_date": "January 2026",
+            "virality_hook": "A woman realized her boyfriend's emotional abuse had been systematic all along when his lazy Christmas behavior forced her to confront a decade-long pattern of manipulation\u2014and she finally found the strength to leave.",
+            "narrative_script": "It started as disappointment. Crushing, soul-breaking disappointment. She woke up on Christmas morning in 2025, eager to celebrate with her boyfriend of years. She had done everything right\u2014the expensive hunting knife, the new hat, thoughtful gifts carefully selected. She was working full-time, raising his four-year-old child practically on her own, managing the household, cooking, cleaning, being the woman you're supposed to be in a relationship. She thought love meant sacrifice. She thought showing up meant he would too.\n\nBut there was nothing waiting for her that morning. No gift. No clean house. No gesture. No love language. He had waited until Christmas Eve to order something from the internet\u2014something cheap, something that showed he didn't even know her taste because she had told him about this specific color weeks before. When she gently mentioned that she would have been grateful for literally anything, even a clean house as a gift, he looked at her and said it was because she had spent so much money on her family. As if her generosity was a character flaw. As if loving her relatives meant she didn't deserve to be loved by him.\n\nShe watched him complain about the color of the hat. This hat she chose carefully. This hat that matched everything he owned. And something inside her shattered.\n\nThat night, she couldn't sleep. She lay in bed replaying every Christmas, every birthday, every moment where she had given and he had taken. She thought about the constant criticism, the way he made her feel small when she was nothing but supportive. She thought about raising a child that wasn't even hers, being a stepmother without the title, doing everything a good girlfriend should do. And this was how she got treated? Like an inconvenience? Like someone whose love was a burden?\n\nShe posted about it on Reddit, just needing to vent, needing someone to tell her that her sadness made sense. She wasn't asking for advice. She just needed to get it off her chest because Christmas had genuinely broken something in her, and she couldn't keep pretending anymore.\n\nBut something magical happened. The comments started pouring in. People recognized the pattern. They named what she had been experiencing: emotional abuse. They told her things she never wanted to admit\u2014that a partner should make you feel valued, not diminished. They recommended a book called \"Why Does He Do That?\" by Lundy Bancroft. A book specifically about controlling men and patterns of abuse.\n\nShe read it in secret. And with every page, she felt nauseous. Because it was spot-on. Every single page described her relationship. She wasn't crazy. She wasn't asking too much. She wasn't the problem. He was systematically devaluing her. Using subtle tactics to make her feel insignificant. Making her doubt her own worth.\n\nSix days later, she posted an update. \"I'm 30 years old,\" she wrote, \"and I've realized I've been blind to how deep this goes.\" She scheduled a therapy session. She started making a plan. She was honest with herself about what she needed to do, even though the thought of leaving terrified her. Because he had trained her to stay. He had trained her to believe she couldn't do it. That she needed him. That without him, she was nothing.\n\nBut she was done. The Christmas that broke something inside her was also the Christmas that finally woke her up. The woman who had given everything\u2014her time, her energy, her heart, her selflessness raising someone else's child\u2014finally decided that she deserved more. She deserved someone who chose her. Someone who valued her. Someone who showed up.\n\nThe Reddit community watched this unfold. They celebrated her courage. And when commenters started asking why she would send her entire paycheck to him just to have him give it back to pay bills, the reality of her situation became even starker. She had been controlled in every way. Financial abuse, emotional abuse, systematic devaluation. But now, finally, she was going to be free.",
+            "visual_context": "A quiet bedroom on Christmas morning with wrapped presents sitting alone on a nightstand\u2014one expensive gift in perfect wrapping, unopened and heartbreaking. Cut to her staring out a window, processing the realization. Muted, cool color grading in blues and grays. Intimate close-ups of her face showing the moment despair turns to determination. The vibe is bittersweet awakening\u2014the darkness before the light, a woman in her 30s finding her voice in the quiet aftermath of a broken Christmas.",
+            "source_links": [
+              "https://www.youtube.com/watch?v=KWU4n5TXWzo"
+            ]
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Gemini: Write Viral Script": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "{\n  \"video_title\": \"The Christmas That Broke Her Reality\",\n  \"script_text\": \"She handed him an expensive hunting knife, [breath] and he handed her... absolutely nothing. [breath] But the empty space under the tree wasn't the worst part. [breath] [serious] It was the excuse he gave that shattered her reality. [breath] For years, [breath] she played the perfect partner. [breath] Raising *his* four-year-old child, [breath] managing the household, [breath] and working full time. [breath] She thought love meant sacrifice. [breath] But on Christmas morning, [breath] while she waited for a single gesture of affection, [breath] he looked at her and sneered. [breath] He hadn't wrapped a single thing. [breath] Instead, he blamed her for spending money on her own family. [breath] He even complained about the expensive gift she bought him. [breath] That night, lying in bed next to a stranger, [breath] something inside her finally snapped. [breath] Desperate, she typed her story online. [breath] Thousands of strangers saw what she couldn't. [breath] [whisper] They told her to read a book called 'Why Does He Do That?'. [breath] As she read it in secret, [breath] she felt physically sick. [breath] The nausea wasn't from the flu. [breath] It was the realization that every subtle criticism, [breath] every financial control tactic, [breath] every time he made her feel small... [breath] was a calculated pattern. [breath] [serious] She realized she wasn't crazy. [breath] She was being systematically broken. [breath] Six days later, she didn't just return the gifts. [breath] She returned the boyfriend. [breath] Subscribe for more true stories.\",\n  \"youtube_description\": \"A woman realizes her relationship is toxic after a disastrous Christmas morning leads her to a life-changing realization about emotional abuse. #relationships #storytime\"\n}",
+                "thoughtSignature": "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"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "API: Create Video": [
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "a7d4662f04fbb5e46c082395be78d134",
+            "recordId": "a7d4662f04fbb5e46c082395be78d134"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "f9a4100732a0187ab7a7451b898db59f",
+            "recordId": "f9a4100732a0187ab7a7451b898db59f"
+          }
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "f8b1842df4b7d9225807818f1b35ec2d",
+            "recordId": "f8b1842df4b7d9225807818f1b35ec2d"
+          }
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "d220cc04f9a0f21edf3472c5b9c8d8a7",
+            "recordId": "d220cc04f9a0f21edf3472c5b9c8d8a7"
+          }
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "af7b12b3f01d9f2189fb7bcc71a9eeb7",
+            "recordId": "af7b12b3f01d9f2189fb7bcc71a9eeb7"
+          }
+        },
+        "pairedItem": {
+          "item": 4
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "b94c0d1f818edc306c6e5f7627e3ebb2",
+            "recordId": "b94c0d1f818edc306c6e5f7627e3ebb2"
+          }
+        },
+        "pairedItem": {
+          "item": 5
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "d51779bd8fb17d339d3e668e7d8fa3d7",
+            "recordId": "d51779bd8fb17d339d3e668e7d8fa3d7"
+          }
+        },
+        "pairedItem": {
+          "item": 6
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "00af7676f69d4719e29646bc3e21d80c",
+            "recordId": "00af7676f69d4719e29646bc3e21d80c"
+          }
+        },
+        "pairedItem": {
+          "item": 7
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "22babab180b0b618898c1a6c5c3180ba",
+            "recordId": "22babab180b0b618898c1a6c5c3180ba"
+          }
+        },
+        "pairedItem": {
+          "item": 8
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "39c3966593448f4bf2bdfcc880ebbe72",
+            "recordId": "39c3966593448f4bf2bdfcc880ebbe72"
+          }
+        },
+        "pairedItem": {
+          "item": 9
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "acbcd0b80e310161aebddfec37964c77",
+            "recordId": "acbcd0b80e310161aebddfec37964c77"
+          }
+        },
+        "pairedItem": {
+          "item": 10
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "5e954dcdc725eed41a5dafaa77161ea2",
+            "recordId": "5e954dcdc725eed41a5dafaa77161ea2"
+          }
+        },
+        "pairedItem": {
+          "item": 11
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "86df7494a12a0738bb6bf12d8f3d6732",
+            "recordId": "86df7494a12a0738bb6bf12d8f3d6732"
+          }
+        },
+        "pairedItem": {
+          "item": 12
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "6146801dbdf9216a59a32707390ee39a",
+            "recordId": "6146801dbdf9216a59a32707390ee39a"
+          }
+        },
+        "pairedItem": {
+          "item": 13
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "6c93fb825c6f3a2192675891903796f3",
+            "recordId": "6c93fb825c6f3a2192675891903796f3"
+          }
+        },
+        "pairedItem": {
+          "item": 14
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "0c97c56a9248849eef6ff4661ecaa030",
+            "recordId": "0c97c56a9248849eef6ff4661ecaa030"
+          }
+        },
+        "pairedItem": {
+          "item": 15
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "5bf2530d2724610cba0077777106446a",
+            "recordId": "5bf2530d2724610cba0077777106446a"
+          }
+        },
+        "pairedItem": {
+          "item": 16
+        }
+      },
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "e70f69c4a8c0012b93b7c8b3c55b8637",
+            "recordId": "e70f69c4a8c0012b93b7c8b3c55b8637"
+          }
+        },
+        "pairedItem": {
+          "item": 17
+        }
+      }
+    ],
+    "Code: Build Creatomate Payload": [
+      {
+        "json": {
+          "template_id": "3d990388-fd9f-42e3-a031-241deef254a3",
+          "modifications": {
+            "Audio-JNM.source": "https://d1q70pf5vjeyhc.cloudfront.net/predictions/6ce22fc6892042d7a561cb1441f162ec/1.mp3",
+            "Composition-C5Z.elements": [
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/a7d4662f04fbb5e46c082395be78d134_1769131419.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/f9a4100732a0187ab7a7451b898db59f_1769131416.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/f8b1842df4b7d9225807818f1b35ec2d_1769131413.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/d220cc04f9a0f21edf3472c5b9c8d8a7_1769131413.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/af7b12b3f01d9f2189fb7bcc71a9eeb7_1769131421.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/b94c0d1f818edc306c6e5f7627e3ebb2_1769131403.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/d51779bd8fb17d339d3e668e7d8fa3d7_1769131424.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/00af7676f69d4719e29646bc3e21d80c_1769131403.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/22babab180b0b618898c1a6c5c3180ba_1769131414.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/39c3966593448f4bf2bdfcc880ebbe72_1769131419.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/acbcd0b80e310161aebddfec37964c77_1769131407.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/5e954dcdc725eed41a5dafaa77161ea2_1769131406.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/86df7494a12a0738bb6bf12d8f3d6732_1769131428.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/6146801dbdf9216a59a32707390ee39a_1769131419.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/6c93fb825c6f3a2192675891903796f3_1769131428.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/0c97c56a9248849eef6ff4661ecaa030_1769131418.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/5bf2530d2724610cba0077777106446a_1769131418.mp4",
+                "volume": "0%"
+              },
+              {
+                "type": "video",
+                "track": 1,
+                "source": "https://tempfile.aiquickdraw.com/h/e70f69c4a8c0012b93b7c8b3c55b8637_1769131406.mp4",
+                "volume": "0%"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking \u2018Execute workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Set: Define Niche",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Define Niche": {
+      "main": [
+        [
+          {
+            "node": "LLM: Generate Full Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Extract Script": {
+      "main": [
+        [
+          {
+            "node": "Create TTS Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Extract Transcript": {
+      "main": [
+        [
+          {
+            "node": "Gemini: Visual Director",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Extract Scenes": {
+      "main": [
+        [
+          {
+            "node": "API: Start Image Gen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Match Images to Prompts": {
+      "main": [
+        [
+          {
+            "node": "API: Create Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Build Creatomate Payload": {
+      "main": [
+        [
+          {
+            "node": "API: Render Final Video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Contains Character?": {
+      "main": [
+        [
+          {
+            "node": "API: Start Image Gen : Main Character Scenes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API: Start Image Gen : No main Character Scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort: By Scene Number": {
+      "main": [
+        [
+          {
+            "node": "Wait: Image Gen2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Image Gen2": {
+      "main": [
+        [
+          {
+            "node": "API: Check Image Status2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Check Image Status2": {
+      "main": [
+        [
+          {
+            "node": "Code: Check Image Completion1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Images Ready?2": {
+      "main": [
+        [
+          {
+            "node": "Merge: Images + Prompts",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Split: Retry Image Tasks1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Check Image Completion1": {
+      "main": [
+        [
+          {
+            "node": "If: Images Ready?2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split: Retry Image Tasks1": {
+      "main": [
+        [
+          {
+            "node": "Set: Prep Image Loop1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Prep Image Loop1": {
+      "main": [
+        [
+          {
+            "node": "Wait: Image Gen2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Video Gen1": {
+      "main": [
+        [
+          {
+            "node": "API: Check Video Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Check Video Status1": {
+      "main": [
+        [
+          {
+            "node": "Code: Check Video Completion1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Videos Ready?1": {
+      "main": [
+        [
+          {
+            "node": "Merge: Audio + Videos",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Split: Retry Video Tasks1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Check Video Completion1": {
+      "main": [
+        [
+          {
+            "node": "If: Videos Ready?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split: Retry Video Tasks1": {
+      "main": [
+        [
+          {
+            "node": "Set: Prep Video Loop1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Prep Video Loop1": {
+      "main": [
+        [
+          {
+            "node": "Wait: Video Gen1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Render Final Video1": {
+      "main": [
+        [
+          {
+            "node": "Wait: Rendering1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: Is Render Done?1": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Download MP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Wait: Rendering1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Rendering1": {
+      "main": [
+        [
+          {
+            "node": "API: Check Render Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Check Render Status1": {
+      "main": [
+        [
+          {
+            "node": "Switch: Is Render Done?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: Generate Full Story": {
+      "main": [
+        [
+          {
+            "node": "Gemini: Write Viral Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download: Audio File": {
+      "main": [
+        [
+          {
+            "node": "Fix: Audio MIME Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix: Audio MIME Type": {
+      "main": [
+        [
+          {
+            "node": "Upload: Audio to Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload: Audio to Gemini": {
+      "main": [
+        [
+          {
+            "node": "API: Transcribe Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Transcribe Audio": {
+      "main": [
+        [
+          {
+            "node": "Set: Extract Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Store Character & Scenes": {
+      "main": [
+        [
+          {
+            "node": "Split: Scenes to Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split: Scenes to Items": {
+      "main": [
+        [
+          {
+            "node": "If: Contains Character?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate: Video Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Scene Number (Background)": {
+      "main": [
+        [
+          {
+            "node": "Merge: All Scene Images",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Set: Scene Number (Character)": {
+      "main": [
+        [
+          {
+            "node": "Merge: All Scene Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: All Scene Images": {
+      "main": [
+        [
+          {
+            "node": "Sort: By Scene Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate: Video Prompts": {
+      "main": [
+        [
+          {
+            "node": "Merge: Images + Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: Images + Prompts": {
+      "main": [
+        [
+          {
+            "node": "Code: Match Images to Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: Write Viral Script": {
+      "main": [
+        [
+          {
+            "node": "Set: Extract Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create TTS Task": {
+      "main": [
+        [
+          {
+            "node": "Wait for Text-To-Speech",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Text-To-Speech": {
+      "main": [
+        [
+          {
+            "node": "Check TTS Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check TTS Status": {
+      "main": [
+        [
+          {
+            "node": "TTS Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TTS Complete?": {
+      "main": [
+        [
+          {
+            "node": "Set Audio URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for Text-To-Speech",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Audio URL": {
+      "main": [
+        [
+          {
+            "node": "Download: Audio File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge: Audio + Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: Visual Director": {
+      "main": [
+        [
+          {
+            "node": "Set: Extract Scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Start Image Gen": {
+      "main": [
+        [
+          {
+            "node": "Wait: Image Gen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Image Gen": {
+      "main": [
+        [
+          {
+            "node": "API: Check Image Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Check Image Status": {
+      "main": [
+        [
+          {
+            "node": "If: Images Ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Images Ready?": {
+      "main": [
+        [
+          {
+            "node": "Set: Store Character & Scenes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait: Image Gen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Start Image Gen : No main Character Scenes": {
+      "main": [
+        [
+          {
+            "node": "Set: Scene Number (Background)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Start Image Gen : Main Character Scenes": {
+      "main": [
+        [
+          {
+            "node": "Set: Scene Number (Character)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: Audio + Videos": {
+      "main": [
+        [
+          {
+            "node": "Code: Build Creatomate Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "LLM: Generate Full Story",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LLM: Generate Full Story",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Create Video": {
+      "main": [
+        [
+          {
+            "node": "Wait: Video Gen1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c52fce31-819b-46f4-a1d1-58bdd3ef6cd9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "yyM468XQdfyp8Qwb",
+  "tags": []
+}

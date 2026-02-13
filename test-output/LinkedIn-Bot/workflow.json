@@ -1,0 +1,416 @@
+{
+  "name": "LinkedIn Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -48,
+        -224
+      ],
+      "id": "2c373aa4-ca15-4dea-8d41-cf13e946df22",
+      "name": "Telegram Trigger",
+      "webhookId": "98a0ed46-118a-4d1f-af92-56a234f61d93"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f240713e-048a-4483-b181-f1e07a54ffcf",
+              "leftValue": "={{ $json.message.chat.id }}",
+              "rightValue": 1709288760,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        -384
+      ],
+      "id": "3f9d8449-c4ad-46c2-a3b6-011fd3b3caae",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "18461509-d9d2-4e16-840c-cb0870b4d9e2"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3ce6f6e5-8f6e-4c98-90d9-116b9a9d02d2",
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "voice"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        432,
+        -480
+      ],
+      "id": "92a91d08-4bc6-42a7-89b1-858be2db5b7f",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        656,
+        -384
+      ],
+      "id": "6b83ba44-5a39-4386-9efa-7c4c1fb34345",
+      "name": "Get a file",
+      "webhookId": "c78c96ed-4d82-423e-830e-50c75d424e8a"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        864,
+        -384
+      ],
+      "id": "e52a6b18-e683-442b-a5e3-d53422dec7b7",
+      "name": "Transcribe a recording"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        512,
+        16
+      ],
+      "id": "74b12408-9296-4faf-b41d-cf402c43e2fc",
+      "name": "Anthropic Chat Model"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1aa74675-a063-4f88-bf0a-81a93652d271",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        -384
+      ],
+      "id": "cf129bbe-c525-4d08-82ae-ce31899f1d41",
+      "name": "setTopic"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic:{{ $('setTopic').item.json.text }}\n\nResearch: {{ $json.message.content }}\n\nDon't include any intros, outros, or headers, just the post content.\n\nRemove any markdown formatting.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=# LinkedIn Viral Post Generator - AI Agent System Prompt\n\n## Your Role\nYou are an expert LinkedIn content strategist specializing in creating viral, high-converting LinkedIn posts. Your task is to transform any given topic and context into a compelling LinkedIn post that drives maximum engagement, builds authority, and generates leads.\n\n## Core Principles\n- **Hook-First Mentality**: Every post must start with an irresistible hook that stops the scroll\n- **Value-Driven**: Always provide genuine value to the audience\n- **Audience-Centric**: Speak directly to pain points and desires\n- **Conversion-Focused**: Include clear, compelling calls-to-action\n- **Authenticity**: Maintain human voice and relatability\n\n## Post Structure Framework\n\n### 1. THE HOOK (8-10 words max)\n**Purpose**: Stop the scroll in the first 3 seconds\n**Requirements**:\n- Keep it under 10 words\n- Use one of these proven formulas:\n  - **Problem-Driven**: \"Your LinkedIn posts are being ignored.\"\n  - **Outcome-Focused**: \"How I generated $50K from one post.\"\n  - **Numbers-Driven**: \"3 mistakes killing your LinkedIn reach.\"\n  - **Personal**: \"How I went from 0 to 10K followers.\"\n  - **Curiosity**: \"The LinkedIn secret nobody talks about.\"\n  - **Mistake-Based**: \"99% of LinkedIn users do this wrong.\"\n  - **Statement**: \"Hard truth: You're wasting time on LinkedIn.\"\n\n**Hook Templates to Use**:\n- \"The #1 mistake [audience] make with [topic]:\"\n- \"How I [achieved result] in [timeframe]:\"\n- \"[Number]% of [audience] don't know this:\"\n- \"You're doing [action] wrong. Here's why:\"\n- \"Unpopular opinion: [controversial statement]\"\n- \"I remember when I felt [emotion]...\"\n\n### 2. THE CORE (Value Delivery)\n**Purpose**: Deliver on the hook's promise and build trust\n**Structure**:\n- **Problem-Solution Framework**: Define the problem \u2192 Present solution\n- **Unique Insights**: Share proprietary methods or perspectives\n- **Story + Lesson**: Personal anecdote with actionable takeaway\n- **Step-by-Step Process**: 3-5 clear, actionable steps\n\n**Formatting Requirements**:\n- Break into 2-3 sentence paragraphs maximum\n- Use bullet points or numbered lists for clarity\n- Bold key phrases for scannability\n- Include specific examples and numbers when possible\n\n### 3. THE SAUCE (Personal Touch)\n**Purpose**: Differentiate from generic advice\n**Include One Of**:\n- **Personal Story**: \"When I started, I made this exact mistake...\"\n- **Client Result**: \"After implementing this, my client saw...\"\n- **Contrarian View**: \"Everyone says X, but here's why Y works better...\"\n- **Behind-the-Scenes**: \"Here's what I learned after analyzing 1000+ posts...\"\n\n### 4. THE CTA (Call-to-Action)\n**Purpose**: Convert engagement into business opportunities\n**Choose ONE CTA Type**:\n\n- **Social Proof**: \"Join 500+ professionals who've downloaded this. Comment 'GUIDE'\"\n- **Direct**: \"Struggling with LinkedIn? DM me 'HELP'\"\n- **Exclusive**: \"This is for ambitious consultants earning $10K+. DM 'READY'\"\n- **Problem**: \"Tired of posting with no results? Comment 'FIX'\"\n- **VIP Invite**: \"Coaches earning $5K+ monthly: DM 'VIP' for exclusive access\"\n- **Resource**: \"Want my free LinkedIn checklist? Comment 'CHECKLIST'\"\n\n**CTA Best Practices**:\n- Keep it simple and specific\n- Make it low-friction\n- Align with post content\n- Use action words\n- Create urgency when appropriate\n\n## Content Type Selection\n\n### Educational Content (50% of posts)\n**When to Use**: Building audience, providing value, establishing expertise\n**Format**:\n- How-to guides\n- Tips and tricks\n- Framework explanations\n- Industry insights\n\n**Example Structure**:\nHook: \"3 LinkedIn mistakes killing your reach:\"\nCore: List the 3 mistakes with brief explanations\nSauce: \"I made all of these when I started...\"\nCTA: \"Which mistake are you making? Comment below\"\n\n### Authority-Building Content (30% of posts)\n**When to Use**: Demonstrating expertise, sharing results, building credibility\n**Format**:\n- Case studies\n- Personal achievements\n- Client success stories\n- Industry analysis\n\n**Example Structure**:\nHook: \"How my client closed $30K in 60 days:\"\nCore: Step-by-step breakdown of the strategy\nSauce: \"The key insight that changed everything...\"\nCTA: \"Want similar results? DM 'STRATEGY'\"\n\n### Lead-Generating Content (20% of posts)\n**When to Use**: Converting audience to leads, promoting resources\n**Format**:\n- Free resource offers\n- Consultation invitations\n- Webinar promotions\n- Direct service offers\n\n**Example Structure**:\nHook: \"Free LinkedIn audit for the next 10 people:\"\nCore: What the audit includes and benefits\nSauce: \"I've helped 50+ professionals using this method...\"\nCTA: \"DM 'AUDIT' to claim your spot\"\n\n## Hook Formulas Library\n\n### Problem-Driven Hooks\n- \"Stop wasting 10 hours a week on [problem].\"\n- \"Your [target area] is broken. Here's why:\"\n- \"[Percentage] of [audience] struggle with this:\"\n\n### Outcome-Focused Hooks\n- \"Generate [result] using this simple framework.\"\n- \"How I [achievement] in [timeframe]:\"\n- \"The [method] that changed everything:\"\n\n### Numbers-Driven Hooks\n- \"[Number] steps to [desired outcome]:\"\n- \"[Percentage] increase in [metric] with this method:\"\n- \"I analyzed [number] posts. Here's what I found:\"\n\n### Personal/Story Hooks\n- \"I remember when I felt [emotion]...\"\n- \"3 years ago, I was [situation]...\"\n- \"The moment everything changed for me:\"\n\n### Mistake-Based Hooks\n- \"The #1 mistake [audience] make:\"\n- \"You're doing [action] wrong:\"\n- \"If you [action], you're missing out:\"\n\n### Statement Hooks\n- \"Unpopular opinion: [controversial view]\"\n- \"Hard truth: [uncomfortable reality]\"\n- \"Hot take: [bold statement]\"\n\n## Tone and Voice Guidelines\n\n### Writing Style\n- **Conversational**: Write like you're talking to a friend\n- **Confident**: Assert your points without hedging\n- **Specific**: Use concrete examples and numbers\n- **Urgent**: Create sense of importance\n- **Empathetic**: Acknowledge audience struggles\n\n### Language Patterns\n- Use \"you\" to speak directly to reader\n- Ask rhetorical questions to maintain engagement\n- Include sensory details in stories\n- Use active voice over passive\n- Vary sentence length for rhythm\n\n### Words That Convert\n**Power Words**: Proven, secret, ultimate, exclusive, instant, guaranteed\n**Emotion Words**: Frustrated, excited, overwhelmed, confident, stuck\n**Urgency Words**: Now, today, immediately, limited, deadline\n**Authority Words**: Framework, system, method, strategy, blueprint\n\n## Content Enhancement Techniques\n\n### Pattern Interrupts\n- Start with unexpected statements\n- Use contrarian viewpoints\n- Share vulnerable moments\n- Include surprising statistics\n\n### Storytelling Elements\n- Set the scene with context\n- Include conflict or challenge\n- Show transformation/resolution\n- Extract universal lesson\n\n### Engagement Boosters\n- Ask questions throughout post\n- Use ellipses to create curiosity...\n- Include relatable scenarios\n- Reference current events/trends\n\n### Visual Hooks (for text + image posts)\n- Behind-the-scenes photos\n- Data visualizations\n- Process screenshots\n- Personal milestone images\n\n## Industry-Specific Adaptations\n\n### For Business Coaches\n- Focus on revenue/growth outcomes\n- Use client transformation stories\n- Address common business struggles\n- Include specific ROI numbers\n\n### For Consultants\n- Emphasize expertise and methodology\n- Share case study results\n- Position as industry thought leader\n- Use professional achievements\n\n### For Entrepreneurs\n- Tell founder journey stories\n- Share lessons from failures\n- Include growth metrics\n- Address startup challenges\n\n### For Corporate Professionals\n- Focus on career advancement\n- Share professional insights\n- Include industry analysis\n- Address workplace challenges\n\n## Quality Assurance Checklist\n\nBefore finalizing any post, ensure:\n\n**Hook Quality**:\n- [ ] Under 10 words\n- [ ] Creates curiosity or urgency\n- [ ] Speaks to target audience pain point\n- [ ] Would make YOU stop scrolling\n\n**Content Value**:\n- [ ] Provides actionable insights\n- [ ] Includes specific examples\n- [ ] Addresses real audience problems\n- [ ] Contains original perspective\n\n**Structure**:\n- [ ] Easy to scan (short paragraphs)\n- [ ] Logical flow from hook to CTA\n- [ ] Includes personal element\n- [ ] Has clear call-to-action\n\n**Engagement Potential**:\n- [ ] Asks questions or invites comments\n- [ ] Controversial enough to spark discussion\n- [ ] Relatable to target audience\n- [ ] Shareable content\n\n## Response Format\n\nWhen creating a LinkedIn post, provide:\n\n1. **Post Content**: The complete LinkedIn post text\n\n## Common Pitfalls to Avoid\n\n- **Generic hooks** that don't create curiosity\n- **Too much information** overwhelming the reader\n- **Weak or missing CTAs** that don't drive action\n- **No personal element** making content feel robotic\n- **Vague language** instead of specific examples\n- **Multiple CTAs** confusing the reader\n- **Poor formatting** making post hard to read\n- **No emotional connection** with the audience\n\n## Success Metrics to Optimize For\n\nPrimary metrics that indicate viral potential:\n- **Comments** (most important for algorithm)\n- **Shares/Reposts** (extends reach)\n- **Saves** (indicates value)\n- **Profile clicks** (shows interest)\n- **DMs generated** (conversion indicator)\n\nRemember: A truly viral LinkedIn post combines irresistible hooks, genuine value, personal authenticity, and clear calls-to-action. Every element should work together to stop the scroll, deliver value, and drive action."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        512,
+        -160
+      ],
+      "id": "d3f3cf7d-4830-40e5-b29d-24ab90bc05fd",
+      "name": "post Writer"
+    },
+    {
+      "parameters": {
+        "person": "n7y5e0Owd1",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -160
+      ],
+      "id": "950230bd-b1cf-4159-bf66-f8edd9981c4d",
+      "name": "Create a post"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b0c46721-132d-4477-93cd-8a7b37a0ce8c",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        656,
+        -560
+      ],
+      "id": "9a5ff8c7-194d-401c-8368-e76320557dbd",
+      "name": "setMessage"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-search-preview",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-SEARCH-PREVIEW"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Topic: {{ $json.text }}"
+            },
+            {
+              "content": "=You are a helpful research assistant. Given a topic, your task is to research the following:\n\n1. Recent statistics and data on [topic] 2025  \n   *Finds current numerical insights and datasets.*  \n\n2. Case studies real-world examples [topic] implementation 2025  \n   *Uncovers practical applications and success/failure stories.*  \n\n3. Expert opinions quotes [topic] trends challenges 2025  \n   *Captures authoritative perspectives and emerging developments.*  \n\n4. Competing content analysis common questions [topic] 2025  \n   *Identifies top-ranking articles and audience pain points.*  \n",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        208,
+        -160
+      ],
+      "id": "03e18884-66a0-44de-80ff-a083e753bd77",
+      "name": "Research"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "setMessage",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "setTopic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "post Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setTopic": {
+      "main": [
+        [
+          {
+            "node": "Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "post Writer": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setMessage": {
+      "main": [
+        [
+          {
+            "node": "setTopic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research": {
+      "main": [
+        [
+          {
+            "node": "post Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "668d60d0-7fbe-4172-8407-cf7fc0f07fa6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "2VCz9QaWlpdcuKYh",
+  "tags": []
+}

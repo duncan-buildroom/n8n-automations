@@ -1,0 +1,1090 @@
+{
+  "name": "DONE - UGC News Channel",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2432,
+        432
+      ],
+      "id": "602b530b-681b-406d-88ae-d5d3e8f7b0d3",
+      "name": "Combine Audio & Image"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.wavespeed.ai/api/v3/wavespeed-ai/infinitetalk",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "audio",
+              "value": "={{ $json.audioURL }}"
+            },
+            {
+              "name": "image",
+              "value": "={{ $json.imageURL }}"
+            },
+            {
+              "name": "prompt",
+              "value": "=The mood is {{ $('Anchor Persona Config').item.json.Mood }}, this is the script for context : {{ $('AI Script Writer').item.json.output[0].content[0].text.script.script_text }}"
+            },
+            {
+              "name": "resolution",
+              "value": "480p"
+            },
+            {
+              "name": "seed",
+              "value": "-1"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2656,
+        432
+      ],
+      "id": "fb2e7735-c69b-4e01-b288-62bf9c130c2a",
+      "name": "Create InfiniteTalk Video"
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2880,
+        432
+      ],
+      "id": "04195e60-5997-46f4-9c94-5461cf01d3d7",
+      "name": "Wait for Video",
+      "webhookId": "a59695d2-8d31-456f-827a-11f9b4ee6e75"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.urls.get }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3104,
+        368
+      ],
+      "id": "04408741-283b-41ef-ae82-a2d8954334cc",
+      "name": "Check Video Status"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9ae03107-5026-4fca-bb72-f155258763cb",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3328,
+        432
+      ],
+      "id": "bbe7b49f-a423-4345-8df5-a7654fc0676b",
+      "name": "Video Complete?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "49c76be7-39ab-43be-8b7e-17d42fd9a6fa",
+              "name": "audioURL",
+              "value": "={{ $json.data.outputs[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2208,
+        576
+      ],
+      "id": "b8f9a565-23d8-4fd1-a7ba-cbf0870bcf55",
+      "name": "Set Audio URL"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "49c76be7-39ab-43be-8b7e-17d42fd9a6fa",
+              "name": "imageURL",
+              "value": "={{ $json.data.resultJson.parseJson().resultUrls[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2208,
+        288
+      ],
+      "id": "41d3c209-a254-4852-ad88-20dd4357abe0",
+      "name": "Set Image URL"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9ae03107-5026-4fca-bb72-f155258763cb",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1984,
+        288
+      ],
+      "id": "8c6935f9-f1c5-41f7-87d1-2a843a6a758e",
+      "name": "Image Success?"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        208
+      ],
+      "id": "9a7bb75f-2bc3-462a-bc3e-226939ebecba",
+      "name": "Check Image Status"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1536,
+        288
+      ],
+      "id": "af4761eb-34fd-4b70-ad4d-0cc66fa5390f",
+      "name": "Wait for Image",
+      "webhookId": "6db24ed0-5ddd-463b-9352-596e565c0637"
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1536,
+        576
+      ],
+      "id": "70e897fa-bebe-48ae-903a-ee4774620aad",
+      "name": "Wait for Text-To-Speech",
+      "webhookId": "a59695d2-8d31-456f-827a-11f9b4ee6e75"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9ae03107-5026-4fca-bb72-f155258763cb",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1984,
+        576
+      ],
+      "id": "470977fc-97ec-48d5-a646-66e22a10c248",
+      "name": "TTS Complete?"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.urls.get }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        512
+      ],
+      "id": "c8ecd73b-633f-44c1-9e3c-39a81fbcbbc5",
+      "name": "Check TTS Status"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -384,
+        432
+      ],
+      "id": "c6e53965-81c0-4fa0-b926-c10ecf2afa0f",
+      "name": "Daily Morning Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://ir.thomsonreuters.com/rss/news-releases.xml?items=15",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        64,
+        144
+      ],
+      "id": "4d94174b-8f4d-4814-b39a-563cf65988cf",
+      "name": "Thomson Reuters Feed"
+    },
+    {
+      "parameters": {
+        "url": "https://techcrunch.com/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        64,
+        336
+      ],
+      "id": "3f0195af-868b-49bb-a903-8cbc58e9753a",
+      "name": "TechCrunch Feed"
+    },
+    {
+      "parameters": {
+        "url": "http://rss.cnn.com/rss/cnn_topstories.rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        64,
+        528
+      ],
+      "id": "be728602-b0e4-442b-872f-f48a14bff9ea",
+      "name": "CNN Top Stories"
+    },
+    {
+      "parameters": {
+        "url": "https://www.tmz.com/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        64,
+        720
+      ],
+      "id": "5ecb6739-4610-4f45-9fa6-547a01a077bf",
+      "name": "TMZ Entertainment"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fb96946d-c097-495e-9495-6cd3a09c0d6d",
+              "leftValue": "={{ $json.isoDate?.toDateTime().toISODate() }}",
+              "rightValue": "={{ $now.minus({ days: 1 }).toISODate() }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "afterOrEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        432
+      ],
+      "id": "455aec6e-6ae9-40e9-a1a3-1843c1e0d4b6",
+      "name": "24-Hour News Filter"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        288,
+        400
+      ],
+      "id": "36f4c37b-3947-4593-b255-241bff58e722",
+      "name": "News Aggregator"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "content"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        736,
+        432
+      ],
+      "id": "1374813b-6057-489e-b5ae-ec3221bc77e1",
+      "name": "Content Compiler"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are a UGC-style news anchor. Your task is to take the most compelling headlines and turn them into a script for a 60-second video. Start with a strong hook, deliver the main news in a conversational tone, provide a sentence or 2 of detail on each top story and a sentence describing what each means or the imapct it will have on my audience, and end with an overall summary and call to action. Focus on clarity, brevity, and engagement.\n\nThe script should be approximately 150 words and flow naturally, including:\n\nStrong opening hook\n\nKey news points from the input text\n\nCall to action seamlessly integrated\n\nStrategic use of audio tags for emotional impact\n\nWrite the script in a narrative style, similar to scriptwriting, to guide tone and pacing effectively. Write at a 6th grade reading level. Use clear punctuation and audio tags to enhance TTS delivery:\n\nEllipses (\u2026) for pauses and weight\n\nCapitalization for emphasis\n\nAudio tags for emotional expression and effects\n\nAudio Tags Guidelines:\nUse tags intentionally and match them to the voice's character:\n\nEmotional: [laughs], [whispers], [sighs], [excited], [sarcastic], [curious], [crying]\n\nSound Effects: [applause], [gunshot], [swallows], [gulps]\n\nExperimental: [strong X accent], [sings], [woo]\n\nSplit very long text into shorter segments with tags for stable prosody\n\nImage Prompt:\nCreate a visual description that includes:\nGender: {{ $('Anchor Persona Config').item.json.Gender }}\nSetting: Home YouTube studio\nStyle: Person explaining content conversationally\nImportant: No text, graphics, or on-screen words in the image\n\nOutput only valid JSON, no markdown or additional text.\n\nJSON Output Format:\n{\n  \"hook\": \"Summarize the news headlines for a 60-second video with a hook, main news, and call to action.\",\n  \"business_context\": \"None\", \n  \"mood\": \"{{ $('Anchor Persona Config').item.json.Mood }}\",\n  \"script\": {\n    \"script_text\": \"The approximately 150-word script with audio tags and punctuation, without any labels or extra text. The script should reflect the {{ $('Anchor Persona Config').item.json.Mood }} mood through word choice, pacing, and emotional tone.\",\n    \"image_prompt\": \"Edit existing closeup photo: Keep the {{ $('Anchor Persona Config').item.json.Gender }} person completely unchanged, but modify the YouTube studio background behind them to enhance the {{ $('Anchor Persona Config').item.json.Mood }} mood through lighting adjustments, color grading, and subtle background elements\"\n  }\n}\n\nNow, here are the news headlines to summarize:\n\n{{ $json.content }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        960,
+        432
+      ],
+      "id": "3d8642e2-3a4a-47dd-9517-98d68248f90a",
+      "name": "AI Script Writer"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"google/nano-banana-edit\",\n  \"input\": {\n    \"prompt\": \"{{ $json.output[0].content[0].text.script.image_prompt }}, Important: No text, or on-screen words in the image\",\n  \"image_urls\": [\n    \"{{ $('Anchor Persona Config').item.json.userPhoto[0].url }}\"\n  ],\n    \"output_format\": \"png\",\n    \"image_size\": \"9:16\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1312,
+        288
+      ],
+      "id": "babf06a8-7be5-449b-997d-528b6dd47150",
+      "name": "Generate News Anchor Image"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.wavespeed.ai/api/v3/elevenlabs/eleven-v3",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "similarity",
+              "value": "1"
+            },
+            {
+              "name": "stability",
+              "value": "0.0"
+            },
+            {
+              "name": "text",
+              "value": "=[pause] {{ $json.output[0].content[0].text.script.script_text }}"
+            },
+            {
+              "name": "use_speaker_boost",
+              "value": "true"
+            },
+            {
+              "name": "voice_id",
+              "value": "={{ $('Anchor Persona Config').item.json.Voice }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1312,
+        576
+      ],
+      "id": "3df9fc45-2330-4b94-92e2-f13111320fab",
+      "name": "Generate News Voiceover"
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appbtgwOhmNgVtZIB",
+          "mode": "list",
+          "cachedResultName": "Automated UGC-Style Daily News Channel",
+          "cachedResultUrl": "https://airtable.com/appbtgwOhmNgVtZIB"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbld7Lpb2k3UR0CKP",
+          "mode": "list",
+          "cachedResultName": "News Anchor Persona Config",
+          "cachedResultUrl": "https://airtable.com/appbtgwOhmNgVtZIB/tbld7Lpb2k3UR0CKP"
+        },
+        "id": "recRezj5GL9DuElAN",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -160,
+        432
+      ],
+      "id": "e4d6a899-a9fe-4afa-a607-390b3c1a78bf",
+      "name": "Anchor Persona Config"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.outputs[0] }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3552,
+        432
+      ],
+      "id": "84438728-cd63-42d6-b7c9-9ba89f82c764",
+      "name": "Download Generated Video File"
+    },
+    {
+      "parameters": {
+        "name": "={{ $now.format('yyyy-MM-dd') }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1zvEFjwoYiyl7a6O4qVEZqKwEuCq7V-Ml",
+          "mode": "list",
+          "cachedResultName": "UGC News",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1zvEFjwoYiyl7a6O4qVEZqKwEuCq7V-Ml"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3792,
+        432
+      ],
+      "id": "5deb245c-a443-4495-8874-f948a4a88d56",
+      "name": "Upload to Google Drive (Automated UGC-Style Daily News Channel)"
+    },
+    {
+      "parameters": {
+        "content": "## Workflow Initiation\nDaily trigger and persona configuration",
+        "height": 256,
+        "width": 448,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -464,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "5a8be654-deb2-431c-87fb-79fe4cc754ce",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## News Collection\nGather latest headlines from multiple sources",
+        "height": 880,
+        "width": 224,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "19ea333e-07df-4296-bf34-2542d8ff1430",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Content Processing\nAggregate and prepare news content for scripting",
+        "height": 320,
+        "width": 656,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        304
+      ],
+      "typeVersion": 1,
+      "id": "4bb22380-9a43-453e-ae7e-be9b8bbcc56d",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Script Generation\nAI-powered news script creation with mood context",
+        "height": 256,
+        "width": 320,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        912,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "e57bb1a6-4b51-4983-b03f-3236abd5f169",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Media Generation - Parallel Processing\nSimultaneous image and audio creation",
+        "height": 672,
+        "width": 1088,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1248,
+        128
+      ],
+      "typeVersion": 1,
+      "id": "501d6976-3feb-4fe2-8778-0907393323a9",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Video Assembly\nCombine media assets into final talking-head video",
+        "height": 368,
+        "width": 1136,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2352,
+        288
+      ],
+      "typeVersion": 1,
+      "id": "8ebdec06-77f2-44c6-901e-a7446a4ce1d2",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Output & Storage\nDownload and archive generated content",
+        "height": 272,
+        "width": 464,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3504,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "3dd4adf0-cfb7-4119-a7d8-9c5abcc89d7e",
+      "name": "Sticky Note6"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Combine Audio & Image": {
+      "main": [
+        [
+          {
+            "node": "Create InfiniteTalk Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create InfiniteTalk Video": {
+      "main": [
+        [
+          {
+            "node": "Wait for Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Video": {
+      "main": [
+        [
+          {
+            "node": "Check Video Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Video Status": {
+      "main": [
+        [
+          {
+            "node": "Video Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Complete?": {
+      "main": [
+        [
+          {
+            "node": "Download Generated Video File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Audio URL": {
+      "main": [
+        [
+          {
+            "node": "Combine Audio & Image",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Set Image URL": {
+      "main": [
+        [
+          {
+            "node": "Combine Audio & Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Success?": {
+      "main": [
+        [
+          {
+            "node": "Set Image URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Image Status": {
+      "main": [
+        [
+          {
+            "node": "Image Success?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Image": {
+      "main": [
+        [
+          {
+            "node": "Check Image Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Text-To-Speech": {
+      "main": [
+        [
+          {
+            "node": "Check TTS Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TTS Complete?": {
+      "main": [
+        [
+          {
+            "node": "Set Audio URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for Text-To-Speech",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check TTS Status": {
+      "main": [
+        [
+          {
+            "node": "TTS Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Morning Trigger": {
+      "main": [
+        [
+          {
+            "node": "Anchor Persona Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Thomson Reuters Feed": {
+      "main": [
+        [
+          {
+            "node": "News Aggregator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TechCrunch Feed": {
+      "main": [
+        [
+          {
+            "node": "News Aggregator",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "CNN Top Stories": {
+      "main": [
+        [
+          {
+            "node": "News Aggregator",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "TMZ Entertainment": {
+      "main": [
+        [
+          {
+            "node": "News Aggregator",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "24-Hour News Filter": {
+      "main": [
+        [
+          {
+            "node": "Content Compiler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News Aggregator": {
+      "main": [
+        [
+          {
+            "node": "24-Hour News Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Compiler": {
+      "main": [
+        [
+          {
+            "node": "AI Script Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Script Writer": {
+      "main": [
+        [
+          {
+            "node": "Generate News Anchor Image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate News Voiceover",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate News Anchor Image": {
+      "main": [
+        [
+          {
+            "node": "Wait for Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate News Voiceover": {
+      "main": [
+        [
+          {
+            "node": "Wait for Text-To-Speech",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anchor Persona Config": {
+      "main": [
+        [
+          {
+            "node": "CNN Top Stories",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TechCrunch Feed",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Thomson Reuters Feed",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TMZ Entertainment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Generated Video File": {
+      "main": [
+        [
+          {
+            "node": "Upload to Google Drive (Automated UGC-Style Daily News Channel)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cf80ddb7-2c30-4228-b2e5-52cf5cf93431",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "aJSNYILAtXsdFGfT",
+  "tags": []
+}

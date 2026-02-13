@@ -1,0 +1,2291 @@
+{
+  "name": "LinkedIn Parasite",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -32
+      ],
+      "id": "b674d7c9-8561-4811-89ba-5e7d84703525",
+      "name": "When clicking \u2018Test workflow\u2019"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appncY5oOtDJUVk3M",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Parasite",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblQCaXZ15DxuBtuV",
+          "mode": "list",
+          "cachedResultName": "Scraped Posts",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M/tblQCaXZ15DxuBtuV"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Post Text": "={{ $json.text }}",
+            "Post URL": "={{ $json.url }}",
+            "Author Name": "={{ $json.Author }}",
+            "# Comments": "={{ $json.comments }}",
+            "# Shares": "={{ $json.repost }}",
+            "# Reactions": "={{ $json.reactions }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Post Text",
+              "displayName": "Post Text",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Author Name",
+              "displayName": "Author Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Post Image",
+              "displayName": "Post Image",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Post URL",
+              "displayName": "Post URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "# Comments",
+              "displayName": "# Comments",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "# Reactions",
+              "displayName": "# Reactions",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "# Shares",
+              "displayName": "# Shares",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Content Created",
+                  "value": "Content Created"
+                },
+                {
+                  "name": "Posted",
+                  "value": "Posted"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date Posted",
+              "displayName": "Date Posted",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1616,
+        -208
+      ],
+      "id": "4768b778-cfa1-4e7a-bf47-40e8018ba2d2",
+      "name": "Airtable"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "69dedc3b-0aa9-47ca-b6fc-91608309b14c",
+              "leftValue": "={{ $json['media type'] }}",
+              "rightValue": "image",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        -144
+      ],
+      "id": "96977ce9-4b21-46d4-ad50-8b3065cf5ae2",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appncY5oOtDJUVk3M",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Parasite",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblQCaXZ15DxuBtuV",
+          "mode": "list",
+          "cachedResultName": "Scraped Posts",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M/tblQCaXZ15DxuBtuV"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Post Text": "={{ $json.text }}",
+            "Post URL": "={{ $json.url }}",
+            "Author Name": "={{ $json.Author }}",
+            "# Comments": "={{ $json.comments }}",
+            "# Shares": "={{ $json.repost }}",
+            "Post Image": "={{ [{\"url\": $json.image}] }}",
+            "# Reactions": "={{ $json.reactions }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Post Text",
+              "displayName": "Post Text",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Author Name",
+              "displayName": "Author Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Post Image",
+              "displayName": "Post Image",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Post URL",
+              "displayName": "Post URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "# Comments",
+              "displayName": "# Comments",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "# Reactions",
+              "displayName": "# Reactions",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "# Shares",
+              "displayName": "# Shares",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Content Created",
+                  "value": "Content Created"
+                },
+                {
+                  "name": "Posted",
+                  "value": "Posted"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date Posted",
+              "displayName": "Date Posted",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1776,
+        48
+      ],
+      "id": "63854aeb-2251-46fc-a69e-9a5a713df70b",
+      "name": "Airtable1"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appncY5oOtDJUVk3M",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Parasite",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblqn01zaF9IQjb3G",
+          "mode": "list",
+          "cachedResultName": "Profiles",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M/tblqn01zaF9IQjb3G"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -256,
+        -32
+      ],
+      "id": "3c826e87-5136-4454-b70b-73e9df46514f",
+      "name": "Airtable2",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a3dad88c-cd77-4a40-9a4e-95e07110c9f9",
+              "leftValue": "={{ $json['Post URL'] }}",
+              "rightValue": "={{ $json.url }}",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        -16
+      ],
+      "id": "ea8ed8e9-7771-4044-9a3d-89d345b5d684",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appncY5oOtDJUVk3M",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Parasite",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblQCaXZ15DxuBtuV",
+          "mode": "list",
+          "cachedResultName": "Scraped Posts",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M/tblQCaXZ15DxuBtuV"
+        },
+        "filterByFormula": "NOT(OR({Status} = \"Posted\", {Status} = \"Content Created\"))",
+        "returnAll": false,
+        "limit": 5,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -464,
+        464
+      ],
+      "id": "7e938613-a0cf-47b7-8967-bace57a74161",
+      "name": "Airtable3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Original Post: {{ $('Airtable3').item.json['Post Text'] }}\n\nTone of Voice Guidelines: {{ $json['Tone of Voice'] }}\n\nDO NOT use these words or phrases: delve, embark, facilitate, elevate, empower, unleash, pivotal, without further ado, it's worth noting that, it's important to note, in conclusion, in summary, a testament to, a treasure trove of, in the realm of, let's delve into, amidst the ever-evolving landscape, cannot be overstated, to some extent, in many cases, it can be argued, arguably, furthermore, moreover, conversely, despite facing, expressed excitement, research needed to understand, what sets X apart is, it's crucial to recognize, in this article, game changer, here's the kicker\n\nDO NOT output asterisks for Markdown bolding.",
+        "options": {
+          "systemMessage": "=You are a LinkedIn expert and professional copywriter.\n\nYou will be provided with the text of an existing LinkedIn post.\n\nYou must complete the following steps exactly as described:\n\nStep 1. Analyze the Original Post\n\nExtract:\n\nContent (what topics are discussed)\n\nThemes (what underlying patterns or trends are discussed)\n\nPurpose (why the post was created; what it aims to make the reader feel or do)\n\nValue (what insight, guidance, or benefit the reader gets)\n\nDo not proceed until you have fully extracted and understood this.\n\nStep 2. YOU MUST Search the Knowledge Bases (MANDATORY)\n\nSearch and review:\n\nDuncan's Knowledge Base (background, expertise, experiences, values, preferred topics)\n\nYouTube Knowledge Base (transcripts of Duncan\u2019s AI and automation videos)\n\nExtract at least 3 specific pieces of information relevant to the extracted themes, content, purpose, and value.\n\nYou must integrate these insights into the new post.\n\nStep 3. YOU MUST Perform Additional Research (MANDATORY EVALUATION)\n\nAfter searching the knowledge bases, you must critically evaluate whether there is missing information, deeper context, updated trends, stronger examples, or proof points that would make the new post more valuable, specific, and insightful.\n\nIf the answer is yes (which it usually will be), you must:\n\nPerform targeted internet research.\n\nFind 2\u20133 credible insights, data points, or real-world examples relevant to the post\u2019s themes, purpose, and value.\n\nAbsorb the external findings and integrate them naturally into your own writing.\n\nDo not cite, link, quote, or reference external sources explicitly.\n\nThe final post must be clean, self-contained, and feel like original thought leadership, not like a research summary.\n\nIf no research is needed (rare), you must internally justify why additional research was unnecessary.\n(Do not include this justification in the final output.)\n\nYou may not skip this evaluation step.\n\nStep 4. Create a New, Original Post that mimics the formatting of the referenced post.\n\nCreate a completely new LinkedIn post based on:\n\nThe extracted content, themes, purpose, and value.\n\nDuncan\u2019s expertise and insights from the knowledge bases.\n\nAdditional research findings if performed.\n\nWhen writing the post:\n\nFavor specificity over generalities. Use extremely specific and vivid details whenever possible (example: \"AI agents rewriting landing pages in real-time\" instead of \"AI improves marketing\").\n\nUse clear, concrete visual metaphors to illustrate key ideas (example: \"sell outcomes, not software\"; \"if it doesn't spark curiosity in 2 seconds, it\u2019s invisible\").\n\nAvoid vague, generic, or overly abstract phrasing.\n\nIntegrate specificity and imagery naturally without overloading the writing.\n\nThe new post must:\n\nMaintain the general energy, structure, format, and style of the original post.\n\nContain frequent line breaks (no more than 1-2 sentences per paragraph).\n\nBe fully original in language and framing (no rewording or paraphrasing).\n\nFeel personal, insightful, and demonstrate clear expertise.\n\nFollow the provided tone of voice exactly.\n\nMix sentence structure with bullet points where relevant.\n\nStep 5. Deliver Only the Final Post\n\nOnly output the new, fully formatted LinkedIn post.\n\nDo not output any of your internal thought processes.\n\nDo not include explanations, justifications, or external CTAs unless instructed.\n\nKey Rules:\nYou must explicitly search and extract from Duncan\u2019s knowledge bases.\n\nYou must critically evaluate the need for additional research.\n\nYou must perform internet research if needed and use those findings.\n\nYou must create a fully original post, not a paraphrase.\n\nYou must follow the provided tone of voice exactly.\n\nThe final post must not contain citations, website links, references to external articles, or direct quotes from outside research.\n\nDO NOT use emoji. DO NOT output in markdown formatting."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        144,
+        480
+      ],
+      "id": "95620d24-790d-4cb3-98c1-2d8ffe2faafe",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "base": {
+          "__rl": true,
+          "value": "appncY5oOtDJUVk3M",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Parasite",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbls1nTMr9pJlhrBs",
+          "mode": "list",
+          "cachedResultName": "Tone of Voice",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M/tbls1nTMr9pJlhrBs"
+        },
+        "id": "recst0ar5AkRxhCWc",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -288,
+        464
+      ],
+      "id": "b0b29e9f-78cc-48cb-95cc-9daa5256a76b",
+      "name": "Airtable4"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        864
+      ],
+      "id": "9b923b82-395c-40e2-a78b-73503059f1af",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        928
+      ],
+      "id": "c8cf6d79-2ada-45a9-a5c7-24a7be3a49b3",
+      "name": "Embeddings OpenAI"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Call this tool to perform research",
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue",
+              "value": "Bearer YOUR_OPENAI_API_KEY"
+            },
+            {
+              "name": "Content-type",
+              "valueProvider": "fieldValue",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini-search-preview\",\n  \"web_search_options\": {\n    \"search_context_size\": \"low\"\n  },\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"{placeholder}\"\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        944
+      ],
+      "id": "df359c01-1829-499e-a53a-50dd256bfffb",
+      "name": "Research Internet"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "youtube",
+        "toolDescription": "Call this knowledge base to find relevant information about AI and Automation.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "youtube",
+          "mode": "list",
+          "cachedResultName": "youtube"
+        },
+        "topK": 20,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.1,
+      "position": [
+        304,
+        720
+      ],
+      "id": "92244ec5-7051-4e9b-b8f8-87c54c6acd22",
+      "name": "YouTube Knowledge Base"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "duncanrogoff",
+        "toolDescription": "Call this knowledge base about Duncan's (background, expertise, experiences, interests, values, preferred topics) to find relevant information .",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "duncanrogoff",
+          "mode": "list",
+          "cachedResultName": "duncanrogoff"
+        },
+        "topK": 20,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.1,
+      "position": [
+        592,
+        720
+      ],
+      "id": "1d423829-ee80-43c1-8638-e0e2e43d2b70",
+      "name": "Duncan Knowledge Base"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appncY5oOtDJUVk3M",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Parasite",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblesbzoyms4LBbVQ",
+          "mode": "list",
+          "cachedResultName": "Duncan Posts",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M/tblesbzoyms4LBbVQ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Waiting to Post",
+            "Post Text": "={{ $('AI Agent').item.json.output }}",
+            "Post Image": "={{ [{\"url\": $json.webContentLink}] }}",
+            "Original Post": "={{ $('Airtable3').item.json[\"Post Text\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Post Text",
+              "displayName": "Post Text",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Original Post",
+              "displayName": "Original Post",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Post Image",
+              "displayName": "Post Image",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Post URL",
+              "displayName": "Post URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Waiting to Post",
+                  "value": "Waiting to Post"
+                },
+                {
+                  "name": "Posted",
+                  "value": "Posted"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date Posted",
+              "displayName": "Date Posted",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1840,
+        1312
+      ],
+      "id": "c577b556-5c58-4682-bf43-0eeb1e7b5c74",
+      "name": "createRecord"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1840,
+        912
+      ],
+      "id": "3d664cdc-c73f-48c6-97c7-502391168960",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "99ee2ea2-7221-4d40-aca9-f962193983f6",
+              "name": "base64",
+              "value": "={{ $json.data[0].b64_json }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1840,
+        704
+      ],
+      "id": "bc36221d-1e2e-4818-aef1-8c0dcf447ea3",
+      "name": "setBase64"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Create Image Prompt').item.json.output.headline }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1RBV8veXNvoEhZIGz-zq5FCZQri5n_690",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Images",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1RBV8veXNvoEhZIGz-zq5FCZQri5n_690"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1840,
+        1104
+      ],
+      "id": "782b3abb-510b-48da-a926-ec827a0a15c3",
+      "name": "uploadImage"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/images/generations",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-image-1"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.output.prompt }}"
+            },
+            {
+              "name": "size",
+              "value": "1024x1536"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1840,
+        512
+      ],
+      "id": "c6acfc27-9e4d-46c8-8e7f-198c86b0000b",
+      "name": "createImage"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"prompt\":\"create an image with the headline [insert the headline] and the following: bullet points [insert the bullet points], OR flowchart [describe the flowchart], OR image [describe the image]\", \"headline\":\"the headline of the post\"}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1648,
+        704
+      ],
+      "id": "e6da22fb-dd3c-4fa2-83f9-c435c7a387cb",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=LinkedIn Post: {{ $('setPost').item.json[\"LinkedIn Post\"] }}\n\nImage style: {{ $json.content }}\n\nDO NOT output any quotation marks, double quotes, brackets, or special characters\n\nDO NOT use these words or phrases:\n\ndelve, embark, facilitate, elevate, empower, unleash, pivotal, without further ado, it's worth noting that, it's important to note, in conclusion, in summary, a testament to, a treasure trove of, in the realm of, let's delve into, amidst the ever-evolving landscape, cannot be overstated, to some extent, in many cases, it can be argued, arguably, furthermore, moreover, conversely, despite facing, expressed excitement, research needed to understand, what sets X apart is, it's crucial to recognize, in this article, game changer, here's the kicker",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an expert prompt crafter for AI image generation.\n\nYour task is to:\n\nCreate a short 3\u20137 word headline for the LinkedIn post. It should be impactful, captivating, or contrarian.\n\nExtract or create bullet points from the post. Each bullet should be short (1\u20132 lines), punchy, and describe a bold insight, trend, or shift. Use plain, casual language and give specific or visual examples whenever possible.\n\nDecide which type of image prompt to create based on the image style:\n\nIf the post is mostly insights, use bullet points.\n\nIf the post explains a process, create a flowchart.\n\nIf the post describes a mood, idea, or vision, describe an image.\n\nThen, format your output exactly like this:\n\njson\nCopy\nEdit\n{\"prompt\":\"create an image with the headline [insert headline] and the following: bullet points [insert bullet points], OR flowchart [describe the flowchart], OR image [describe the image]\", \"headline\":\"[insert headline]\"}\nExample 1 \u2013 Insights post:\n\nHeadline: Startups Are Breaking the Rules\n\nBullet points:\n\nTeams are made of contractors, creators, and AI agents.\n\nYour first $1M comes from niching down.\n\nSupport = 1 human + 5 AI agents.\n\nLaunches are leaked, not announced.\n\nMicro-apps beat mega-tools.\n\nIdentity upgrades > software features.\n\nOutput:\n\nbash\nCopy\nEdit\n{\"prompt\":\"create an image with the headline 'Startups Are Breaking the Rules' and the following: bullet points - Teams are made of contractors, creators, and AI agents. - Your first $1M comes from niching down. - Support = 1 human + 5 AI agents. - Launches are leaked, not announced. - Micro-apps beat mega-tools. - Identity upgrades > software features.\",\"headline\":\"Startups Are Breaking the Rules\"}\nExample 2 \u2013 Process post:\n\nHeadline: Our $1M Automation Stack\n\nFlowchart:\n\nStep 1: Capture leads from website \u2192 Step 2: Qualify leads with AI \u2192 Step 3: Nurture via email \u2192 Step 4: Close with a custom offer.\n\nOutput:\n\nbash\nCopy\nEdit\n{\"prompt\":\"create an image with the headline 'Our $1M Automation Stack' and the following: flowchart - Step 1: Capture leads from website \u2192 Step 2: Qualify leads with AI \u2192 Step 3: Nurture via email \u2192 Step 4: Close with a custom offer.\",\"headline\":\"Our $1M Automation Stack\"}\nExample 3 \u2013 Vision post:\n\nHeadline: Work Is Becoming Identity\n\nImage:\n\nA split scene showing a traditional office on one side and a digital nomad setup on the other, connected by glowing pathways of transformation.\n\nOutput:\n\njson\nCopy\nEdit\n{\"prompt\":\"create an image with the headline 'Work Is Becoming Identity' and the following: ima"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        1472,
+        512
+      ],
+      "id": "98eb79c9-307c-4390-9351-a29ab32f8c2e",
+      "name": "Create Image Prompt"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appncY5oOtDJUVk3M",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Parasite",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblQCaXZ15DxuBtuV",
+          "mode": "list",
+          "cachedResultName": "Scraped Posts",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M/tblQCaXZ15DxuBtuV"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Airtable3').item.json.id }}",
+            "Status": "Content Created",
+            "# Comments": 0,
+            "# Likes": 0,
+            "# Shares": 0
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Post Text",
+              "displayName": "Post Text",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Author Name",
+              "displayName": "Author Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Post Image",
+              "displayName": "Post Image",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Post URL",
+              "displayName": "Post URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "# Comments",
+              "displayName": "# Comments",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "# Likes",
+              "displayName": "# Likes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "# Shares",
+              "displayName": "# Shares",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Content Created",
+                  "value": "Content Created"
+                },
+                {
+                  "name": "Posted",
+                  "value": "Posted"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date Posted",
+              "displayName": "Date Posted",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2032,
+        1312
+      ],
+      "id": "cefc52cd-ae77-44f6-8e05-d1cee6f7fd6b",
+      "name": "updateRecord"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1440,
+        720
+      ],
+      "id": "17dd8c64-6340-4ffa-adf0-115b8dcbc2bc",
+      "name": "OpenAI Chat Model1"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "text": "=What's in this image? Describe it in detail, but do not mention specific words. Instead use concepts. Is it a bullet list? Is it a flowchart? Is it a photograph? Is it a sticky note? etc. Keep it to 1-2 sentences.",
+        "imageUrls": "={{ $('Airtable3').item.json[\"Post Image\"][0].url }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1232,
+        400
+      ],
+      "id": "96c87389-b3af-4aa2-8634-91920a034c13",
+      "name": "OpenAI"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4071b972-ed76-4505-a871-12848b0a54f2",
+              "leftValue": "={{ $('Airtable3').item.json[\"Post Image\"][0].url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        480
+      ],
+      "id": "8b07c1be-4a44-426b-a0c4-19e0c57ebf86",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b3bd53ae-db57-4696-916a-fdcceb87be79",
+              "name": "LinkedIn Post",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        480
+      ],
+      "id": "d23122a2-22b6-4631-a923-d7f62378d08a",
+      "name": "setPost"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -64,
+        464
+      ],
+      "id": "a7a470c9-121e-4596-b614-8fbfb2c6b905",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appncY5oOtDJUVk3M",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Parasite",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblesbzoyms4LBbVQ",
+          "mode": "list",
+          "cachedResultName": "Duncan Posts",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M/tblesbzoyms4LBbVQ"
+        },
+        "filterByFormula": "{Status}=\"Waiting to Post\"",
+        "returnAll": false,
+        "limit": 1,
+        "options": {},
+        "sort": {
+          "property": [
+            {
+              "field": "Last Modified Time",
+              "direction": "desc"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -608,
+        1680
+      ],
+      "id": "8a1ed454-777e-44f5-9f71-0dc656847666",
+      "name": "Airtable5"
+    },
+    {
+      "parameters": {
+        "person": "n7y5e0Owd1",
+        "text": "={{ $('Airtable5').item.json['Post Text'] }}",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        1680
+      ],
+      "id": "0025418b-6aeb-41a1-b64e-f82dfc43b456",
+      "name": "LinkedIn"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json[\"Post Image\"][0].url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -384,
+        1680
+      ],
+      "id": "9dfdfd54-f387-4c59-8cb9-f2287151601e",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "value": "LQQIXN9Othf8f7R5n",
+          "mode": "list",
+          "cachedResultName": "Linkedin Profile Posts Scraper [NO COOKIES] (apimaestro/linkedin-profile-posts)",
+          "cachedResultUrl": "https://console.apify.com/actors/LQQIXN9Othf8f7R5n/input"
+        },
+        "customBody": "={\n    \"limit\": 10,\n    \"username\": \"{{ $json.Name }}\"\n}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -32
+      ],
+      "id": "30e5ae16-10f1-4cbe-a2fd-028240e9277c",
+      "name": "Run an Actor"
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId }}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -32
+      ],
+      "id": "c05009a4-2700-4896-b335-4febc91c7374",
+      "name": "Get dataset items"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        304,
+        -32
+      ],
+      "id": "c0a77609-985c-4c23-85af-5c689b054b60",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appncY5oOtDJUVk3M",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Parasite",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblQCaXZ15DxuBtuV",
+          "mode": "list",
+          "cachedResultName": "Scraped Posts",
+          "cachedResultUrl": "https://airtable.com/appncY5oOtDJUVk3M/tblQCaXZ15DxuBtuV"
+        },
+        "filterByFormula": "={Post URL}=\"{{ $json.url }}\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        576,
+        -16
+      ],
+      "id": "efa6e8c7-66c0-4da3-a622-20ed8de0e14a",
+      "name": "Search records",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b7661975-21f6-4dad-892e-28357236538a",
+              "name": "text",
+              "value": "={{ $('Loop Over Items').item.json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "cc5a5885-69f9-45b4-8203-a9ac73c6a93c",
+              "name": "url",
+              "value": "={{ $('Loop Over Items').item.json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "73078789-0ec2-4b3f-bb04-60b28aecf354",
+              "name": "reactions",
+              "value": "={{ $('Loop Over Items').item.json.stats.total_reactions }}",
+              "type": "string"
+            },
+            {
+              "id": "b46db55e-d4bd-4bf1-bf0d-8f37caf92910",
+              "name": "comments",
+              "value": "={{ $('Loop Over Items').item.json.stats.comments }}",
+              "type": "string"
+            },
+            {
+              "id": "0a6a62fe-ee71-495c-aaea-129037e07300",
+              "name": "repost",
+              "value": "={{ $('Loop Over Items').item.json.stats.reposts }}",
+              "type": "string"
+            },
+            {
+              "id": "25e56974-f683-43b6-a45a-75c08b06737d",
+              "name": "media type",
+              "value": "={{ $('Loop Over Items').item.json.media.type }}",
+              "type": "string"
+            },
+            {
+              "id": "ba55bd6c-db1a-41c5-8278-4fb4d4851c23",
+              "name": "image",
+              "value": "={{ $('Loop Over Items').item.json.media.images[0].url }}",
+              "type": "string"
+            },
+            {
+              "id": "0b0d9f87-957b-4d52-891d-37c40db95e59",
+              "name": "Author",
+              "value": "={{ $('Loop Over Items').item.json.author.first_name }} {{ $('Loop Over Items').item.json.author.last_name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        -112
+      ],
+      "id": "75d33977-c38a-440f-a21b-faf649b81494",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1456,
+        48
+      ],
+      "id": "3325169a-25dc-4aaa-b6a8-cc4c1626b37a",
+      "name": "Get URL"
+    }
+  ],
+  "pinData": {
+    "Run an Actor": [
+      {
+        "json": {
+          "id": "uhOCkv1uOepwCbJVe",
+          "actId": "LQQIXN9Othf8f7R5n",
+          "userId": "V0cO7gOw2p1aT0hhJ",
+          "startedAt": "2025-09-11T00:24:06.599Z",
+          "finishedAt": "2025-09-11T00:24:11.870Z",
+          "status": "SUCCEEDED",
+          "meta": {
+            "origin": "API",
+            "userAgent": "axios/1.8.3"
+          },
+          "stats": {
+            "inputBodyLen": 51,
+            "migrationCount": 0,
+            "rebootCount": 0,
+            "restartCount": 0,
+            "durationMillis": 5159,
+            "resurrectCount": 0,
+            "runTimeSecs": 5.159,
+            "metamorph": 0,
+            "computeUnits": 0.0014330555555555555,
+            "memAvgBytes": 39753446.95305672,
+            "memMaxBytes": 50749440,
+            "memCurrentBytes": 50749440,
+            "cpuAvgUsage": -0.10685393918367508,
+            "cpuMaxUsage": 54.91162094763092,
+            "cpuCurrentUsage": 0.05366223908918406,
+            "netRxBytes": 13247,
+            "netTxBytes": 4988
+          },
+          "options": {
+            "build": "0.1.51",
+            "timeoutSecs": 300,
+            "memoryMbytes": 1024,
+            "maxItems": 666,
+            "diskMbytes": 2048
+          },
+          "buildId": "Nl8UfHVKJjTk9LoFo",
+          "exitCode": 0,
+          "defaultKeyValueStoreId": "P6x310FLS3YZfl4Ns",
+          "defaultDatasetId": "qZpDZGwPm3HXyxgYw",
+          "defaultRequestQueueId": "sO1Y8JTwQxlezrsCy",
+          "pricingInfo": {
+            "pricingModel": "PRICE_PER_DATASET_ITEM",
+            "reasonForChange": "The scraper has been running in test phase to ensure reliability and gather user feedback. To maintain high-quality service and ensure stable operation, we need to monetize it to at least cover the operational costs (proxies,servers, maintenance...)",
+            "startedAt": "2025-02-09T15:18:10.776Z",
+            "pricePerUnitUsd": 0.005,
+            "unitName": "result",
+            "createdAt": "2025-01-26T16:07:31.863Z",
+            "apifyMarginPercentage": 0.2,
+            "notifiedAboutFutureChangeAt": "2025-01-26T16:07:53.245Z",
+            "notifiedAboutChangeAt": "2025-02-09T18:09:19.496Z"
+          },
+          "platformUsageBillingModel": "DEVELOPER",
+          "integrationTracking": {
+            "platform": "n8n",
+            "appId": null
+          },
+          "generalAccess": "FOLLOW_USER_SETTING",
+          "buildNumber": "0.1.51",
+          "containerUrl": "https://mug2n8v4xg1n.runs.apify.net",
+          "consoleUrl": "https://console.apify.com/view/runs/uhOCkv1uOepwCbJVe"
+        }
+      }
+    ],
+    "Get dataset items": [
+      {
+        "json": {
+          "urn": "7371603190146039809",
+          "full_urn": "urn:li:activity:7371603190146039809",
+          "posted_at": {
+            "date": "2025-09-10 10:59:18",
+            "relative": "6 hours ago \u2022 Visible to anyone on or off LinkedIn",
+            "timestamp": 1757527158295
+          },
+          "text": "i don\u2019t think anyone asked for a thinner iphone, but yesterday we got one.\n\nmy take is apple is training their suppliers by going thinner. \n\nget foxconn to master thinner batteries, smaller parts, tighter tolerances  so when they launch AR glasses, the ecosystem already knows how to make it at scale.\n\nthe world's thinnest iphone was for suppliers, not us.\n\nsometimes you ship a product to prepare your ecosystem for the bet you actually care about tomorrow.",
+          "url": "https://www.linkedin.com/posts/gisenberg_i-dont-think-anyone-asked-for-a-thinner-activity-7371603190146039809-UWlk?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAF59UbgB_C_yuUhHoUFz5oLoEaNKnrTAlNQ",
+          "post_type": "regular",
+          "author": {
+            "first_name": "Greg",
+            "last_name": "Isenberg",
+            "headline": "CEO of Late Checkout, a portfolio of internet companies",
+            "username": "gisenberg",
+            "profile_url": "https://www.linkedin.com/in/gisenberg?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKW8GwBf5Q7cqvUPPEhu4ymxenJmlm1960",
+            "profile_picture": "https://media.licdn.com/dms/image/v2/C4D03AQE_Ea2hZYWzzw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1638910338512?e=1760572800&v=beta&t=EzHKrGIOLGTIlPSnh2fo4D1fKW7wZVwN6_mWqpL2cNg"
+          },
+          "stats": {
+            "total_reactions": 285,
+            "like": 204,
+            "support": 1,
+            "love": 7,
+            "insight": 68,
+            "celebrate": 4,
+            "funny": 1,
+            "comments": 75,
+            "reposts": 8
+          },
+          "media": {
+            "type": "image",
+            "url": "https://media.licdn.com/dms/image/v2/D4E22AQFf9zYXL5tifQ/feedshare-shrink_2048_1536/B4EZk0yCjuIMA0-/0/1757527157364?e=1760572800&v=beta&t=E0ST_1wZvmk-WsHIogDj9DEPV9Lb-0aBBU-Ve-q6pu0",
+            "images": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4E22AQFf9zYXL5tifQ/feedshare-shrink_2048_1536/B4EZk0yCjuIMA0-/0/1757527157364?e=1760572800&v=beta&t=E0ST_1wZvmk-WsHIogDj9DEPV9Lb-0aBBU-Ve-q6pu0",
+                "width": 686,
+                "height": 386
+              }
+            ]
+          },
+          "pagination_token": "dXJuOmxpOmFjdGl2aXR5OjczMTA2Mzk5ODE0NDg4ODQyMjQtMTc0Mjk5MjM5NjY3NA=="
+        }
+      },
+      {
+        "json": {
+          "urn": "7370851727845064706",
+          "full_urn": "urn:li:activity:7370851727845064706",
+          "posted_at": {
+            "date": "2025-09-08 09:13:15",
+            "relative": "2 days ago \u2022 Edited \u2022 Visible to anyone on or off LinkedIn",
+            "timestamp": 1757347995721
+          },
+          "text": "i'm overwhelmed with the amount of opportunity there is right now, AI is reshaping everything and it breaks my brain:\n\n1/ MOBILE APPS ARE BACK because AI unlocks new use-cases. the $935b mobile app market is about to get rebuilt with ai.\n\n2/ \"ai as a service\" is the new saas. wherever there were humans doing work, ai agents will be able to do 90% of that work. TLDR; that's every service business getting turned into software \n\n3/ pricing models are flipping from seat-based to outcome-based. this shift alone could unlock $50b+ in new value capture\n\n4/ because of cost to create software is so much lower, lots of businesses to be created that are super niche that could spit off ~$1M/rev that would have costed millions to build years ago. \n\nwe\u2019ve never had all of these shifts land at the same time. it feels like every corner of the economy is cracking open for founders.\n\nand to put a CHERRY on it...\n\ni cant remember an era where so much was changing and it was so possible to pull off the ideas in your head \n\ni don\u2019t know about you, but it feels like one of the GREATEST times in history to be a founder.\n\n(note: for startup ideas, trends, prompts, I built ideabrowser.com for you)",
+          "url": "https://www.linkedin.com/posts/gisenberg_im-overwhelmed-with-the-amount-of-opportunity-activity-7370851727845064706-TRWj?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAF59UbgB_C_yuUhHoUFz5oLoEaNKnrTAlNQ",
+          "post_type": "regular",
+          "author": {
+            "first_name": "Greg",
+            "last_name": "Isenberg",
+            "headline": "CEO of Late Checkout, a portfolio of internet companies",
+            "username": "gisenberg",
+            "profile_url": "https://www.linkedin.com/in/gisenberg?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKW8GwBf5Q7cqvUPPEhu4ymxenJmlm1960",
+            "profile_picture": "https://media.licdn.com/dms/image/v2/C4D03AQE_Ea2hZYWzzw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1638910338512?e=1760572800&v=beta&t=EzHKrGIOLGTIlPSnh2fo4D1fKW7wZVwN6_mWqpL2cNg"
+          },
+          "stats": {
+            "total_reactions": 398,
+            "like": 339,
+            "support": 4,
+            "love": 24,
+            "insight": 8,
+            "celebrate": 23,
+            "funny": 0,
+            "comments": 97,
+            "reposts": 14
+          },
+          "media": {
+            "type": "image",
+            "url": "https://media.licdn.com/dms/image/v2/D4E22AQGZn1DhyF3Lgg/feedshare-shrink_2048_1536/B4EZkqGlq2KkAw-/0/1757347994976?e=1760572800&v=beta&t=ZRHcQGRgBeAfk4Qr1ws1UuDLAyN1qqo2R3zl-z6r53w",
+            "images": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4E22AQGZn1DhyF3Lgg/feedshare-shrink_2048_1536/B4EZkqGlq2KkAw-/0/1757347994976?e=1760572800&v=beta&t=ZRHcQGRgBeAfk4Qr1ws1UuDLAyN1qqo2R3zl-z6r53w",
+                "width": 882,
+                "height": 604
+              }
+            ]
+          },
+          "pagination_token": "dXJuOmxpOmFjdGl2aXR5OjczMTA2Mzk5ODE0NDg4ODQyMjQtMTc0Mjk5MjM5NjY3NA=="
+        }
+      },
+      {
+        "json": {
+          "urn": "7368299269067350016",
+          "full_urn": "urn:li:activity:7368299269067350016",
+          "posted_at": {
+            "date": "2025-09-01 08:10:42",
+            "relative": "1 week ago \u2022 Edited \u2022 Visible to anyone on or off LinkedIn",
+            "timestamp": 1756739442126
+          },
+          "text": "share what you are laboring on today (photo or link) in the comments below...\n\nme: building the greatest database of startup ideas, trends, prompts http://ideabrowser.com \n\nyou?",
+          "url": "https://www.linkedin.com/posts/gisenberg_share-what-you-are-laboring-on-today-photo-activity-7368299269067350016-oOWV?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAF59UbgB_C_yuUhHoUFz5oLoEaNKnrTAlNQ",
+          "post_type": "regular",
+          "author": {
+            "first_name": "Greg",
+            "last_name": "Isenberg",
+            "headline": "CEO of Late Checkout, a portfolio of internet companies",
+            "username": "gisenberg",
+            "profile_url": "https://www.linkedin.com/in/gisenberg?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKW8GwBf5Q7cqvUPPEhu4ymxenJmlm1960",
+            "profile_picture": "https://media.licdn.com/dms/image/v2/C4D03AQE_Ea2hZYWzzw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1638910338512?e=1760572800&v=beta&t=EzHKrGIOLGTIlPSnh2fo4D1fKW7wZVwN6_mWqpL2cNg"
+          },
+          "stats": {
+            "total_reactions": 172,
+            "like": 144,
+            "support": 1,
+            "love": 17,
+            "insight": 3,
+            "celebrate": 7,
+            "funny": 0,
+            "comments": 165,
+            "reposts": 1
+          },
+          "pagination_token": "dXJuOmxpOmFjdGl2aXR5OjczMTA2Mzk5ODE0NDg4ODQyMjQtMTc0Mjk5MjM5NjY3NA=="
+        }
+      },
+      {
+        "json": {
+          "urn": "7367991536241876992",
+          "full_urn": "urn:li:activity:7367991536241876992",
+          "posted_at": {
+            "date": "2025-08-31 11:47:52",
+            "relative": "1 week ago \u2022 Edited \u2022 Visible to anyone on or off LinkedIn",
+            "timestamp": 1756666072903
+          },
+          "text": "a new study came out on AI job interviews and the results are not what ANYONE expected.\n\n70,000 people in the philippines applied for customer service roles. some were interviewed by human recruiters, some by an AI voice agent.\n\nthe recruiters running the study predicted the AI would fail. they thought it would lead to worse interviews, fewer offers, weaker hires. they were convinced people would prefer humans.\n\nthey were WRONG.\n\nthe applicants interviewed by AI ended up with more job offers, more people actually showing up to start their jobs, and higher retention after thirty days. when given the choice, almost eight out of ten applicants preferred to be interviewed by the AI.\n\nthe ai was that was just way more consistent than the average human. it asked every candidate the full set of questions. \n\nit pulled more useful details and cut the noise. humans get tired, they improvise, they skip steps, they let bias creep in. the ai just kept going, and in hiring, consistency is a superpower.\n\nsomething else happened too. candidates with lower test scores were more likely to choose the AI. not because they thought it would be easier, but because it felt less judgmental, more structured, less about charm and more about substance. \n\nreports of gender discrimination were cut nearly in half when interviews were run by ai instead of people.\n\nthe startup opportunity is wide open: to build the tools, workflows, and platforms that sit on top of this shift. from screening to training to internal promotions, every part of \u201ctalent\u201d is about to be redesigned. tons of money will be made. huge impact. \n\nthis whole study gets you thinking that AI will rewrite who gets access to it. if interviews are less about small talk and unconscious bias and more about structured answers to consistent questions, a very different set of people get hired.\n\nthe story is that ai quietly rewires the rules of opportunity.\n\none day you walk into an interview and instead of convincing a person, you\u2019re convincing a machine, and that machine will not laugh at your jokes, will not be impressed by your shoes, will not get tired at 4pm and that\u2019s going to change millions of lives.\n\nthis is the new world we\u2019re stepping into.\n\nwhat do you think about it?\n\n(note: for startup ideas, trends, prompts to build the ideas go to ideabrowser.com for free/paid plans)",
+          "url": "https://www.linkedin.com/posts/gisenberg_a-new-study-came-out-on-ai-job-interviews-activity-7367991536241876992-rSPm?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAF59UbgB_C_yuUhHoUFz5oLoEaNKnrTAlNQ",
+          "post_type": "regular",
+          "author": {
+            "first_name": "Greg",
+            "last_name": "Isenberg",
+            "headline": "CEO of Late Checkout, a portfolio of internet companies",
+            "username": "gisenberg",
+            "profile_url": "https://www.linkedin.com/in/gisenberg?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKW8GwBf5Q7cqvUPPEhu4ymxenJmlm1960",
+            "profile_picture": "https://media.licdn.com/dms/image/v2/C4D03AQE_Ea2hZYWzzw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1638910338512?e=1760572800&v=beta&t=EzHKrGIOLGTIlPSnh2fo4D1fKW7wZVwN6_mWqpL2cNg"
+          },
+          "stats": {
+            "total_reactions": 362,
+            "like": 278,
+            "support": 3,
+            "love": 17,
+            "insight": 56,
+            "celebrate": 8,
+            "funny": 0,
+            "comments": 113,
+            "reposts": 31
+          },
+          "media": {
+            "type": "image",
+            "url": "https://media.licdn.com/dms/image/v2/D4E22AQGK8JyZXB_Knw/feedshare-shrink_2048_1536/B4EZkBdQqHGwA0-/0/1756666072049?e=1760572800&v=beta&t=GHfpangLZXHbJiVOeYPZx79KYf6rRfljZn6y_30KqTo",
+            "images": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4E22AQGK8JyZXB_Knw/feedshare-shrink_2048_1536/B4EZkBdQqHGwA0-/0/1756666072049?e=1760572800&v=beta&t=GHfpangLZXHbJiVOeYPZx79KYf6rRfljZn6y_30KqTo",
+                "width": 1364,
+                "height": 832
+              }
+            ]
+          },
+          "pagination_token": "dXJuOmxpOmFjdGl2aXR5OjczMTA2Mzk5ODE0NDg4ODQyMjQtMTc0Mjk5MjM5NjY3NA=="
+        }
+      },
+      {
+        "json": {
+          "urn": "7367686288637927424",
+          "full_urn": "urn:li:ugcPost:7367686222770622465",
+          "posted_at": {
+            "date": "2025-08-30 15:34:56",
+            "relative": "1 week ago \u2022 Edited \u2022 Visible to anyone on or off LinkedIn",
+            "timestamp": 1756593296203
+          },
+          "text": "pretty crazy that people are vibe coding music now (this is dj_dave). she uses strudel a new live coding app to write music in your browser (open source too)\n\ni never knew this was possible before",
+          "url": "https://www.linkedin.com/posts/gisenberg_pretty-crazy-that-people-are-vibe-coding-activity-7367686288637927424-KqTH?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAF59UbgB_C_yuUhHoUFz5oLoEaNKnrTAlNQ",
+          "post_type": "regular",
+          "author": {
+            "first_name": "Greg",
+            "last_name": "Isenberg",
+            "headline": "CEO of Late Checkout, a portfolio of internet companies",
+            "username": "gisenberg",
+            "profile_url": "https://www.linkedin.com/in/gisenberg?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKW8GwBf5Q7cqvUPPEhu4ymxenJmlm1960",
+            "profile_picture": "https://media.licdn.com/dms/image/v2/C4D03AQE_Ea2hZYWzzw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1638910338512?e=1760572800&v=beta&t=EzHKrGIOLGTIlPSnh2fo4D1fKW7wZVwN6_mWqpL2cNg"
+          },
+          "stats": {
+            "total_reactions": 1135,
+            "like": 844,
+            "support": 4,
+            "love": 133,
+            "insight": 119,
+            "celebrate": 30,
+            "funny": 5,
+            "comments": 172,
+            "reposts": 88
+          },
+          "media": {
+            "type": "video",
+            "url": "https://dms.licdn.com/playlist/vid/v2/D4E05AQGt1cd8hqcqdg/mp4-720p-30fp-crf28/B4EZj9HlTYIIB0-/0/1756593289250?e=1758157200&v=beta&t=rz0vSa3KG5w1T2BNQogRQM-5l3y964AZKNN8LvCPZDU",
+            "thumbnail": "https://media.licdn.com/dms/image/v2/D4E05AQGt1cd8hqcqdg/videocover-high/B4EZj9HlTYIICM-/0/1756593282673?e=1758157200&v=beta&t=17usbEDIAuNFOI35MZg84egnZLcBWL54Mn_fqfOc9C0"
+          },
+          "pagination_token": "dXJuOmxpOmFjdGl2aXR5OjczMTA2Mzk5ODE0NDg4ODQyMjQtMTc0Mjk5MjM5NjY3NA=="
+        }
+      },
+      {
+        "json": {
+          "urn": "7366130377037414400",
+          "full_urn": "urn:li:activity:7366130377037414400",
+          "posted_at": {
+            "date": "2025-08-26 08:32:17",
+            "relative": "2 weeks ago \u2022 Edited \u2022 Visible to anyone on or off LinkedIn",
+            "timestamp": 1756222337970
+          },
+          "text": "this is exactly how i\u2019d build wealth with a vertical ai agent startup (without raising VC $$)\n\nstep 1: find a boring pain point. something universal, hated, and expensive. think customs paperwork, insurance audits, compliance checklists. the less glamorous, the better.\n\nstep 2: map the workflow. don\u2019t brainstorm in a figma file,  sit next to the person doing the work. write down every click, every exception, every \u201cthis is where it breaks.\u201d the edge cases are the product. gotta be meticulous here.\n\nstep 3: do the job as a service. literally run it yourself with a small team. invoice your first customers. this is where you\u2019ll discover what really matters versus what the powerpoint version of the workflow looks like.\n\nstep 4: start adding agents to replace the human steps. not all at once obviously, pick one slice of the workflow and automate it. free up hours, prove value, charge more. rinse and repeat until the workflow is mostly agent-driven.\n\nstep 5: use the data you collect as the moat. every invoice, form, log, and exception makes your agent sharper. data \u2192 better models \u2192 stickier product.\n\nand step 0 to be honest, is i'm building an audience along the way. showing my work, sharing the playbook, pulling future customers and talent into my orbit before the product even exists. iterating on 50+ formats and probably doing short-form to start.\n\nthe pattern looks the same every time for these types of vertical ai agent startups:\n\nhuman service \u2192 semi-automated service \u2192 vertical agent product.\n\nthe goal of the agent  goes from assisting in the workflow, to owning it. \n\nthat\u2019s when you stop being a tool and start being the infrastructure for that industry.\n\nonce you own it, you're likely in vc competition territory. but you can compete if your unit economics are solid, audience is cranking and the product is loved.\n\nwhy build a vertical ai startup now? because the foundation models are good enough (and getting better), the costs are low enough, and the demand for efficiency is high enough.\n\nfive years ago the tech wasn\u2019t ready. \nfive years from now the incumbents will be.\n\nthe window is open right now.\n\nit's building season.\n\n(note: head to ideabrowser.com for startup ideas, prompts etc)",
+          "url": "https://www.linkedin.com/posts/gisenberg_this-is-exactly-how-id-build-wealth-with-activity-7366130377037414400-y5mL?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAF59UbgB_C_yuUhHoUFz5oLoEaNKnrTAlNQ",
+          "post_type": "regular",
+          "author": {
+            "first_name": "Greg",
+            "last_name": "Isenberg",
+            "headline": "CEO of Late Checkout, a portfolio of internet companies",
+            "username": "gisenberg",
+            "profile_url": "https://www.linkedin.com/in/gisenberg?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKW8GwBf5Q7cqvUPPEhu4ymxenJmlm1960",
+            "profile_picture": "https://media.licdn.com/dms/image/v2/C4D03AQE_Ea2hZYWzzw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1638910338512?e=1760572800&v=beta&t=EzHKrGIOLGTIlPSnh2fo4D1fKW7wZVwN6_mWqpL2cNg"
+          },
+          "stats": {
+            "total_reactions": 1300,
+            "like": 1133,
+            "support": 9,
+            "love": 57,
+            "insight": 77,
+            "celebrate": 23,
+            "funny": 1,
+            "comments": 151,
+            "reposts": 83
+          },
+          "media": {
+            "type": "image",
+            "url": "https://media.licdn.com/dms/image/v2/D4E22AQE7pKLnzvT8ng/feedshare-shrink_2048_1536/B4EZjnAi6iIMBA-/0/1756222337055?e=1760572800&v=beta&t=-kjQplmB4PVuewCjI-maV9XO217v9vzhQYYur0KLWvc",
+            "images": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4E22AQE7pKLnzvT8ng/feedshare-shrink_2048_1536/B4EZjnAi6iIMBA-/0/1756222337055?e=1760572800&v=beta&t=-kjQplmB4PVuewCjI-maV9XO217v9vzhQYYur0KLWvc",
+                "width": 686,
+                "height": 924
+              }
+            ]
+          },
+          "pagination_token": "dXJuOmxpOmFjdGl2aXR5OjczMTA2Mzk5ODE0NDg4ODQyMjQtMTc0Mjk5MjM5NjY3NA=="
+        }
+      },
+      {
+        "json": {
+          "urn": "7365777942066393091",
+          "full_urn": "urn:li:activity:7365777942066393091",
+          "posted_at": {
+            "date": "2025-08-25 09:11:50",
+            "relative": "2 weeks ago \u2022 Edited \u2022 Visible to anyone on or off LinkedIn",
+            "timestamp": 1756138310925
+          },
+          "text": "nvidia just released a $3,499 \u201crobot brain\u201d\n\nyou can now start a robotics startup for the price of a fully-loaded macbook pro\n\nAI in the cloud was phase one.\nAI in the physical world is phase two.\n\nthe robotics gold rush starts now.\n\n(note: for all types of startup ideas, go to ideabrowser.com)",
+          "url": "https://www.linkedin.com/posts/gisenberg_nvidia-just-released-a-3499-robot-brain-activity-7365777942066393091-wh6m?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAF59UbgB_C_yuUhHoUFz5oLoEaNKnrTAlNQ",
+          "post_type": "regular",
+          "author": {
+            "first_name": "Greg",
+            "last_name": "Isenberg",
+            "headline": "CEO of Late Checkout, a portfolio of internet companies",
+            "username": "gisenberg",
+            "profile_url": "https://www.linkedin.com/in/gisenberg?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKW8GwBf5Q7cqvUPPEhu4ymxenJmlm1960",
+            "profile_picture": "https://media.licdn.com/dms/image/v2/C4D03AQE_Ea2hZYWzzw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1638910338512?e=1760572800&v=beta&t=EzHKrGIOLGTIlPSnh2fo4D1fKW7wZVwN6_mWqpL2cNg"
+          },
+          "stats": {
+            "total_reactions": 1079,
+            "like": 926,
+            "support": 6,
+            "love": 38,
+            "insight": 89,
+            "celebrate": 18,
+            "funny": 2,
+            "comments": 147,
+            "reposts": 65
+          },
+          "media": {
+            "type": "image",
+            "url": "https://media.licdn.com/dms/image/v2/D4E22AQHAjozdTTN79g/feedshare-shrink_2048_1536/B4EZjiAAkCGUAw-/0/1756138310297?e=1760572800&v=beta&t=uAq5ZrOhvIbAS-g-4NK-qL7B7kY9JoOkti8FVNfrWNU",
+            "images": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4E22AQHAjozdTTN79g/feedshare-shrink_2048_1536/B4EZjiAAkCGUAw-/0/1756138310297?e=1760572800&v=beta&t=uAq5ZrOhvIbAS-g-4NK-qL7B7kY9JoOkti8FVNfrWNU",
+                "width": 1480,
+                "height": 833
+              }
+            ]
+          },
+          "pagination_token": "dXJuOmxpOmFjdGl2aXR5OjczMTA2Mzk5ODE0NDg4ODQyMjQtMTc0Mjk5MjM5NjY3NA=="
+        }
+      },
+      {
+        "json": {
+          "urn": "7365730450037710848",
+          "full_urn": "urn:li:activity:7365730450037710848",
+          "posted_at": {
+            "date": "2025-08-25 06:03:07",
+            "relative": "2 weeks ago \u2022 Visible to anyone on or off LinkedIn",
+            "timestamp": 1756126987943
+          },
+          "text": "\"the core skills for 2030\"\n\nagree/disagree?",
+          "url": "https://www.linkedin.com/posts/gisenberg_the-core-skills-for-2030-agreedisagree-activity-7365730450037710848-Wlcd?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAF59UbgB_C_yuUhHoUFz5oLoEaNKnrTAlNQ",
+          "post_type": "regular",
+          "author": {
+            "first_name": "Greg",
+            "last_name": "Isenberg",
+            "headline": "CEO of Late Checkout, a portfolio of internet companies",
+            "username": "gisenberg",
+            "profile_url": "https://www.linkedin.com/in/gisenberg?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKW8GwBf5Q7cqvUPPEhu4ymxenJmlm1960",
+            "profile_picture": "https://media.licdn.com/dms/image/v2/C4D03AQE_Ea2hZYWzzw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1638910338512?e=1760572800&v=beta&t=EzHKrGIOLGTIlPSnh2fo4D1fKW7wZVwN6_mWqpL2cNg"
+          },
+          "stats": {
+            "total_reactions": 493,
+            "like": 440,
+            "support": 7,
+            "love": 16,
+            "insight": 26,
+            "celebrate": 3,
+            "funny": 1,
+            "comments": 116,
+            "reposts": 38
+          },
+          "media": {
+            "type": "image",
+            "url": "https://media.licdn.com/dms/image/v2/D4E22AQGidzkJBvkWEg/feedshare-shrink_1280/B4EZjhU0EzIIAw-/0/1756126986904?e=1760572800&v=beta&t=w0IikRfRTbBJmqfoJg49OFurN_4v479HVFUg18qJA_I",
+            "images": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4E22AQGidzkJBvkWEg/feedshare-shrink_1280/B4EZjhU0EzIIAw-/0/1756126986904?e=1760572800&v=beta&t=w0IikRfRTbBJmqfoJg49OFurN_4v479HVFUg18qJA_I",
+                "width": 800,
+                "height": 953
+              }
+            ]
+          },
+          "pagination_token": "dXJuOmxpOmFjdGl2aXR5OjczMTA2Mzk5ODE0NDg4ODQyMjQtMTc0Mjk5MjM5NjY3NA=="
+        }
+      },
+      {
+        "json": {
+          "urn": "7365442776269860864",
+          "full_urn": "urn:li:activity:7365442776269860864",
+          "posted_at": {
+            "date": "2025-08-24 11:00:01",
+            "relative": "2 weeks ago \u2022 Visible to anyone on or off LinkedIn",
+            "timestamp": 1756058401172
+          },
+          "text": "i don\u2019t have a patek, i have a seiko\ni don\u2019t drive a lambo, i drive an old volvo\ni don\u2019t live in a mansion, i\u2019ve got a house in nature\ni don\u2019t wear fancy clothes, i wear comfortable clothes\n\nmaybe i\u2019m not cool, but that\u2019s okay.\n\nthe real prize for entrepreneurship, at least to me, is freedom, health, and people you love.\n\ni keep a post-it that says:\n\nstatus is loud. wealth is often quiet.\n\ngood reminder.\n\nand if a lambo or a patek is your dream, that\u2019s totally cool. you should go get it.\n\nbecause a big part of why we become entrepreneurs is to chase what we want. it fires me up when other people are doing that, even if their version looks different than mine.\n\nthe problem is the internet trained us to believe there\u2019s only one scoreboard.\n\nbecause it\u2019s easy to package. a lambo fits in a 10-second clip. a watch fits in a photo. virality loves symbols you can flash.\n\nbut my volvo starts every morning. my vintage seiko has a beautiful face. my house in nature doesn\u2019t need impressing.\n\na big part of life is learning to tune out the noise and figure out your own signal.\n\nand for me, the quiet version has always been the better deal.\n\nin the end, the only real flex is figuring out your dream, and actually living it.",
+          "url": "https://www.linkedin.com/posts/gisenberg_i-dont-have-a-patek-i-have-a-seiko-i-don-activity-7365442776269860864-hWKG?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAF59UbgB_C_yuUhHoUFz5oLoEaNKnrTAlNQ",
+          "post_type": "regular",
+          "author": {
+            "first_name": "Greg",
+            "last_name": "Isenberg",
+            "headline": "CEO of Late Checkout, a portfolio of internet companies",
+            "username": "gisenberg",
+            "profile_url": "https://www.linkedin.com/in/gisenberg?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKW8GwBf5Q7cqvUPPEhu4ymxenJmlm1960",
+            "profile_picture": "https://media.licdn.com/dms/image/v2/C4D03AQE_Ea2hZYWzzw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1638910338512?e=1760572800&v=beta&t=EzHKrGIOLGTIlPSnh2fo4D1fKW7wZVwN6_mWqpL2cNg"
+          },
+          "stats": {
+            "total_reactions": 1468,
+            "like": 1073,
+            "support": 54,
+            "love": 247,
+            "insight": 13,
+            "celebrate": 80,
+            "funny": 1,
+            "comments": 314,
+            "reposts": 19
+          },
+          "media": {
+            "type": "image",
+            "url": "https://media.licdn.com/dms/image/v2/D4E22AQFEfSNZXCp9ng/feedshare-shrink_1280/B4EZjcWR5uGUAs-/0/1756043487397?e=1760572800&v=beta&t=_Mcqe7TurPZ9EU8InRT7SnRXd_E7e1nU5aWTNfBYuG0",
+            "images": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4E22AQFEfSNZXCp9ng/feedshare-shrink_1280/B4EZjcWR5uGUAs-/0/1756043487397?e=1760572800&v=beta&t=_Mcqe7TurPZ9EU8InRT7SnRXd_E7e1nU5aWTNfBYuG0",
+                "width": 1280,
+                "height": 1707
+              }
+            ]
+          },
+          "pagination_token": "dXJuOmxpOmFjdGl2aXR5OjczMTA2Mzk5ODE0NDg4ODQyMjQtMTc0Mjk5MjM5NjY3NA=="
+        }
+      },
+      {
+        "json": {
+          "urn": "7365151898301112320",
+          "full_urn": "urn:li:activity:7365151898301112320",
+          "posted_at": {
+            "date": "2025-08-23 15:44:10",
+            "relative": "2 weeks ago \u2022 Visible to anyone on or off LinkedIn",
+            "timestamp": 1755989050460
+          },
+          "text": "23 luxuries in life:\n\n1. happy and healthy children\n2. a boss you really respect or no boss\n3. investors you really respect or no investors\n4. 7h+/night quality sleep\n5. best friends live within 5 mins of you\n6. a group chat of homies that never dies\n7. a dog that waits by the door when you get home\n8. a local coffee shop where they know your order\n9. being able to take a nap in the middle of the day\n10. work that feels like play that also feels like you're unlocking your potential\n11. a home you don\u2019t need a vacation from\n12. running into people you care about without planning it\n13. friends who answer your random facetimes when you call them on first ring\n14. the freedom to say \u201cno\u201d without guilt\n15. watching a movie without checking your phone once\n16. having more ideas than you have time for\n17. memories that make you laugh out loud when you\u2019re alone\n18. never having to set an out-of-office reply\n19. a hobby (that doesnt have to do with work) that makes you lose track of time\n20. no debt hanging over your head (or paying it off and feeling like a million bucks after)\n21. being able to hire someone to fix things you hate doing without second guessing it \n22. a playlist that takes you back 10 years instantly\n23. time to go to the gym in the middle of the day",
+          "url": "https://www.linkedin.com/posts/gisenberg_23-luxuries-in-life-1-happy-and-healthy-activity-7365151898301112320-I6G8?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAF59UbgB_C_yuUhHoUFz5oLoEaNKnrTAlNQ",
+          "post_type": "regular",
+          "author": {
+            "first_name": "Greg",
+            "last_name": "Isenberg",
+            "headline": "CEO of Late Checkout, a portfolio of internet companies",
+            "username": "gisenberg",
+            "profile_url": "https://www.linkedin.com/in/gisenberg?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKW8GwBf5Q7cqvUPPEhu4ymxenJmlm1960",
+            "profile_picture": "https://media.licdn.com/dms/image/v2/C4D03AQE_Ea2hZYWzzw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1638910338512?e=1760572800&v=beta&t=EzHKrGIOLGTIlPSnh2fo4D1fKW7wZVwN6_mWqpL2cNg"
+          },
+          "stats": {
+            "total_reactions": 902,
+            "like": 714,
+            "support": 12,
+            "love": 147,
+            "insight": 7,
+            "celebrate": 22,
+            "funny": 0,
+            "comments": 90,
+            "reposts": 22
+          },
+          "pagination_token": "dXJuOmxpOmFjdGl2aXR5OjczMTA2Mzk5ODE0NDg4ODQyMjQtMTc0Mjk5MjM5NjY3NA=="
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking \u2018Test workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Airtable2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Airtable2": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable3": {
+      "main": [
+        [
+          {
+            "node": "Airtable4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable4": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Duncan Knowledge Base",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "YouTube Knowledge Base",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Internet": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube Knowledge Base": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duncan Knowledge Base": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "setPost",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "uploadImage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setBase64": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "uploadImage": {
+      "main": [
+        [
+          {
+            "node": "createRecord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "createImage": {
+      "main": [
+        [
+          {
+            "node": "setBase64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Create Image Prompt",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Image Prompt": {
+      "main": [
+        [
+          {
+            "node": "createImage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "createRecord": {
+      "main": [
+        [
+          {
+            "node": "updateRecord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Create Image Prompt",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Create Image Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Image Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setPost": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "updateRecord": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable5": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run an Actor": {
+      "main": [
+        [
+          {
+            "node": "Get dataset items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get dataset items": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "490f5a7b-99d3-4dd3-bb02-c97ffca9cf9e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "sOZuiV8f8fGH5FD9",
+  "tags": []
+}

@@ -1,0 +1,573 @@
+{
+  "name": "Intent-Based Community Hunter",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Data Collection\nReceives the LinkedIn post URL from the form submission and triggers an Apify actor to scrape the comments.",
+        "height": 300,
+        "width": 648,
+        "color": 4
+      },
+      "id": "1814a563-b573-4ed2-9ec6-91377cc899f1",
+      "name": "Sticky Note - Data Collection",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        736,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Intent Analysis\nUses AI (Gemini) to analyze each comment, classify the buying intent (High, Curious, Supportive), and filter for high-quality leads.",
+        "height": 300,
+        "width": 764,
+        "color": 3
+      },
+      "id": "a67252bd-f543-44ef-a227-fcd5648a3e69",
+      "name": "Sticky Note - Analysis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1408,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Outreach & Storage\nDrafts a personalized outreach message for the qualified leads and saves the data (Name, Profile, Draft, etc.) to the CRM (Airtable).",
+        "height": 300,
+        "width": 828,
+        "color": 5
+      },
+      "id": "adec2ece-a533-473a-ace1-86313f979ddd",
+      "name": "Sticky Note - Outreach",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2192,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "formTitle": "Intent-Based Community Hunter",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "LinkedIn Post URL",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Intent",
+              "placeholder": "e.g. Likely to buy a tripod stand, etc.",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Post Content"
+            },
+            {
+              "fieldLabel": "Is this your post?",
+              "fieldType": "dropdown",
+              "defaultValue": "Yes",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        784,
+        64
+      ],
+      "id": "61c868ad-688b-4571-a21b-72b2bbebacef",
+      "name": "Receive Lead Form",
+      "webhookId": "3c9600aa-4433-4ca8-bbda-8e00cdaf4923"
+    },
+    {
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "value": "2XnpwxfhSW1fAWElp",
+          "mode": "list",
+          "cachedResultName": "Post Comments & Engagements Scraper for LinkedIn | No Cookies (apimaestro/linkedin-post-comments-replies-engagements-scraper-no-cookies)",
+          "cachedResultUrl": "https://console.apify.com/actors/2XnpwxfhSW1fAWElp/input"
+        },
+        "customBody": "={\n  \"postIds\": [\n    \"{{ $json['LinkedIn Post URL'] }}\"\n  ],\n  \"sortOrder\": \"most recent\"\n}"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        64
+      ],
+      "id": "8bb593e0-bcef-4988-b772-8c9a27dbe929",
+      "name": "Scrape LinkedIn Comments"
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId }}",
+        "limit": 200,
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        64
+      ],
+      "id": "24cef64a-b11b-4841-a6f7-2c4770177c82",
+      "name": "Get Scraper Results"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-flash-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Analyze the following LinkedIn comment: '{{ $json.text }}'. \n\nFor context, this is the content post: {{ $('Receive Lead Form').item.json['Post Content'] }}\nClassify the lead's intent({{ $('Receive Lead Form').item.json.Intent }}) as one of the following:\n\nHigh Buying Intent (asking for price, demo, meeting, specific features).\n\nCurious (asking general questions).\n\nSupportive (congratulations, agreeing, generic praise).\n\nReturn ONLY a JSON object: { 'category': 'High Buying Intent', 'reason': 'User asked for pricing'}\""
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        64
+      ],
+      "id": "e286f899-9d3a-4f12-b516-560eb1d05755",
+      "name": "Classify Comment Intent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5a6c607b-6b60-4262-9ec8-d40b9e4e2b94",
+              "name": "intent",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "object"
+            },
+            {
+              "id": "1d76b2b0-f053-47bf-b2b5-6043f9f515fc",
+              "name": "author.name",
+              "value": "={{ $('Get Scraper Results').item.json.author.name }}",
+              "type": "string"
+            },
+            {
+              "id": "2467540f-275a-4ba2-bc03-6ec1a91967c0",
+              "name": "author.profile_url",
+              "value": "={{ $('Get Scraper Results').item.json.author.profile_url }}",
+              "type": "string"
+            },
+            {
+              "id": "5609b08c-265e-438f-8f1e-fe0dc5d5f17e",
+              "name": "comment",
+              "value": "={{ $('Get Scraper Results').item.json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1808,
+        64
+      ],
+      "id": "21e294d9-7bc3-4554-b50a-6df3f87408b0",
+      "name": "Format Lead Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "51ad5d5d-11be-4022-8287-c02fe1c81364",
+              "leftValue": "={{ $json.intent.category }}",
+              "rightValue": "High Buying Intent",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        2032,
+        64
+      ],
+      "id": "b9c736ac-0335-444d-af69-138b15d4aa4a",
+      "name": "Filter High Intent"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert Social Seller. Draft a short, conversational LinkedIn message to start a conversation with this lead.\n\nData Points:\n\nLead Name: {{ $json.author.name }}\n\nTheir Comment: \"{{ $json.comment }}\"\n\nPost Context: \"{{ $('Receive Lead Form').item.json['Post Content'] }}\"\n\nContent Ownership: {{ $('Receive Lead Form').item.json['Is this your post?'] }}\n\nMy Offer/Intent: \"{{ $('Receive Lead Form').item.json.Intent }}\"\n\nInstructions:\nTone: Casual, direct, and human. Avoid buzzwords or \"salesy\" language.\n\nHook: Start by referencing their specific comment so they know I actually read it.\n\nBridge: Naturally connect their comment to \"My Offer/Intent\".\n\nLength: Keep it under 50 words (short enough for mobile reading).\n\nFormat: Return ONLY a valid JSON object with a single key called message.\n\nExample Output: { \"message\": \"Hey John, saw your comment about API limits on X's post. Totally agree it's a bottleneck. We actually just solved that with our new rotation feature\u2014would love to send you the docs if you're curious?\" }"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        2256,
+        64
+      ],
+      "id": "007d56f2-d4fd-4a94-85bc-507848a02691",
+      "name": "Draft Outreach Message"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c6c1f043-b897-4d1e-ac4e-4a3506a58cdd",
+              "name": "Message",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2608,
+        64
+      ],
+      "id": "13eb592b-4432-450f-93c9-4e8b30d7c7a6",
+      "name": "Format Draft Message"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appTrSNc4sSrRylUh",
+          "mode": "list",
+          "cachedResultName": "The Intent-Based Community Hunter",
+          "cachedResultUrl": "https://airtable.com/appTrSNc4sSrRylUh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLpFtAyddyjuPNf",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appTrSNc4sSrRylUh/tblLpFtAyddyjuPNf"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Filter High Intent').item.json.author.name }}",
+            "Drafted Message": "={{ $json.Message.message }}",
+            "Linkedin Profile": "={{ $('Filter High Intent').item.json.author.profile_url }}",
+            "LinkedIn Post": "={{ $('Receive Lead Form').item.json['LinkedIn Post URL'] }}",
+            "Comments": "={{ $('Filter High Intent').item.json.comment }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Drafted Message",
+              "displayName": "Drafted Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Linkedin Profile",
+              "displayName": "Linkedin Profile",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "LinkedIn Post",
+              "displayName": "LinkedIn Post",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Comments",
+              "displayName": "Comments",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2832,
+        64
+      ],
+      "id": "ca567f11-ee52-4f65-aa2a-ce24696d704a",
+      "name": "Save to CRM (Airtable)"
+    }
+  ],
+  "pinData": {
+    "Scrape LinkedIn Comments": [
+      {
+        "json": {
+          "id": "SggMAkDFYxHFpdba6",
+          "actId": "2XnpwxfhSW1fAWElp",
+          "userId": "GBTx6TbzYSOrVn1EK",
+          "startedAt": "2026-01-13T21:26:01.251Z",
+          "finishedAt": "2026-01-13T21:26:05.671Z",
+          "status": "SUCCEEDED",
+          "meta": {
+            "origin": "API",
+            "userAgent": "axios/1.12.0"
+          },
+          "stats": {
+            "inputBodyLen": 276,
+            "migrationCount": 0,
+            "rebootCount": 0,
+            "restartCount": 0,
+            "durationMillis": 4309,
+            "resurrectCount": 0,
+            "runTimeSecs": 4.309,
+            "metamorph": 0,
+            "computeUnits": 0.0011969444444444445,
+            "memAvgBytes": 31198975.016469937,
+            "memMaxBytes": 50393088,
+            "memCurrentBytes": 0,
+            "cpuAvgUsage": -0.0784767468778181,
+            "cpuMaxUsage": 74.35019338739862,
+            "cpuCurrentUsage": 0,
+            "netRxBytes": 11236,
+            "netTxBytes": 4373
+          },
+          "options": {
+            "build": "0.1.50",
+            "timeoutSecs": 1200,
+            "memoryMbytes": 1024,
+            "maxItems": 294,
+            "diskMbytes": 2048
+          },
+          "buildId": "wAcIrRYkV3UquNBdM",
+          "exitCode": 0,
+          "defaultKeyValueStoreId": "UIGvOw5rYAgArM3wh",
+          "defaultDatasetId": "qPZ6CbKeKtOA4QmeV",
+          "defaultRequestQueueId": "RkyKdiV8Naod2isPL",
+          "pricingInfo": {
+            "pricingModel": "PRICE_PER_DATASET_ITEM",
+            "pricePerUnitUsd": 0.005,
+            "unitName": "result",
+            "createdAt": "2025-03-18T02:11:56.373Z",
+            "startedAt": "2025-03-18T02:11:56.373Z",
+            "apifyMarginPercentage": 0.2,
+            "notifiedAboutChangeAt": "2025-03-18T04:35:19.848Z"
+          },
+          "platformUsageBillingModel": "DEVELOPER",
+          "integrationTracking": {
+            "platform": "n8n",
+            "appId": null,
+            "isAiTool": false
+          },
+          "generalAccess": "FOLLOW_USER_SETTING",
+          "buildNumber": "0.1.50",
+          "containerUrl": "https://a8mugn1qgstv.runs.apify.net",
+          "consoleUrl": "https://console.apify.com/view/runs/SggMAkDFYxHFpdba6"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Receive Lead Form": [
+      {
+        "json": {
+          "LinkedIn Post URL": "https://www.linkedin.com/posts/sabrinaramonov_this-feedback-was-hard-to-hear-i-asked-activity-7416526956134965248-wa1W/?utm_source=share&utm_medium=member_desktop&rcm=ACoAAC1mrmEBQUI3Cy9kIQbGU-b-XAHCW5LliJE",
+          "Intent": "To buy an n8n automation",
+          "Post Content": "this feedback was hard to hear...  I asked my hubby what he thought about my youtube channel...  because I've decided to double down on youtube in 2026  you may think it's strange i haven't asked him before, but he doesn't represent my target audience. He's deeply technical and lives on youtube & reddit. I didn't even start adding thumbnails on my youtube videos until 6-8 months ago ago, that's how not-seriously I treated it.  but he told me:  \"your youtube is hard to watch... it's too raw and unpolished, like you were to lazy to edit it... yeah you're getting views but it's DESPITE of that... you probably could've gotten 1M views instead of 100k if you hired an editor\"  \ud83d\ude11 \ud83d\ude11 \ud83d\ude11   BUT:  how do I continue being my authentic raw unpolished self  AND also produce highly polished videos?  I claim to hate that level of polish, but when I do watch youtube, it is usually highly polished content with high value per second (eg Hormozi)  this is the question i'm struggling with...  I don't have an answer (yet)",
+          "Is this your post?": "No",
+          "submittedAt": "2026-01-13T13:25:59.881-08:00",
+          "formMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Receive Lead Form": {
+      "main": [
+        [
+          {
+            "node": "Scrape LinkedIn Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape LinkedIn Comments": {
+      "main": [
+        [
+          {
+            "node": "Get Scraper Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Scraper Results": {
+      "main": [
+        [
+          {
+            "node": "Classify Comment Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Comment Intent": {
+      "main": [
+        [
+          {
+            "node": "Format Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Filter High Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter High Intent": {
+      "main": [
+        [
+          {
+            "node": "Draft Outreach Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Outreach Message": {
+      "main": [
+        [
+          {
+            "node": "Format Draft Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Draft Message": {
+      "main": [
+        [
+          {
+            "node": "Save to CRM (Airtable)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "222ad489-865f-40de-8117-859d76248745",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "5KDn1qIWNJjfxpNt",
+  "tags": []
+}

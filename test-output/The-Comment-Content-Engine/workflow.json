@@ -1,0 +1,1697 @@
+{
+  "name": "The \"Comment\" Content Engine (Renamed)",
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json['Content URL'] }}",
+                    "rightValue": "tiktok.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "f746ab77-cfc6-4183-8191-00f33d253461"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6e5d8704-22b1-4bbf-befd-f0760695b01d",
+                    "leftValue": "={{ $json['Content URL'] }}",
+                    "rightValue": "youtube.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1376f1c6-2fbc-42ea-9ac6-a15a373d5dfa",
+                    "leftValue": "={{ $json['Content URL'] }}",
+                    "rightValue": "reddit.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        1312,
+        1824
+      ],
+      "id": "380c3f98-4cae-4766-b6b9-7835e9516f4c",
+      "name": "Switch: Platform Router"
+    },
+    {
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "value": "CKaiBspHWi9GfQci4",
+          "mode": "list",
+          "cachedResultName": "Tiktok Comments Scraper (logical_scrapers/tiktok-comments-api)",
+          "cachedResultUrl": "https://console.apify.com/actors/CKaiBspHWi9GfQci4/input"
+        },
+        "customBody": "={\n  \"include_replies\": true,\n  \"urls\": [\n    \"{{ $json['Content URL'] }}\"\n  ],\n  \"max_comments\": 50,\n  \"max_replies_per_comment\": 10\n}",
+        "timeout": {},
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        1648
+      ],
+      "id": "8ac02c85-0d08-49a4-821d-a9598fbc175b",
+      "name": "Apify: TikTok Scraper"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/commentThreads",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "youTubeOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "snippet"
+            },
+            {
+              "name": "videoId",
+              "value": "={{ $json['Content URL'].split('?v=')[1].split('&')[0] }}"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "pageToken",
+                    "value": "={{ $response.body.nextPageToken }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body.nextPageToken}}"
+            }
+          }
+        }
+      },
+      "id": "9992350f-7b91-4dab-aa24-7d61efbeae75",
+      "name": "YouTube: Fetch Comments",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1536,
+        1840
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        1840
+      ],
+      "id": "cf4962ab-f316-4804-bc50-64184c6acca4",
+      "name": "Split: YouTube Items"
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId }}",
+        "offset": {},
+        "limit": 100,
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        1648
+      ],
+      "id": "82091bb7-9e73-4cbc-a216-6835f911f241",
+      "name": "Apify: Get TikTok Dataset"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "167f7b31-8de5-4751-9708-c5479c4daadb",
+              "name": "subreddit",
+              "value": "={{ $json['Content URL'].split('/')[4] }}",
+              "type": "string"
+            },
+            {
+              "id": "6f67b878-41e0-4ec8-9c0a-e0adee2790bd",
+              "name": "postId",
+              "value": "={{ $json['Content URL'].split('/')[6] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1536,
+        2032
+      ],
+      "id": "05d31e23-e7d6-4ca0-949a-39a0f684303b",
+      "name": "Set: Reddit Params"
+    },
+    {
+      "parameters": {
+        "resource": "postComment",
+        "operation": "getAll",
+        "subreddit": "={{ $json.subreddit }}",
+        "postId": "={{ $json.postId }}"
+      },
+      "type": "n8n-nodes-base.reddit",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        2032
+      ],
+      "id": "d8738b7b-8e92-4711-b0f7-8c5a72b2f51d",
+      "name": "Reddit: Fetch Comments"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "text",
+              "renameField": true,
+              "outputFieldName": "TKComments"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        1648
+      ],
+      "id": "2528dddc-cc29-47c4-aef5-a3399e10e5a1",
+      "name": "Agg: TikTok Data"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "snippet.topLevelComment.snippet.textOriginal",
+              "renameField": true,
+              "outputFieldName": "YTComments"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        1840
+      ],
+      "id": "90c63e88-098b-4c6e-bebc-d4d673647ca4",
+      "name": "Agg: YouTube Data"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "body",
+              "renameField": true,
+              "outputFieldName": "RDTComments"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        2032
+      ],
+      "id": "906fc338-8342-44b7-ab74-7e549fe8c902",
+      "name": "Agg: Reddit Data"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2208,
+        1824
+      ],
+      "id": "72c42bbb-a853-4bec-b8fc-5b596c5d3a16",
+      "name": "Merge: Consolidate Data"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Act as a Senior Community Manager and Social Media Strategist. Your goal is to extract high-value questions from audience comments and transform them into viral Q&A content.\n\nStep 1: Data Input\n- YouTube Comments: {{ $json.YTComments }}\n- TikTok Comments: {{ $json.TKComments }}\n- Reddit Comments: {{ $json.RDTComments }}\n\nContext: I help founders/creators hit $5K/mo with automation. I've sold 1500+ workflows and have 70K followers.\n\nProcess:\n1. Extract every legitimate question or objection that can be answered in under 60 seconds.\n2. For each question, draft a \"Punchy Answer\" that fits on a single Instagram Story card (max 280 characters).\n3. Identify the \"Sentiment\" of the user (e.g., Frustrated, Curious, Skeptical).\n\nOutput Format (JSON):\n{\n  \"qa_engine_summary\": {\n    \"total_questions_found\": integer,\n    \"top_pain_point\": \"string\",\n    \"missing_sources\": [\"string\"]\n  },\n  \"qa_items\": [\n    {\n      \"original_comment\": \"string\",\n      \"platform\": \"YouTube\" | \"TikTok\" | \"Reddit\",\n      \"refined_question\": \"string (the question rephrased for clarity)\",\n      \"answer_card_text\": \"string (the punchy, high-value answer)\",\n      \"hook_for_video_reply\": \"string (3-second verbal hook)\",\n      \"sentiment_tag\": \"string\",\n      \"priority_score\": 1-10 (based on how likely this is to convert to a lead)\n    }\n  ]\n}\n\nRules:\n- If a comment is just a compliment (\"Great video!\"), ignore it.\n- If sources are empty, note it in missing_sources.\n- Order qa_items by priority_score (10 is highest).",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2432,
+        1840
+      ],
+      "id": "e3c0bd29-2975-490d-962d-033e5f233e58",
+      "name": "LangChain: Insight Extraction"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"qa_engine_summary\": {\n    \"total_questions_found\": 3,\n    \"top_pain_point\": \"string\",\n    \"missing_sources\": [\"string\"]\n  },\n  \"qa_items\": [\n    {\n      \"original_comment\": \"string\",\n      \"platform\": \"YouTube\",\n      \"refined_question\": \"string (the question rephrased for clarity)\",\n      \"answer_card_text\": \"string (the punchy, high-value answer)\",\n      \"hook_for_video_reply\": \"string (3-second verbal hook)\",\n      \"sentiment_tag\": \"string\",\n      \"priority_score\": 1\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2576,
+        2064
+      ],
+      "id": "f4984677-b4c1-4238-b6ac-eb7b560ee722",
+      "name": "Parser: Structured Output"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-3-flash-preview",
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2432,
+        2064
+      ],
+      "id": "8cf2e9e4-3ac5-4aeb-b6ab-c3e2a1e95d76",
+      "name": "Model: GPT-4o/5"
+    },
+    {
+      "parameters": {
+        "formTitle": "Content URL",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Content URL"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        928,
+        1840
+      ],
+      "id": "0dbfe105-438d-4f1e-9828-633ad885f5b0",
+      "name": "Start: Form Trigger",
+      "webhookId": "13be7271-5e27-4bf6-8e98-65395d10177f"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appbtnyJ755Th5rDn",
+          "mode": "list",
+          "cachedResultName": "The \"Comment\" Content Engine",
+          "cachedResultUrl": "https://airtable.com/appbtnyJ755Th5rDn"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblRVc4cxbDtjTu4l",
+          "mode": "list",
+          "cachedResultName": "Content URLs",
+          "cachedResultUrl": "https://airtable.com/appbtnyJ755Th5rDn/tblRVc4cxbDtjTu4l"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Top Pain Point": "={{ $json.output.qa_engine_summary.top_pain_point }}",
+            "Content URL": "={{ $('Start: Form Trigger').item.json['Content URL'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Record ID",
+              "displayName": "Record ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Content URL",
+              "displayName": "Content URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Content Analysis",
+              "displayName": "Content Analysis",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Top Pain Point",
+              "displayName": "Top Pain Point",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2784,
+        1680
+      ],
+      "id": "57731e07-1523-45cf-b54e-27016707d6af",
+      "name": "Airtable: Create Parent Record"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appbtnyJ755Th5rDn",
+          "mode": "list",
+          "cachedResultName": "The \"Comment\" Content Engine",
+          "cachedResultUrl": "https://airtable.com/appbtnyJ755Th5rDn"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblIONhPAv6977fkp",
+          "mode": "list",
+          "cachedResultName": "Content Analysis",
+          "cachedResultUrl": "https://airtable.com/appbtnyJ755Th5rDn/tblIONhPAv6977fkp"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Content URL": "={{ [$('Set: Format Database Items').item.json.id] }}",
+            "priority_score": "={{ $json.priority_score }}",
+            "original_comment": "={{ $json.original_comment }}",
+            "platform": "={{ $json.platform }}",
+            "refined_question": "={{ $json.refined_question }}",
+            "answer_card_text": "={{ $json.answer_card_text }}",
+            "hook_for_video_reply": "={{ $json.hook_for_video_reply }}",
+            "sentiment_tag": "={{ $json.sentiment_tag }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Record ID",
+              "displayName": "Record ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Content URL",
+              "displayName": "Content URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "original_comment",
+              "displayName": "original_comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "platform",
+              "displayName": "platform",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "refined_question",
+              "displayName": "refined_question",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "answer_card_text",
+              "displayName": "answer_card_text",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "hook_for_video_reply",
+              "displayName": "hook_for_video_reply",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "sentiment_tag",
+              "displayName": "sentiment_tag",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "priority_score",
+              "displayName": "priority_score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Summary (AI)",
+              "displayName": "Summary (AI)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Suggested Next Action (AI)",
+              "displayName": "Suggested Next Action (AI)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Content Platform (AI Category)",
+              "displayName": "Content Platform (AI Category)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        3408,
+        1680
+      ],
+      "id": "02794216-9fdf-4783-a149-31bbdd25e229",
+      "name": "Airtable: Log Q&A Items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1e3d84a2-d1ee-4a1b-86a7-dfeb03f6660f",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "cc56e7f6-d955-4ec9-9711-467687d2d424",
+              "name": "qa_items",
+              "value": "={{ $('LangChain: Insight Extraction').item.json.output.qa_items }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2992,
+        1680
+      ],
+      "id": "299e0f18-a9c6-4b8e-bf0f-3f1643044703",
+      "name": "Set: Format Database Items"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "qa_items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        3200,
+        1680
+      ],
+      "id": "5c7459a8-f782-4633-b4a6-581f9026bcd0",
+      "name": "Split: Q&A Items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f7979345-3c8e-46ba-846c-12bc73184b55",
+              "name": "Brand Logo",
+              "value": "https://buildroom.ai/assets/image_1755138797787-J0h8n6uV.png",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2784,
+        2032
+      ],
+      "id": "3b5641f1-73f5-4197-afc1-c8feb4e1f006",
+      "name": "Config: Brand Assets"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json['Brand Logo'] }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3008,
+        2032
+      ],
+      "id": "860dc89f-968c-4fe1-93e8-01acdcb3a500",
+      "name": "HTTP: Get Logo File"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "template_image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        3584,
+        2032
+      ],
+      "id": "ab598130-6479-4695-ae98-d76ea8039e61",
+      "name": "Bin: Extract Image Data"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=You are a Modern Abstract Artist. Create a stunning, abstract background composition (Square 1:1) designed specifically as a social media Q&A card that incorporates the provided logo.\n\nDESIGN INSTRUCTIONS\nCRITICAL: LOGO PRESERVATION. The provided logo in the top-left corner MUST remain exactly as it is. Do not alter, distort, recolor, or cover it in any way. The abstract design must be placed around it.\n\nBorder Composition: Create a dynamic abstract pattern using fluid organic shapes, soft gradients, and modern geometry.\n\nCRITICAL CONSTRAINT: These abstract elements must be strictly confined to the outer edges and corners of the canvas, framing the content area.\n\nThe shapes should feel like they are flowing along the borders.\n\nColor Strategy: Analyze the logo's colors. Use these as the primary palette for the abstract elements, mixing them with complementary soft neutral tones.\n\nThe Q&A Structure (Clean Center): The entire central area of the image (approx. 80%) must remain clean and solid for maximum text readability, but visually structured for a Q&A format.\n\nDivide this central space into two subtle zones using a very faint, clean horizontal transition or subtle tonal shift (do not use a harsh line or texture).\n\nUpper Zone (Question Area): The top 30% of the central space should be a solid, very light neutral tone intended for the headline/question.\n\nLower Zone (Answer Area): The bottom 70% of the central space should be a marginally different, solid neutral tone to create a clean visual distinction for the body/answer text.\n\nEnsure there are zero distracting abstract shapes or gradients within these two central zones.\n\nVibe: The result should feel artistic, creative, and premium, but highly functional for structured text.",
+        "images": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {
+          "binaryPropertyOutput": "template_image"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        3296,
+        2032
+      ],
+      "id": "5ab0fa6b-9695-41f2-baee-57ebc24100ec",
+      "name": "Gemini: Design Background"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Start: Form Trigger').item.json['Content URL'] }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1DvvU134jJjo4Zlw0w8k3VylGKMv8oti6",
+          "mode": "list",
+          "cachedResultName": "The \"Comment\" Content Engine",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1DvvU134jJjo4Zlw0w8k3VylGKMv8oti6"
+        },
+        "options": {
+          "simplifyOutput": false
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2784,
+        2224
+      ],
+      "id": "132fa76f-eae0-4a09-92a6-2872fe3a67dc",
+      "name": "Drive: New Folder"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "18fb6e8f-86a3-4953-82f1-a283e879a720",
+              "name": "drivefolderId",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "d3ba2271-6b7d-4dde-be6a-07352a0b4c18",
+              "name": "webViewLink",
+              "value": "={{ $json.webViewLink }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3584,
+        2224
+      ],
+      "id": "a99ffa48-703e-48dc-9428-cc22044fdbf9",
+      "name": "Set: Drive Config"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3808,
+        2128
+      ],
+      "id": "160185d6-4d11-448e-b191-e1476fb7aa0e",
+      "name": "Merge: Template + Data"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "qa_items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        4240,
+        2128
+      ],
+      "id": "b69f4c4e-3328-49f1-b721-79f20327dbcd",
+      "name": "Split: Process Slides"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "ReferenceImageBase64data",
+        "binaryPropertyName": "ReferenceImageBase64data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        5152,
+        2128
+      ],
+      "id": "48a0c24f-04ee-4169-b5eb-083833b448de",
+      "name": "Bin: Prep for Edit"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b9370bfe-7b56-4c26-8817-06c62d0d9d7d",
+              "name": "slides",
+              "value": "={{ $json }}",
+              "type": "object"
+            },
+            {
+              "id": "ae340e79-8e06-4979-8db4-917dc66defd4",
+              "name": "ReferenceImageBase64data",
+              "value": "={{ $('Merge: Template + Data').item.json.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4928,
+        2128
+      ],
+      "id": "04fd18fa-6a9a-4b4d-9078-8b09a9235b3f",
+      "name": "Set: Current Slide Data"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "edited",
+        "name": "={{ $('Set: Current Slide Data').item.json.slides.platform }}-{{ $('Set: Current Slide Data').item.json.slides.refined_question }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Merge: Template + Data').item.json.drivefolderId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        5584,
+        2128
+      ],
+      "id": "f547d1fd-7a02-44d9-8f5f-62ccf49f0763",
+      "name": "Drive: Save Image"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9a5ba89e-4454-40ae-a06c-642c91f1b03f",
+              "name": "data",
+              "value": "={{ $json.data }}",
+              "type": "string"
+            },
+            {
+              "id": "7d28aa33-f656-4971-8e24-3a6849ae9c73",
+              "name": "drivefolderId",
+              "value": "={{ $json.drivefolderId }}",
+              "type": "string"
+            },
+            {
+              "id": "f1be99ee-777d-45bf-80c5-572cb0e62f00",
+              "name": "qa_items",
+              "value": "={{ $('LangChain: Insight Extraction').item.json.output.qa_items }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4016,
+        2128
+      ],
+      "id": "d157192a-7c7a-4b36-9384-a7236d028b2d",
+      "name": "Set: Prep Iteration"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "priority_score",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        4480,
+        2128
+      ],
+      "id": "987d26ad-5e21-4767-abf4-0a06bcebc21b",
+      "name": "Sort: By Priority"
+    },
+    {
+      "parameters": {
+        "maxItems": 5
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        4688,
+        2128
+      ],
+      "id": "3b70505a-a556-44cb-ad1e-da73b75b09c0",
+      "name": "Limit: Top 5"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3888,
+        1680
+      ],
+      "id": "662790aa-42f8-4209-a5d2-55fbff875cd5",
+      "name": "Merge: Finalize"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "fields['Content URL']"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3584,
+        1680
+      ],
+      "id": "4ca7822c-a305-4206-b826-8627cbd616a9",
+      "name": "Agg: Group for Update"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appbtnyJ755Th5rDn",
+          "mode": "list",
+          "cachedResultName": "The \"Comment\" Content Engine",
+          "cachedResultUrl": "https://airtable.com/appbtnyJ755Th5rDn"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblRVc4cxbDtjTu4l",
+          "mode": "list",
+          "cachedResultName": "Content URLs",
+          "cachedResultUrl": "https://airtable.com/appbtnyJ755Th5rDn/tblRVc4cxbDtjTu4l"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.fields['Content URL'][0][0] }}",
+            "Drive URL": "={{ $json.webViewLink }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Record ID",
+              "displayName": "Record ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Content URL",
+              "displayName": "Content URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Top Pain Point",
+              "displayName": "Top Pain Point",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Drive URL",
+              "displayName": "Drive URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Content Analysis",
+              "displayName": "Content Analysis",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        4096,
+        1680
+      ],
+      "id": "e8eda6ce-4f50-4d9b-a3a0-a6511db305a1",
+      "name": "Airtable: Link Folder"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=YOU ARE AN ELITE IMAGE EDITOR. Your task is to edit the reference image to create a social media \"Q&A Card\" while PROTECTING the brand identity.\n\n### CRITICAL: LOGO PROTECTION\n- **PROTECTED ZONE:** The Brand Logo located in the **Top-Left Corner** (or specific logo position).\n- **CONSTRAINT:** You must NOT remove, blur, cover, or alter this logo in any way. It must remain pixel-perfect.\n\n### INSTRUCTIONS FOR REFERENCE IMAGE USAGE:\n1. **Analyze:** Note the layout, background style, and logo position.\n2. **Clear Specifics Only:** Remove ALL old text headlines, body text, and central illustrations.\n3. **DO NOT CLEAR:** The Background Texture, The Frame/Border, and **THE LOGO**.\n\n### INSTRUCTIONS FOR NEW CONTENT:\n---\\\nNEW INPUT TEXT DATA:\n1. HEADLINE TEXT: \"{{ $('Set: Current Slide Data').item.json.slides.refined_question }}\"\n2. BODY TEXT: \"{{ $('Set: Current Slide Data').item.json.slides.answer_card_text }}\"\n3. PLATFORM ICON: \"{{ $('Set: Current Slide Data').item.json.slides.platform }}\"\n---\\\n\n### EXECUTION STEPS:\n1. **Verify Logo:** Confirm the brand logo (top-left) is visible and untouched.\n2. **Place New Text (NO LABELS):**\n   - Render the **HEADLINE TEXT** (the question) at the top in a large, bold font.\n   - Render the **BODY TEXT** (the answer) below it in a clear, readable font.\n   - **CRITICAL:** Do NOT write the words \"Question\", \"Answer\", \"Headline\", or \"Body\". Only render the actual text content.\n3. **Add Platform Context:** - Draw a small, clean **icon** representing the **PLATFORM ICON** (e.g., a small YouTube play button, TikTok note, or Reddit alien) located immediately to the left of the HEADLINE TEXT. \n   - This icon should look cohesive with the card design (minimalist style).\n4. **Final Output:** A seamless Q&A graphic where the content is fresh, the source platform is visible via icon, but the **Brand Logo** and **Background** are preserved.",
+        "images": {
+          "values": [
+            {
+              "binaryPropertyName": "ReferenceImageBase64data"
+            }
+          ]
+        },
+        "options": {
+          "binaryPropertyOutput": "edited"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        5376,
+        2128
+      ],
+      "id": "7ae31680-d1fc-40d4-a11e-764952a4fd6f",
+      "name": "Gemini: Composite Image",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "content": "## 5. Visual Asset Generation (GenAI)\n\nCreates a custom social media asset for each Q&A pair.\n1. Fetches logo & generates an abstract background.\n2. Loops through the Top 5 questions.\n3. Uses AI to \"Paint\" the text onto the background.",
+        "height": 515,
+        "width": 2980,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2736,
+        1872
+      ],
+      "typeVersion": 1,
+      "id": "4371df19-7f0a-4c3b-bf2a-168f1c527268",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 1. Detection & Routing\nIdentifies the source platform (TikTok, YouTube, or Reddit) and routes the URL to the correct scraper.",
+        "height": 864,
+        "width": 208,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1248,
+        1520
+      ],
+      "typeVersion": 1,
+      "id": "f7259a77-af6f-4dc4-a89d-cf78bf64e42c",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Multi-Platform Extraction\nScrapes comments in parallel. Uses Apify for TikTok, Native API for YouTube/Reddit, then cleans and aggregates the text.",
+        "height": 864,
+        "width": 656,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1472,
+        1520
+      ],
+      "typeVersion": 1,
+      "id": "7565f017-be77-4442-b074-e27678e0d298",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## 3. Intelligence (LangChain)\n\nConsolidates all comments and runs them through an LLM Chain to extract Q&A opportunities.",
+        "height": 864,
+        "width": 576,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2144,
+        1520
+      ],
+      "typeVersion": 1,
+      "id": "5d81e0cd-7adf-48c4-beab-5672f78447a6",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "## 4. Database Sync (Airtable)\n\nLogs the analysis. \n1. Creates a Parent Record for the Video URL. \n2. Creates Child Records for every question found.",
+        "height": 332,
+        "width": 1548,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2736,
+        1520
+      ],
+      "typeVersion": 1,
+      "id": "035b3f74-f277-437d-9ec4-5ca0ee58c6f7",
+      "name": "Sticky Note8"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Switch: Platform Router": {
+      "main": [
+        [
+          {
+            "node": "Apify: TikTok Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "YouTube: Fetch Comments",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: Reddit Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apify: TikTok Scraper": {
+      "main": [
+        [
+          {
+            "node": "Apify: Get TikTok Dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube: Fetch Comments": {
+      "main": [
+        [
+          {
+            "node": "Split: YouTube Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split: YouTube Items": {
+      "main": [
+        [
+          {
+            "node": "Agg: YouTube Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apify: Get TikTok Dataset": {
+      "main": [
+        [
+          {
+            "node": "Agg: TikTok Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Reddit Params": {
+      "main": [
+        [
+          {
+            "node": "Reddit: Fetch Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reddit: Fetch Comments": {
+      "main": [
+        [
+          {
+            "node": "Agg: Reddit Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agg: TikTok Data": {
+      "main": [
+        [
+          {
+            "node": "Merge: Consolidate Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agg: YouTube Data": {
+      "main": [
+        [
+          {
+            "node": "Merge: Consolidate Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Agg: Reddit Data": {
+      "main": [
+        [
+          {
+            "node": "Merge: Consolidate Data",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge: Consolidate Data": {
+      "main": [
+        [
+          {
+            "node": "LangChain: Insight Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parser: Structured Output": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "LangChain: Insight Extraction",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model: GPT-4o/5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LangChain: Insight Extraction",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start: Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch: Platform Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LangChain: Insight Extraction": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Create Parent Record",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Config: Brand Assets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Drive: New Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Create Parent Record": {
+      "main": [
+        [
+          {
+            "node": "Set: Format Database Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Format Database Items": {
+      "main": [
+        [
+          {
+            "node": "Split: Q&A Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split: Q&A Items": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Log Q&A Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: Brand Assets": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Get Logo File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Get Logo File": {
+      "main": [
+        [
+          {
+            "node": "Gemini: Design Background",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: Design Background": {
+      "main": [
+        [
+          {
+            "node": "Bin: Extract Image Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drive: New Folder": {
+      "main": [
+        [
+          {
+            "node": "Set: Drive Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bin: Extract Image Data": {
+      "main": [
+        [
+          {
+            "node": "Merge: Template + Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Drive Config": {
+      "main": [
+        [
+          {
+            "node": "Merge: Template + Data",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Merge: Finalize",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Split: Process Slides": {
+      "main": [
+        [
+          {
+            "node": "Sort: By Priority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bin: Prep for Edit": {
+      "main": [
+        [
+          {
+            "node": "Gemini: Composite Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Current Slide Data": {
+      "main": [
+        [
+          {
+            "node": "Bin: Prep for Edit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: Template + Data": {
+      "main": [
+        [
+          {
+            "node": "Set: Prep Iteration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Prep Iteration": {
+      "main": [
+        [
+          {
+            "node": "Split: Process Slides",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort: By Priority": {
+      "main": [
+        [
+          {
+            "node": "Limit: Top 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit: Top 5": {
+      "main": [
+        [
+          {
+            "node": "Set: Current Slide Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Log Q&A Items": {
+      "main": [
+        [
+          {
+            "node": "Agg: Group for Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agg: Group for Update": {
+      "main": [
+        [
+          {
+            "node": "Merge: Finalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: Finalize": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Link Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: Composite Image": {
+      "main": [
+        [
+          {
+            "node": "Drive: Save Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "db285b26-f5b0-4d3b-9034-9b3c71d5c4ab",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "LODxyXySMOx9UqdmXN_bO",
+  "tags": []
+}

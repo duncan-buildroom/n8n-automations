@@ -1,0 +1,426 @@
+{
+  "name": "The \"Infinite Lifestyle\" Product Photographer",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 1. Input & Analysis\nReceives the form data, extracts the binary image, generates scene descriptions using Gemini, and creates a project folder in Drive.",
+        "height": 492,
+        "width": 614,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        368
+      ],
+      "id": "7c46acf3-f34b-4daf-aad5-5c13680290f3",
+      "name": "Note: Input & Analysis"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Data Preparation\nFormats the Gemini output, merges it with the original image, splits the array into individual items (Loop), and prepares the binary data for generation.",
+        "height": 492,
+        "width": 1166,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        368
+      ],
+      "id": "c39d5ed2-5480-477b-beb7-73fd4f9cc0e9",
+      "name": "Note: Data Prep"
+    },
+    {
+      "parameters": {
+        "content": "## 3. Generation & Storage\nGenerates the final lifestyle image for each scene description and uploads it to the created Google Drive folder.",
+        "height": 496,
+        "width": 466,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1728,
+        368
+      ],
+      "id": "dff5c354-f64c-4fee-879b-64f05f231030",
+      "name": "Note: Generation"
+    },
+    {
+      "parameters": {
+        "formTitle": "The \"Infinite Lifestyle\" Product Photographer",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Product Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Product Image",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".jpg, .png",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Product & Campaign Distraction",
+              "fieldType": "textarea",
+              "placeholder": "Give us a brief description of your product and a concept or context you want to be taken account of.",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        16,
+        496
+      ],
+      "id": "d6cd8cfe-98bc-4d5c-9227-f66e533e7d7a",
+      "name": "Receive Product Data",
+      "webhookId": "220358af-f52d-42cc-8326-4dd9c083d768"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "text": "=Generate exactly eight realistic, high-quality lifestyle scenes based on the provided image. Scenes should be set in diverse, plausible locations with detailed contextual information.\n\n{{ $json['Product & Campaign Distraction'] }}\n\n Instructions\n- For each scene, extract as much detail as reasonably inferable from the image.\n- Provide the following fields for each scene:\n  - location: Main setting (e.g., urban street, coastal boardwalk).\n  - description: 1\u20132 sentences summarizing the activity or interaction in the scene.\n  - time_of_day: Indicate if it is 'morning', 'afternoon', 'evening', or 'night' (if discernible).\n  - demographics: Note apparent age group, gender, or diversity if visible; otherwise, use 'not discernible'.\n  - mood: General atmosphere (e.g., energetic, relaxed).\n  - weather: State conditions such as 'sunny', 'rainy', 'overcast'; or 'not discernible' if unclear.\n- If a detail for a field cannot reasonably be inferred from the image, set that field to 'not discernible'.\n- List scenes in a logical and consistent order (for example, grouped by location type or time of day).\n\nOutput Format\nRespond with ONLY a JSON array of scene objects, each containing the specified fields. The response must be only the JSON array with no markdown formatting or labels. Example output:\n[\n  {\n    \"location\": \"urban park\",\n    \"description\": \"A group of young adults jog together along a tree-lined path while others relax on nearby benches.\",\n    \"time_of_day\": \"morning\",\n    \"demographics\": \"young adults, mixed genders\",\n    \"mood\": \"energetic\",\n    \"weather\": \"sunny\"\n  },\n  {\n    \"location\": \"downtown caf\u00e9 patio\",\n    \"description\": \"Several people enjoy coffee and conversation under umbrellas on a bustling city sidewalk.\",\n    \"time_of_day\": \"afternoon\",\n    \"demographics\": \"older adults, mixed genders\",\n    \"mood\": \"relaxed\",\n    \"weather\": \"not discernible\"\n  }\n  // ... more scene objects\n]",
+        "inputType": "binary",
+        "binaryPropertyName": "Product_Image",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        240,
+        496
+      ],
+      "id": "3c20bb81-5656-4274-bfc4-d3d5da621ded",
+      "name": "Generate Scene Prompts"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "28204df1-a2d5-4a5e-aa10-d30c92d2273a",
+              "name": "Product Scenes",
+              "value": "={{ $('Generate Scene Prompts').item.json.content.parts[0].text }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        496
+      ],
+      "id": "974ae0ee-7fd6-43d2-aec9-d0a687dfab08",
+      "name": "Format Scene Output"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=Act as a world-class product photographer.\n\nTask: Place the product from the input image into a realistic, high-quality lifestyle scene based on the following specifications:\n\n- Location/Setting: {{ $('Split Scenes').item.json.location }}\n- Action/Context: {{ $('Split Scenes').item.json.description }}\n- Atmosphere/Mood: {{ $('Split Scenes').item.json.mood }}\n- Lighting/Time: {{ $('Split Scenes').item.json.time_of_day }}\n- Weather Conditions: {{ $('Split Scenes').item.json.weather }}\n- Target Demographic Style: {{ $('Split Scenes').item.json.demographics }}\n\nCritical Instructions:\n1. PRODUCT INTEGRITY: Maintain the exact appearance, logos, and details of the product in the input image. Do not distort the product.\n2. COMPOSITION: Ensure the product is the focal point. Place it naturally within the environment (e.g., resting on a surface, being worn, or held) as appropriate for the setting.\n3. REALISM: Match the lighting, shadows, and reflections of the scene to the product. If the scene is sunny, ensure hard shadows cast by the product. If cloudy, use soft, diffused lighting.\n4. STYLE: The final image must look like a high-end commercial photograph, 8k resolution, highly detailed.",
+        "images": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        672
+      ],
+      "id": "ec3f0198-9c02-4352-8987-0c2712454dd4",
+      "name": "Generate Lifestyle Image"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "Product_Image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        688
+      ],
+      "id": "b36d3003-34bb-4776-a245-29abc8a2bd5e",
+      "name": "Extract Image Binary"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        912,
+        672
+      ],
+      "id": "0e7866a8-78f4-4385-a3c8-39a9b3d5cc2a",
+      "name": "Merge Image & Scenes"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "['Product Scenes']",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        672
+      ],
+      "id": "a3b55df3-9f09-41d2-8930-81eb3375a733",
+      "name": "Split Scenes"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "Product_Image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1568,
+        672
+      ],
+      "id": "f258ba90-4bed-4224-8bab-53b2a1a7c662",
+      "name": "Prepare Image for Generation"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ad19f3d9-79f8-4fcd-be55-3ed30ad2a247",
+              "name": "Product_Image",
+              "value": "={{ $('Merge Image & Scenes').item.json.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        672
+      ],
+      "id": "9122ca9c-5f12-402e-b368-7fb042c4f016",
+      "name": "Set Image Binary"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Receive Product Data').item.json['Product Name'] }}-{{ $now }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1EOkQt1YRltnAvYXHtx6JMU1ZWWgoY3fK",
+          "mode": "list",
+          "cachedResultName": "The \"Infinite Lifestyle\" Product Photographer",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1EOkQt1YRltnAvYXHtx6JMU1ZWWgoY3fK"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        416,
+        496
+      ],
+      "id": "73cf8408-2372-4a15-af6f-a2301a5f43f4",
+      "name": "Create Drive Folder"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "edited",
+        "name": "={{ $('Split Scenes').item.json.location }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Create Drive Folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2000,
+        672
+      ],
+      "id": "52451677-6877-46ef-b842-163c529c01cd",
+      "name": "Upload Result to Drive"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive Product Data": {
+      "main": [
+        [
+          {
+            "node": "Generate Scene Prompts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract Image Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Scene Prompts": {
+      "main": [
+        [
+          {
+            "node": "Create Drive Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Scene Output": {
+      "main": [
+        [
+          {
+            "node": "Merge Image & Scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Image Binary": {
+      "main": [
+        [
+          {
+            "node": "Merge Image & Scenes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Image & Scenes": {
+      "main": [
+        [
+          {
+            "node": "Split Scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Scenes": {
+      "main": [
+        [
+          {
+            "node": "Set Image Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Image for Generation": {
+      "main": [
+        [
+          {
+            "node": "Generate Lifestyle Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Image Binary": {
+      "main": [
+        [
+          {
+            "node": "Prepare Image for Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Drive Folder": {
+      "main": [
+        [
+          {
+            "node": "Format Scene Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Lifestyle Image": {
+      "main": [
+        [
+          {
+            "node": "Upload Result to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8389539f-6dc8-4d17-890f-778ed5404eee",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "mt4r6NqHT3IAwFbR",
+  "tags": []
+}

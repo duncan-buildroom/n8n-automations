@@ -1,0 +1,831 @@
+{
+  "name": "Automated Employee Onboarding Sequencer",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 1. Intake & Identification\nAccepts the form submission and searches Airtable to identify the employee's department.",
+        "height": 350,
+        "width": 1011,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2256,
+        -96
+      ],
+      "id": "aefe31c8-fece-4b90-9da8-92ee39fbfeb0",
+      "name": "Sticky Note Intake"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Routing\nSplits traffic based on Dept.",
+        "height": 352,
+        "width": 196,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1232,
+        -96
+      ],
+      "id": "df0787cc-1761-4371-b19b-99f87ab2672d",
+      "name": "Sticky Note Routing"
+    },
+    {
+      "parameters": {
+        "content": "## 3a. Engineering Onboarding Flow\nProvisions access to GitHub, Engineering Slack channels, and assigns technical security training tasks.",
+        "height": 284,
+        "width": 1540,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1024,
+        -96
+      ],
+      "id": "24fdf4d7-17ba-4380-8c7f-37d568b17523",
+      "name": "Sticky Note Eng"
+    },
+    {
+      "parameters": {
+        "content": "## 3b. Marketing Onboarding Flow\nProvisions access to Marketing Slack channels and assigns standard marketing orientation tasks.",
+        "height": 276,
+        "width": 1100,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1024,
+        208
+      ],
+      "id": "3206dcf9-b983-4b8b-a588-d0f801809f50",
+      "name": "Sticky Note Mktg"
+    },
+    {
+      "parameters": {
+        "content": "## 4. Manager & Record Updates\nUpdates the employee record with the start date and manager link, then emails the manager.",
+        "height": 260,
+        "width": 640,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1680,
+        272
+      ],
+      "id": "e12bd745-b5f3-4e3c-9d6c-e72e14b5584e",
+      "name": "Sticky Note Admin"
+    },
+    {
+      "parameters": {
+        "formTitle": "Welcome",
+        "formDescription": "Hi, Welcome to AAT Enterprises. By now you should have gotten your company email if not please reach out to Duncan via email. ",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Enter your work email here. ",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Slack Member ID",
+              "placeholder": "Your Slack Member ID not your email",
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -2192,
+        16
+      ],
+      "id": "c6649fb3-48d4-49b7-a6af-4af4fe2a7729",
+      "name": "Trigger: Employee Intake Form",
+      "webhookId": "8ec48133-46fd-472d-b337-d3c6a693dd41"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appHBKxB7jB4Pu2sE",
+          "mode": "list",
+          "cachedResultName": "Automated Employee Onboarding Sequencer",
+          "cachedResultUrl": "https://airtable.com/appHBKxB7jB4Pu2sE"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblMSTanDUwFONqwS",
+          "mode": "list",
+          "cachedResultName": "Employees",
+          "cachedResultUrl": "https://airtable.com/appHBKxB7jB4Pu2sE/tblMSTanDUwFONqwS"
+        },
+        "filterByFormula": "={Work Email} = '{{ $json['Enter your work email here. '] }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1968,
+        16
+      ],
+      "id": "995ab774-d5d1-4f9d-9152-ae04918c0fec",
+      "name": "Get Employee Details"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Department }}",
+                    "rightValue": "Engineering",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d1cb4273-a45a-47e8-8d9d-dc217f5e9381"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "22d76830-e8c9-46d3-b2eb-7660c9571190",
+                    "leftValue": "={{ $json.Department }}",
+                    "rightValue": "Marketing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -1200,
+        16
+      ],
+      "id": "f21e5c6d-3f4b-4ac2-9b9f-61432b8796d4",
+      "name": "Check Department",
+      "notes": "Output 0: Engineering\nOutput 1: Marketing"
+    },
+    {
+      "parameters": {
+        "resource": "channel",
+        "operation": "invite",
+        "channelId": {
+          "__rl": true,
+          "value": "C09UY0P5L7L",
+          "mode": "list",
+          "cachedResultName": "engineering"
+        },
+        "userIds": "={{ [$('Trigger: Employee Intake Form').item.json['Slack Member ID']] }}"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -992,
+        0
+      ],
+      "id": "123a1045-f063-4795-99ad-5c7a5a18f08d",
+      "name": "Slack: Invite to #engineering",
+      "webhookId": "7aef8342-120c-4cf9-9112-95c31529cbeb"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "workspace": "1212072124144211",
+        "name": "Employee Onboarding",
+        "otherProperties": {
+          "assignee": "={{ $('Trigger: Employee Intake Form').item.json['Enter your work email here. '] }}",
+          "due_on": "={{ $now.plus(7, 'days') }}",
+          "notes": "Watch Security Best Practices\nCollect Employee ID\nDo some more stuff",
+          "projects": [
+            "1212072123905117"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        -768,
+        0
+      ],
+      "id": "a1bec101-60ee-43b0-b8ab-b8451c8c6b14",
+      "name": "Asana: Create Eng Task"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "subtask",
+        "taskId": "={{ $json.gid }}",
+        "name": "Watch Security Youtube Video",
+        "otherProperties": {
+          "assignee": "={{ $('Trigger: Employee Intake Form').item.json['Enter your work email here. '] }}",
+          "notes": "Watch Security Best Practices Videos\nhttps://www.youtube.com/watch?v=pwkyzElfJZc"
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        0
+      ],
+      "id": "4a463603-60e2-44ba-b326-c31bf27bdd2e",
+      "name": "Asana: Security Video"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "subtask",
+        "taskId": "={{ $json.gid }}",
+        "name": "Collect Employee ID",
+        "otherProperties": {
+          "assignee": "={{ $('Trigger: Employee Intake Form').item.json['Enter your work email here. '] }}",
+          "notes": "Head over to the Support Staff room and retrieve your access card."
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        0
+      ],
+      "id": "7ddfa176-cebc-48e9-8d82-452d8bbfe502",
+      "name": "Asana: Collect ID (Eng)"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "subtask",
+        "taskId": "={{ $json.gid }}",
+        "name": "Introduce yourself on Slack",
+        "otherProperties": {
+          "assignee": "={{ $('Trigger: Employee Intake Form').item.json['Enter your work email here. '] }}",
+          "notes": "Send a Hi to your team members!"
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        0
+      ],
+      "id": "3c7d808d-e229-4344-b485-33d7c4d61f98",
+      "name": "Asana: Slack Intro (Eng)"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Trigger: Employee Intake Form').item.json['Enter your work email here. '] }}",
+        "subject": "AAT Employee Onboarding Checkist",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Welcome to the Engineering Team</title>\n    <style>\n        /* Reset and Base Styles */\n        body {\n            margin: 0;\n            padding: 0;\n            background-color: #f4f7f6;\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            -webkit-font-smoothing: antialiased;\n            color: #333333;\n            line-height: 1.6;\n        }\n\n        /* Container */\n        .email-wrapper {\n            width: 100%;\n            background-color: #f4f7f6;\n            padding: 40px 0;\n        }\n\n        .email-container {\n            max-width: 600px;\n            margin: 0 auto;\n            background-color: #ffffff;\n            border-radius: 8px;\n            overflow: hidden;\n            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);\n        }\n\n        /* Header */\n        .header {\n            background-color: #2D3748;\n            padding: 30px;\n            text-align: center;\n        }\n\n        .header h1 {\n            color: #ffffff;\n            margin: 0;\n            font-size: 24px;\n            font-weight: 600;\n        }\n\n        /* Content Body */\n        .content {\n            padding: 40px 30px;\n        }\n\n        .welcome-text {\n            font-size: 16px;\n            color: #4a5568;\n            margin-bottom: 30px;\n        }\n\n        /* Info Cards */\n        .card {\n            background-color: #f8fafc;\n            border-left: 4px solid #3182ce;\n            padding: 20px;\n            margin-bottom: 20px;\n            border-radius: 0 4px 4px 0;\n        }\n\n        .card.slack {\n            border-left-color: #E01E5A; /* Slack maroon/pinkish color */\n        }\n\n        .card.asana {\n            border-left-color: #F06A6A; /* Asana coral color */\n        }\n\n        .card h3 {\n            margin-top: 0;\n            margin-bottom: 8px;\n            font-size: 18px;\n            color: #2d3748;\n            display: flex;\n            align-items: center;\n        }\n\n        .card p {\n            margin: 0;\n            font-size: 15px;\n            color: #718096;\n        }\n\n        /* Icons (Simple SVG inline for email compatibility) */\n        .icon {\n            margin-right: 10px;\n            width: 20px;\n            height: 20px;\n            display: inline-block;\n        }\n\n        /* Footer */\n        .footer {\n            background-color: #edf2f7;\n            padding: 20px;\n            text-align: center;\n            font-size: 14px;\n            color: #718096;\n        }\n\n        .tagline {\n            font-weight: bold;\n            color: #2d3748;\n            font-size: 16px;\n        }\n\n        /* Button (Optional) */\n        .btn-container {\n            text-align: center;\n            margin-top: 30px;\n        }\n        \n        .btn {\n            background-color: #3182ce;\n            color: white;\n            padding: 12px 24px;\n            text-decoration: none;\n            border-radius: 6px;\n            font-weight: bold;\n            font-size: 14px;\n            display: inline-block;\n        }\n\n        /* Responsive */\n        @media only screen and (max-width: 600px) {\n            .email-container {\n                width: 100%;\n                border-radius: 0;\n            }\n            .content {\n                padding: 20px;\n            }\n        }\n    </style>\n</head>\n<body>\n\n    <div class=\"email-wrapper\">\n        <div class=\"email-container\">\n            \n            <div class=\"header\">\n                <h1>Welcome Aboard! \ud83d\ude80</h1>\n            </div>\n\n            \n            <div class=\"content\">\n                <p class=\"welcome-text\">\n                    Hi there, <br><br>\n                    We are excited to have you join the team. To get you started on the right foot, we've set up your access to our core collaboration tools.\n                </p>\n\n                \n                <div class=\"card asana\">\n                    <h3>\n                        \n                        <svg class=\"icon\" fill=\"none\" stroke=\"#F06A6A\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4\"></path></svg>\n                        Asana Tasks Assigned\n                    </h3>\n                    <p>We've assigned your initial tasks. Please check your email inbox for the invites and task details.</p>\n                </div>\n\n                \n                <div class=\"card slack\">\n                    <h3>\n                        \n                        <svg class=\"icon\" fill=\"none\" stroke=\"#E01E5A\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M7 20l4-16m2 16l4-16M6 9h14M4 15h14\"></path></svg>\n                        Slack Channels Updated\n                    </h3>\n                    <p>You have been added to the <strong>#engineering</strong> team channels. Feel free to introduce yourself!</p>\n                </div>\n\n                <div class=\"btn-container\">\n                    <span class=\"tagline\">Happy building! \ud83d\udee0\ufe0f</span>\n                </div>\n            </div>\n\n            \n            <div class=\"footer\">\n                <p>&copy; The Engineering Team</p>\n            </div>\n        </div>\n    </div>\n\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        144,
+        0
+      ],
+      "id": "e6160053-d020-42f2-939d-4ba1ea0188a1",
+      "name": "Email: Welcome Engineering",
+      "webhookId": "5c720517-6d9d-4dd2-ac59-e8394ccc09dc"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "user",
+        "operation": "invite",
+        "organization": "Bursa-Line",
+        "email": "={{ $('Trigger: Employee Intake Form').item.json['Enter your work email here. '] }}"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        368,
+        0
+      ],
+      "id": "532705d2-2e51-4660-bafe-1b7580a7bbc0",
+      "name": "GitHub: Invite User",
+      "webhookId": "a7e83b7a-1644-46cb-a3f1-2f0d730c5088"
+    },
+    {
+      "parameters": {
+        "resource": "channel",
+        "operation": "invite",
+        "channelId": {
+          "__rl": true,
+          "value": "C09UY0P5L7L",
+          "mode": "list",
+          "cachedResultName": "engineering"
+        },
+        "userIds": "={{ [$('Trigger: Employee Intake Form').item.json['Slack Member ID']] }}"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -976,
+        304
+      ],
+      "id": "61d1dc61-b411-4699-be7b-68752c01a7eb",
+      "name": "Slack: Invite to #marketing",
+      "webhookId": "7aef8342-120c-4cf9-9112-95c31529cbeb"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "workspace": "1212072124144211",
+        "name": "Employee Onboarding",
+        "otherProperties": {
+          "assignee": "={{ $('Trigger: Employee Intake Form').item.json['Enter your work email here. '] }}",
+          "due_on": "={{ $now.plus(7, 'days') }}",
+          "notes": "Collect Employee ID\nDo some more stuff",
+          "projects": [
+            "1212072123905117"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        304
+      ],
+      "id": "00d286c6-4c1c-467c-ba93-ca380a434bdd",
+      "name": "Asana: Create Mktg Task"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "subtask",
+        "taskId": "={{ $json.gid }}",
+        "name": "Collect Employee ID",
+        "otherProperties": {
+          "assignee": "={{ $('Trigger: Employee Intake Form').item.json['Enter your work email here. '] }}",
+          "notes": "Head over to the Support Staff room and retrieve your access card."
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        304
+      ],
+      "id": "b64c30ba-5c07-4a34-aa78-c78020a2a5b7",
+      "name": "Asana: Collect ID (Mktg)"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "subtask",
+        "taskId": "={{ $json.gid }}",
+        "name": "Introduce yourself on Slack",
+        "otherProperties": {
+          "assignee": "={{ $('Trigger: Employee Intake Form').item.json['Enter your work email here. '] }}",
+          "notes": "Send a Hi to your team members!"
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        304
+      ],
+      "id": "ee4e85dd-ae6d-475e-867a-95f79169718c",
+      "name": "Asana: Slack Intro (Mktg)"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Trigger: Employee Intake Form').item.json['Enter your work email here. '] }}",
+        "subject": "AAT Employee Onboarding Checkist",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Welcome to the Engineering Team</title>\n    <style>\n        /* Reset and Base Styles */\n        body {\n            margin: 0;\n            padding: 0;\n            background-color: #f4f7f6;\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            -webkit-font-smoothing: antialiased;\n            color: #333333;\n            line-height: 1.6;\n        }\n\n        /* Container */\n        .email-wrapper {\n            width: 100%;\n            background-color: #f4f7f6;\n            padding: 40px 0;\n        }\n\n        .email-container {\n            max-width: 600px;\n            margin: 0 auto;\n            background-color: #ffffff;\n            border-radius: 8px;\n            overflow: hidden;\n            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);\n        }\n\n        /* Header */\n        .header {\n            background-color: #2D3748;\n            padding: 30px;\n            text-align: center;\n        }\n\n        .header h1 {\n            color: #ffffff;\n            margin: 0;\n            font-size: 24px;\n            font-weight: 600;\n        }\n\n        /* Content Body */\n        .content {\n            padding: 40px 30px;\n        }\n\n        .welcome-text {\n            font-size: 16px;\n            color: #4a5568;\n            margin-bottom: 30px;\n        }\n\n        /* Info Cards */\n        .card {\n            background-color: #f8fafc;\n            border-left: 4px solid #3182ce;\n            padding: 20px;\n            margin-bottom: 20px;\n            border-radius: 0 4px 4px 0;\n        }\n\n        .card.slack {\n            border-left-color: #E01E5A; /* Slack maroon/pinkish color */\n        }\n\n        .card.asana {\n            border-left-color: #F06A6A; /* Asana coral color */\n        }\n\n        .card h3 {\n            margin-top: 0;\n            margin-bottom: 8px;\n            font-size: 18px;\n            color: #2d3748;\n            display: flex;\n            align-items: center;\n        }\n\n        .card p {\n            margin: 0;\n            font-size: 15px;\n            color: #718096;\n        }\n\n        /* Icons (Simple SVG inline for email compatibility) */\n        .icon {\n            margin-right: 10px;\n            width: 20px;\n            height: 20px;\n            display: inline-block;\n        }\n\n        /* Footer */\n        .footer {\n            background-color: #edf2f7;\n            padding: 20px;\n            text-align: center;\n            font-size: 14px;\n            color: #718096;\n        }\n\n        .tagline {\n            font-weight: bold;\n            color: #2d3748;\n            font-size: 16px;\n        }\n\n        /* Button (Optional) */\n        .btn-container {\n            text-align: center;\n            margin-top: 30px;\n        }\n        \n        .btn {\n            background-color: #3182ce;\n            color: white;\n            padding: 12px 24px;\n            text-decoration: none;\n            border-radius: 6px;\n            font-weight: bold;\n            font-size: 14px;\n            display: inline-block;\n        }\n\n        /* Responsive */\n        @media only screen and (max-width: 600px) {\n            .email-container {\n                width: 100%;\n                border-radius: 0;\n            }\n            .content {\n                padding: 20px;\n            }\n        }\n    </style>\n</head>\n<body>\n\n    <div class=\"email-wrapper\">\n        <div class=\"email-container\">\n            \n            <div class=\"header\">\n                <h1>Welcome Aboard! \ud83d\ude80</h1>\n            </div>\n\n            \n            <div class=\"content\">\n                <p class=\"welcome-text\">\n                    Hi there, <br><br>\n                    We are excited to have you join the team. To get you started on the right foot, we've set up your access to our core collaboration tools.\n                </p>\n\n                \n                <div class=\"card asana\">\n                    <h3>\n                        \n                        <svg class=\"icon\" fill=\"none\" stroke=\"#F06A6A\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4\"></path></svg>\n                        Asana Tasks Assigned\n                    </h3>\n                    <p>We've assigned your initial tasks. Please check your email inbox for the invites and task details.</p>\n                </div>\n\n                \n                <div class=\"card slack\">\n                    <h3>\n                        \n                        <svg class=\"icon\" fill=\"none\" stroke=\"#E01E5A\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M7 20l4-16m2 16l4-16M6 9h14M4 15h14\"></path></svg>\n                        Slack Channels Updated\n                    </h3>\n                    <p>You have been added to the <strong>#engineering</strong> team channels. Feel free to introduce yourself!</p>\n                </div>\n\n                <div class=\"btn-container\">\n                    <span class=\"tagline\">Happy building! \ud83d\udee0\ufe0f</span>\n                </div>\n            </div>\n\n            \n            <div class=\"footer\">\n                <p>&copy; The Marketing Team</p>\n            </div>\n        </div>\n    </div>\n\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        304
+      ],
+      "id": "d9a7cb73-e10f-4ce5-894b-6b216033b01f",
+      "name": "Email: Welcome Marketing",
+      "webhookId": "5c720517-6d9d-4dd2-ac59-e8394ccc09dc"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appHBKxB7jB4Pu2sE",
+          "mode": "list",
+          "cachedResultName": "Automated Employee Onboarding Sequencer",
+          "cachedResultUrl": "https://airtable.com/appHBKxB7jB4Pu2sE"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblB6ttMFz95dCigo",
+          "mode": "list",
+          "cachedResultName": "Managers",
+          "cachedResultUrl": "https://airtable.com/appHBKxB7jB4Pu2sE/tblB6ttMFz95dCigo"
+        },
+        "filterByFormula": "={Department} = '{{ $json.Department }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1632,
+        368
+      ],
+      "id": "92ed572c-19f3-458b-bb06-842db55b75a0",
+      "name": "Get Manager Details"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appHBKxB7jB4Pu2sE",
+          "mode": "list",
+          "cachedResultName": "Automated Employee Onboarding Sequencer",
+          "cachedResultUrl": "https://airtable.com/appHBKxB7jB4Pu2sE"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblMSTanDUwFONqwS",
+          "mode": "list",
+          "cachedResultName": "Employees",
+          "cachedResultUrl": "https://airtable.com/appHBKxB7jB4Pu2sE/tblMSTanDUwFONqwS"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Get Employee Details').item.json.id }}",
+            "Start Date": "={{ $now.toLocaleString() }}",
+            "Slack User name": "={{ $('Trigger: Employee Intake Form').item.json['Slack Member ID'] }}",
+            "Manager": "={{ [$json.id] }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Personal Email",
+              "displayName": "Personal Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Work Email",
+              "displayName": "Work Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Department",
+              "displayName": "Department",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Engineering",
+                  "value": "Engineering"
+                },
+                {
+                  "name": "Marketing",
+                  "value": "Marketing"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Start Date",
+              "displayName": "Start Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Slack User name",
+              "displayName": "Slack User name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Manager",
+              "displayName": "Manager",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1408,
+        368
+      ],
+      "id": "538459e2-7214-4022-a108-802f2751775b",
+      "name": "Update Employee Record"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get Manager Details').item.json.Email }}",
+        "subject": "New Team Member Alert ",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>New Team Member Alert</title>\n    <style>\n        /* Reset and Base Styles */\n        body {\n            margin: 0;\n            padding: 0;\n            background-color: #f4f7f6;\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            -webkit-font-smoothing: antialiased;\n            color: #333333;\n            line-height: 1.6;\n        }\n\n        /* Container */\n        .email-wrapper {\n            width: 100%;\n            background-color: #f4f7f6;\n            padding: 40px 0;\n        }\n\n        .email-container {\n            max-width: 600px;\n            margin: 0 auto;\n            background-color: #ffffff;\n            border-radius: 8px;\n            overflow: hidden;\n            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);\n            border-top: 5px solid #805AD5; /* Purple for \"Alert/Lead\" context */\n        }\n\n        /* Header */\n        .header {\n            background-color: #ffffff;\n            padding: 30px 30px 10px 30px;\n            text-align: left;\n            border-bottom: 1px solid #edf2f7;\n        }\n\n        .header h1 {\n            color: #2D3748;\n            margin: 0;\n            font-size: 22px;\n            font-weight: 700;\n            display: flex;\n            align-items: center;\n        }\n\n        .badge {\n            background-color: #ebf8ff;\n            color: #3182ce;\n            font-size: 12px;\n            padding: 4px 8px;\n            border-radius: 4px;\n            margin-left: 10px;\n            text-transform: uppercase;\n            letter-spacing: 0.5px;\n            font-weight: bold;\n        }\n\n        /* Content Body */\n        .content {\n            padding: 30px;\n        }\n\n        .intro-text {\n            font-size: 16px;\n            color: #4a5568;\n            margin-bottom: 25px;\n        }\n\n        /* Member Profile Mini-Card */\n        .profile-summary {\n            background-color: #f7fafc;\n            border: 1px solid #e2e8f0;\n            border-radius: 6px;\n            padding: 15px;\n            margin-bottom: 30px;\n            display: flex;\n            align-items: center;\n        }\n\n        .avatar-placeholder {\n            width: 48px;\n            height: 48px;\n            background-color: #cbd5e0;\n            border-radius: 50%;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            font-weight: bold;\n            color: #4a5568;\n            margin-right: 15px;\n        }\n\n        .profile-details h4 {\n            margin: 0 0 4px 0;\n            color: #2d3748;\n        }\n\n        .profile-details p {\n            margin: 0;\n            font-size: 14px;\n            color: #718096;\n        }\n\n        /* Checklist Section */\n        .checklist-container {\n            background-color: #fffaf0; /* Light orange background for attention */\n            border-left: 4px solid #ed8936;\n            padding: 20px;\n            border-radius: 0 4px 4px 0;\n        }\n\n        .checklist-title {\n            font-weight: bold;\n            color: #c05621;\n            margin-bottom: 15px;\n            font-size: 16px;\n        }\n\n        .checklist-item {\n            display: flex;\n            align-items: flex-start;\n            margin-bottom: 12px;\n        }\n\n        .checklist-checkbox {\n            min-width: 20px;\n            height: 20px;\n            border: 2px solid #ed8936;\n            border-radius: 4px;\n            margin-right: 12px;\n            margin-top: 3px;\n            background-color: white;\n        }\n\n        .checklist-text {\n            font-size: 15px;\n            color: #4a5568;\n        }\n\n        /* Button */\n        .btn-container {\n            margin-top: 30px;\n        }\n        \n        .btn {\n            background-color: #2D3748;\n            color: white;\n            padding: 12px 24px;\n            text-decoration: none;\n            border-radius: 6px;\n            font-weight: 600;\n            font-size: 14px;\n            display: inline-block;\n        }\n\n        /* Footer */\n        .footer {\n            background-color: #ffffff;\n            padding: 20px;\n            text-align: center;\n            font-size: 13px;\n            color: #a0aec0;\n            border-top: 1px solid #edf2f7;\n        }\n\n        /* Responsive */\n        @media only screen and (max-width: 600px) {\n            .email-container {\n                width: 100%;\n                border-radius: 0;\n                border-top: none;\n            }\n            .content {\n                padding: 20px;\n            }\n        }\n    </style>\n</head>\n<body>\n\n    <div class=\"email-wrapper\">\n        <div class=\"email-container\">\n            \n            <div class=\"header\">\n                <h1>New Member Alert <span class=\"badge\">Engineering</span></h1>\n            </div>\n\n            \n            <div class=\"content\">\n                <p class=\"intro-text\">\n                    Hello Team Lead,\n                </p>\n                <p class=\"intro-text\">\n                    A new team member has just completed the intake process and has been added to Slack and Asana. They are ready for their first day!\n                </p>\n\n                \n                <div class=\"profile-summary\">\n                    <div class=\"avatar-placeholder\">NM</div>\n                    <div class=\"profile-details\">\n                        <h4>{{ $json.fields.Name }}</h4>\n                        <p>{{ $json.fields.Department }} \u00b7 Joined Today</p>\n                    </div>\n                </div>\n\n                \n                <div class=\"checklist-container\">\n                    <div class=\"checklist-title\">\u26a1 Immediate Actions Required</div>\n                    \n                    <div class=\"checklist-item\">\n                        <div class=\"checklist-checkbox\"></div>\n                        <div class=\"checklist-text\"><strong>Send a welcome DM</strong> on Slack to break the ice.</div>\n                    </div>\n                    \n                    <div class=\"checklist-item\">\n                        <div class=\"checklist-checkbox\"></div>\n                        <div class=\"checklist-text\"><strong>Schedule a 1:1</strong> for this week to align on expectations.</div>\n                    </div>\n\n                    <div class=\"checklist-item\">\n                        <div class=\"checklist-checkbox\"></div>\n                        <div class=\"checklist-text\"><strong>Assign an onboarding buddy</strong> to help them navigate the codebase.</div>\n                    </div>\n\n                    <div class=\"checklist-item\">\n                        <div class=\"checklist-checkbox\"></div>\n                        <div class=\"checklist-text\"><strong>Review pending Asana tasks</strong> to ensure they have access to the right projects.</div>\n                    </div>\n                </div>\n\n                <div class=\"btn-container\">\n                    <a href=\"#\" class=\"btn\">View Onboarding Checklist</a>\n                </div>\n            </div>\n\n            \n            <div class=\"footer\">\n                <p>Automated by HR Ops System</p>\n            </div>\n        </div>\n    </div>\n\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1184,
+        368
+      ],
+      "id": "44712cc6-633f-4327-ae67-9b1748c87ccf",
+      "name": "Email: Alert Manager",
+      "webhookId": "d4557686-42fc-4cef-9ab4-6d90701400be"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Trigger: Employee Intake Form": {
+      "main": [
+        [
+          {
+            "node": "Get Employee Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Employee Details": {
+      "main": [
+        [
+          {
+            "node": "Check Department",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Manager Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Department": {
+      "main": [
+        [
+          {
+            "node": "Slack: Invite to #engineering",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack: Invite to #marketing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Invite to #engineering": {
+      "main": [
+        [
+          {
+            "node": "Asana: Create Eng Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asana: Create Eng Task": {
+      "main": [
+        [
+          {
+            "node": "Asana: Security Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asana: Security Video": {
+      "main": [
+        [
+          {
+            "node": "Asana: Collect ID (Eng)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asana: Collect ID (Eng)": {
+      "main": [
+        [
+          {
+            "node": "Asana: Slack Intro (Eng)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asana: Slack Intro (Eng)": {
+      "main": [
+        [
+          {
+            "node": "Email: Welcome Engineering",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email: Welcome Engineering": {
+      "main": [
+        [
+          {
+            "node": "GitHub: Invite User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Invite to #marketing": {
+      "main": [
+        [
+          {
+            "node": "Asana: Create Mktg Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asana: Create Mktg Task": {
+      "main": [
+        [
+          {
+            "node": "Asana: Collect ID (Mktg)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asana: Collect ID (Mktg)": {
+      "main": [
+        [
+          {
+            "node": "Asana: Slack Intro (Mktg)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asana: Slack Intro (Mktg)": {
+      "main": [
+        [
+          {
+            "node": "Email: Welcome Marketing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Manager Details": {
+      "main": [
+        [
+          {
+            "node": "Update Employee Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Employee Record": {
+      "main": [
+        [
+          {
+            "node": "Email: Alert Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "02ad56fc-0032-4838-93ae-f6d053d636b3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "XFeYojDsZCcSOJrA",
+  "tags": []
+}

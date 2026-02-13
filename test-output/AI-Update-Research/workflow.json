@@ -1,0 +1,534 @@
+{
+  "name": "AI Update Research",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        1728,
+        960
+      ],
+      "id": "9dcaa779-5542-4830-a3d7-6f20fed4a734",
+      "name": "Schedule Interval"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/cQzpKUu1k1HsU23u.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        1968,
+        288
+      ],
+      "id": "2eff52f0-9fe8-4357-a844-02abe7407a0d",
+      "name": "Fetch LocalLLaMA"
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/generativeAI/new/.rss?limit=100",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        1952,
+        960
+      ],
+      "id": "319f9aff-7786-4145-88c4-42d396088236",
+      "name": "Fetch GenerativeAI"
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2176,
+        912
+      ],
+      "id": "3ab4e31d-ce30-4d7f-8bb4-b7de7149623c",
+      "name": "Merge RSS Feeds"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "content"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2848,
+        960
+      ],
+      "id": "dc25bd76-aa17-46cc-a715-8330419fb702",
+      "name": "Aggregate for AI"
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/n8n/new/.rss?limit=100",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        1952,
+        768
+      ],
+      "id": "2128757c-9dce-44b1-87de-771973469a53",
+      "name": "Fetch n8n"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fb96946d-c097-495e-9495-6cd3a09c0d6d",
+              "leftValue": "={{ $json.isoDate?.toDateTime() }}",
+              "rightValue": "={{ $now.minus({ hours: 6 }) }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "afterOrEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2400,
+        960
+      ],
+      "id": "457b50e5-6aef-4e10-9073-258b94c27c02",
+      "name": "Filter Last 6 Hours"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.2-pro",
+          "mode": "list",
+          "cachedResultName": "GPT-5.2-PRO"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are an expert AI & Automation Tech Scout. Your goal is to filter a list of Reddit/RSS posts and create a \"High-Signal Digest\" for a busy engineer.\n\nANALYZE & FILTER (Balanced Signal)\n\nReview posts to surface:\n\nimportant AI/automation trends\n\npractical build ideas\n\ncontent relevant to builders and agency founders\n\nKEEP if the post fits one category:\n\nUPSTREAM \u2014 MARKET DIRECTION\n\nModel or platform releases, pricing changes, capability shifts\n\nInfra or tooling strategy changes (what\u2019s becoming easier, cheaper, obsolete)\n\nCredible analysis that implies \u201cthis will matter in 3\u201312 months\u201d\n\nMIDSTREAM \u2014 OPERATOR SIGNAL\n\nReal-world builds, migrations, stacks, templates, repos\n\nCost/performance tests, production lessons, scaling constraints\n\n\u201cHere\u2019s what we actually deployed or switched to\u201d\n\nDOWNSTREAM \u2014 AUDIENCE SIGNAL\n\nNiche pains, monetizable automation ideas\n\nCommon beginner or pricing questions that reveal demand\n\nPosts you could turn into a tutorial, template, or community discussion\n\nDISCARD only if:\n\nmemes, hype, or doom-posting\n\nspeculation with no evidence\n\none-off troubleshooting with no reusable lesson\n\nunrelated to AI, automation, or builder workflows\n\nOUTPUT RULES\n\nReturn up to 12 items total\n\nAim for balance:\n\n\u22643 Reddit-style audience posts\n\n\u22654 upstream or trend-level items\n\nFor each kept item include:\n\ncategory (Upstream / Midstream / Downstream)\n\nwhy it matters\n\nhow you could use it (content, build, discussion)\n2. OUTPUT FORMAT\nIf the post is Noise, output nothing (empty string).\nIf the post is Signal, output a Markdown entry in this exact format:\n\n[Name of Tool/Topic] - [Type: Release/Trend/Video/Leak/News]\n> *One-sentence summary of the update, leak credibility, or user sentiment.*\n[\ud83d\udd17 Link to Source](insert_link_here)\n\n---"
+            },
+            {
+              "content": "={{ $json.content.toJsonString()}}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        3072,
+        960
+      ],
+      "id": "fa94e441-5814-4210-8986-26d01df8767f",
+      "name": "AI Signal Filter"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "209fd5ca-207b-4aff-9903-d6e96c839ddd",
+              "name": "content",
+              "value": "=Title:\n{{ $json.title }}\nAuthor:\n{{ $json.author }}\nLink:\n{{ $json.link }}\n\nContent:\n{{ $json.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2624,
+        960
+      ],
+      "id": "509b1c23-44ee-49d0-be14-1565c82f738e",
+      "name": "Format Content"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appWjeET7aNbeO86u",
+          "mode": "list",
+          "cachedResultName": "AI-Update-Research",
+          "cachedResultUrl": "https://airtable.com/appWjeET7aNbeO86u"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblXBuZZ1zhD2PdKc",
+          "mode": "list",
+          "cachedResultName": "AI-Update-Research",
+          "cachedResultUrl": "https://airtable.com/appWjeET7aNbeO86u/tblXBuZZ1zhD2PdKc"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Time Stamp": "={{ $now }}",
+            "Summary": "={{ $json.output[0].content[0].text }}",
+            "Status": "New"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Time Stamp",
+              "displayName": "Time Stamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Viewed",
+                  "value": "Viewed"
+                },
+                {
+                  "name": "New",
+                  "value": "New"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        3440,
+        960
+      ],
+      "id": "27e90a6d-66de-40d7-8537-cc05aa0b1860",
+      "name": "Save to Airtable"
+    },
+    {
+      "parameters": {
+        "content": "## 1. Data Ingestion\nFetch the latest 100 posts from **r/LocalLLaMA**, **r/generativeAI**, and **r/n8n** RSS feeds.",
+        "height": 998,
+        "width": 632,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        512
+      ],
+      "id": "4f43a6b7-6047-4655-ba06-22056fd64000",
+      "name": "Sticky Note 1"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Processing & Filtering\nKeep only posts from the **last 6 hours** (via logic), format the fields for readability, and aggregate them into a single list.",
+        "height": 272,
+        "width": 664,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2352,
+        848
+      ],
+      "id": "ee7b778f-a732-45f7-a798-1c211a3a974f",
+      "name": "Sticky Note 2"
+    },
+    {
+      "parameters": {
+        "content": "## 3. Intelligence & Storage\nSend the aggregated list to GPT-5.2 to separate signal from noise, then save the high-quality digest to Airtable.",
+        "height": 272,
+        "width": 614,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3024,
+        848
+      ],
+      "id": "0068c0ce-d059-40c6-94c4-756849f000b0",
+      "name": "Sticky Note 3"
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/GeminiAI/.rss?limit=100",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        1952,
+        1152
+      ],
+      "id": "d114dced-afe3-499c-8bdf-43824bb3e18c",
+      "name": "Fetch GeminiAI"
+    },
+    {
+      "parameters": {
+        "sendTo": "jagbomeikhe@gmail.com",
+        "subject": "={{ $json.output[0].content[0].text.subject }}",
+        "message": "={{ $json.output[0].content[0].text.body_html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3648,
+        1168
+      ],
+      "id": "a3551e50-3b62-44f7-93ae-1fcbe1049a44",
+      "name": "Send a message",
+      "webhookId": "f5a1a89a-bea6-464f-9a9b-b6b8fbc93b31"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.2",
+          "mode": "list",
+          "cachedResultName": "GPT-5.2"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "={{ $json.output[0].content[0].text }}"
+            },
+            {
+              "role": "system",
+              "content": "Your task is to take the incoming information and format it into a succinct, informational daily email digest. The goal of the digest is to spark ideas for content creation. Format it in HTML.\n\nInclude a subject line and the HTML body.\n\n{\"subject\":\"\", \"body\":\"body HTML\"}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_schema",
+              "schema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"subject\": { \"type\": \"string\" },\n    \"body_html\": { \"type\": \"string\" }\n  },\n  \"required\": [\"subject\", \"body_html\"],\n  \"additionalProperties\": false\n}\n",
+              "strict": true
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        3360,
+        1168
+      ],
+      "id": "e93e69c1-88d6-41b7-ab75-dfc8e64cba89",
+      "name": "emailComposer"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Interval": {
+      "main": [
+        [
+          {
+            "node": "Fetch GenerativeAI",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch n8n",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch GeminiAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge RSS Feeds": {
+      "main": [
+        [
+          {
+            "node": "Filter Last 6 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch GenerativeAI": {
+      "main": [
+        [
+          {
+            "node": "Merge RSS Feeds",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Fetch LocalLLaMA": {
+      "main": [
+        []
+      ]
+    },
+    "Fetch n8n": {
+      "main": [
+        [
+          {
+            "node": "Merge RSS Feeds",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Filter Last 6 Hours": {
+      "main": [
+        [
+          {
+            "node": "Format Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate for AI": {
+      "main": [
+        [
+          {
+            "node": "AI Signal Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Content": {
+      "main": [
+        [
+          {
+            "node": "Aggregate for AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Signal Filter": {
+      "main": [
+        [
+          {
+            "node": "Save to Airtable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "emailComposer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch GeminiAI": {
+      "main": [
+        [
+          {
+            "node": "Merge RSS Feeds",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "emailComposer": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "07b08d25-7c57-438c-9ecf-84f2a56a8d1e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "GfwPf9QBOo84w4dT",
+  "tags": []
+}

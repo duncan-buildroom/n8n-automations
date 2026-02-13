@@ -1,0 +1,3541 @@
+{
+  "name": "Smart Lead Scoring & Routing",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Get Started",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company URL",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Size",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "1-50"
+                  },
+                  {
+                    "option": "51-100"
+                  },
+                  {
+                    "option": "101+"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Job Title"
+            },
+            {
+              "fieldLabel": "Industry"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -704,
+        80
+      ],
+      "id": "243ca974-8ff8-4769-b877-81dfc16070f2",
+      "name": "Lead Capture Form",
+      "webhookId": "33a4ada9-b95c-4f40-8b3e-982c68ca194e"
+    },
+    {
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "value": "nB3k50aUB1TOYYuyn",
+          "mode": "list",
+          "cachedResultName": "Email Verifier I Free To Use (fatihtahta/email-verifier-free-to-use)",
+          "cachedResultUrl": "https://console.apify.com/actors/nB3k50aUB1TOYYuyn/input"
+        },
+        "customBody": "={\n  \"allowInternationalized\": false,\n  \"checkDeliverability\": true,\n  \"emails\": [\n    \"{{ $json.Email }}\"\n  ]\n}",
+        "timeout": {},
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        80
+      ],
+      "id": "26a7a146-df8c-497e-98b0-5b3bebd1f14f",
+      "name": "Verify Email Address"
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId }}",
+        "offset": {},
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        80
+      ],
+      "id": "32c58637-f1bc-4030-a720-161a05715c62",
+      "name": "Get Verification Results"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "71b6bc89-0049-4c35-b6d3-1a441ed56f7c",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "valid",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        80
+      ],
+      "id": "fc11082f-7a0a-4683-88e9-135030a10391",
+      "name": "Check If Email Valid"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Lead Capture Form').item.json['Full Name'] }}\n{{ $('Lead Capture Form').item.json.Email }}\n{{ $('Lead Capture Form').item.json['Company URL'] }}\n{{ $('Lead Capture Form').item.json['Company Size'] }}\n{{ $('Lead Capture Form').item.json['Job Title'] }}\n{{ $('Lead Capture Form').item.json.Industry }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "= Lead Validation & Confidence Scoring Agent\n\nYou are an expert lead validation specialist tasked with determining the authenticity and quality of B2B leads through rigorous multi-source research and verification.\n\n Subject Information:\n- Name: {{ $('Lead Capture Form').item.json['Full Name'] }}\n- Email: {{ $('Lead Capture Form').item.json.Email }}\n- Job Title: {{ $('Lead Capture Form').item.json['Job Title'] }}\n- Company Size: {{ $('Lead Capture Form').item.json['Company Size'] }}\n- Industry: {{ $('Lead Capture Form').item.json.Industry }}\n\n Validation Methodology:\n\nYou MUST use multiple search strategies and conduct AT LEAST 5-8 searches to validate this lead. Do not rely on single sources.\n\nYou MUST always use the Search tool attached to perform these tasks.\n\n Phase 1: Identity Verification (Search 1-3)\n1. Search for the person's full name + company + job title\n2. Search for the email domain to verify company legitimacy\n3. Search for the person's LinkedIn profile or professional presence\n\n Phase 2: Cross-Reference Validation (Search 4-6)\n4. Search for company website + \"about us\" or \"team\" pages\n5. Search for recent company announcements mentioning this person\n6. Search for the person's name + industry-specific keywords or events\n\n Phase 3: Digital Footprint Analysis (Search 7-8+)\n7. Search for any professional publications, articles, or contributions\n8. Search for social media presence (Twitter, GitHub, Medium, etc.)\n9. If concerns arise, perform additional targeted searches\n\n Red Flags to Investigate:\n\n- Email inconsistencies: Personal email vs. corporate domain\n- Generic job titles: \"Manager\" without specifics\n- Mismatched information: Job title doesn't align with company size/industry\n- No digital footprint: Zero online presence (highly suspicious)\n- Contradictory information: Different job titles across sources\n- Suspicious company: No website, fake website, or lack of historical content/search results prior to this year\n- Role-company mismatch: Senior title at tiny company or vice versa\n\n Confidence Scoring Criteria (0-100):\n\n90-100: High Confidence - Verified Lead\n- Multiple credible sources confirm identity\n- Active LinkedIn profile with photo and detailed history\n- Email domain matches legitimate company website\n- Recent activity or mentions found\n- Role aligns with company size and industry\n\n70-89: Moderate-High Confidence - Likely Real\n- 2-3 sources confirm identity\n- Professional presence found but limited activity\n- Email domain is legitimate\n- Minor inconsistencies but explainable\n\n50-69: Moderate Confidence - Uncertain\n- Limited online presence\n- Some verification but gaps in information\n- Inconsistencies that raise questions\n- Company exists but person is hard to verify\n\n30-49: Low Confidence - Questionable\n- Conflicting information across sources\n- Very limited or no digital footprint\n- Email domain concerns\n- Role seems mismatched\n\n0-29: Very Low Confidence - Likely Fake/Invalid\n- No verifiable online presence\n- Personal email with corporate title\n- Company appears fake or suspicious\n- Information cannot be verified through any source\n- Direct contradictions found\n\nRequired Output Format:\n\nReturn your analysis in this exact structure:\n{\n  \"Confidence Score\": \"[X]/100\",\n  \"Verification Summary\": \"[2-3 sentence summary of why this score was given]\"\n}\n\nCritical Instructions:\n\n1. Never make assumptions - If you can't find information, state it clearly\n2. Always perform multiple searches - Minimum 5, ideally 7-8 searches\n3. Cross-validate findings - Information should be confirmed by 2+ sources\n4. Be skeptical - It's better to be cautious than accept fake leads\n5. Document your process - List all searches performed\n6. No hallucination - Only report information you actually found through searches\n\nIf after thorough research you cannot verify basic information, the confidence score should be LOW.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        544,
+        368
+      ],
+      "id": "32fc2eea-a2cf-487b-804f-ac23a2985a8d",
+      "name": "Lead Validation Agent"
+    },
+    {
+      "parameters": {
+        "toolDescription": "=The Sonar Pro Lead Validation Tool leverages a powerful LLM to perform web searches and synthesize findings, verifying lead authenticity through a strategic, multi-step analytical process. To use this advanced engine effectively, you must input specific, high-context queries combining names, companies, job titles, and domains (e.g., \"Search for John Smith Chief Marketing Officer Acme Corp and verify his employment dates\"), allowing the LLM to process and connect disparate pieces of information. It's crucial to vary your search strategies by issuing different query types\u2014for instance, asking the LLM to \"Find confirmation of John Smith's role at Acme Corp via LinkedIn,\" or to \"Verify the email format for Acme Corp domain and provide the company's 'About Us' page summary.\" The search process should be progressive: start by asking the LLM to \"Verify the person exists and provide their current job title,\" then narrow to \"Confirm John Smith's tenure at Acme Corp,\" and finally request an LLM synthesis to \"Validate recent activity or legitimacy.\" Essential steps include asking the LLM to check the email domain by querying, \"Search site:https://www.google.com/search?q=acmecorp.com for team pages and email examples,\" and always asking the LLM to cross-reference information from different sources to ensure the confirmed details are legitimate and not one-off mentions or errors.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        512
+      ],
+      "id": "b1c43547-d072-4705-b55a-8dae73808527",
+      "name": "Web Search Tool"
+    },
+    {
+      "parameters": {
+        "model": "perplexity/sonar-reasoning",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        528,
+        656
+      ],
+      "id": "0de94db2-8181-453c-93fe-4418d70166ee",
+      "name": "Search Language Model"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"Confidence Score\": 50,\n  \"Verification Summary\": \"[2-3 sentence summary of why this score was given]\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        512
+      ],
+      "id": "8fb19181-4b04-4990-b8c9-ba1ca435c02d",
+      "name": "Validation Result Parser"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-5-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        400,
+        512
+      ],
+      "id": "3be6257d-9427-4a0f-8713-4268474d479d",
+      "name": "Main Language Model"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "92e86514-264b-4590-82a5-6192011787e9",
+              "name": "About My Company",
+              "value": "We build and deploy AI solutions that land clients, cut costs, and boost revenue in weeks, not months.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        704,
+        64
+      ],
+      "id": "86e22a6e-dca8-482a-8f70-c039fc885f87",
+      "name": "Set Company Description"
+    },
+    {
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "value": "aYG0l9s7dbB7j3gbS",
+          "mode": "list",
+          "cachedResultName": "Website Content Crawler (apify/website-content-crawler)",
+          "cachedResultUrl": "https://console.apify.com/actors/aYG0l9s7dbB7j3gbS/input"
+        },
+        "customBody": "={\n  \"aggressivePrune\": false,\n  \"blockMedia\": true,\n  \"clickElementsCssSelector\": \"[aria-expanded=\\\"false\\\"]\",\n  \"clientSideMinChangePercentage\": 15,\n  \"crawlerType\": \"playwright:adaptive\",\n  \"debugLog\": false,\n  \"debugMode\": false,\n  \"expandIframes\": true,\n  \"ignoreCanonicalUrl\": false,\n  \"ignoreHttpsErrors\": false,\n  \"keepUrlFragments\": false,\n  \"proxyConfiguration\": {\n    \"useApifyProxy\": true\n  },\n  \"readableTextCharThreshold\": 100,\n  \"removeCookieWarnings\": true,\n  \"removeElementsCssSelector\": \"nav, footer, script, style, noscript, svg, img[src^='data:'],\\n[role=\\\"alert\\\"],\\n[role=\\\"banner\\\"],\\n[role=\\\"dialog\\\"],\\n[role=\\\"alertdialog\\\"],\\n[role=\\\"region\\\"][aria-label*=\\\"skip\\\" i],\\n[aria-modal=\\\"true\\\"]\",\n  \"renderingTypeDetectionPercentage\": 10,\n  \"respectRobotsTxtFile\": true,\n  \"saveFiles\": false,\n  \"saveHtml\": false,\n  \"saveHtmlAsFile\": false,\n  \"saveMarkdown\": true,\n  \"saveScreenshots\": false,\n  \"signHttpRequests\": false,\n  \"startUrls\": [\n    {\n      \"url\": \"{{ $('Lead Capture Form').item.json['Company URL'] }}\"\n    }\n  ],\n  \"storeSkippedUrls\": false,\n  \"useSitemaps\": false,\n  \"includeUrlGlobs\": [],\n  \"excludeUrlGlobs\": [],\n  \"maxCrawlDepth\": 20,\n  \"maxCrawlPages\": 9999999,\n  \"initialConcurrency\": 0,\n  \"maxConcurrency\": 200,\n  \"customHttpHeaders\": {},\n  \"pageFunction\": \"\",\n  \"maxSessionRotations\": 10,\n  \"maxRequestRetries\": 3,\n  \"requestTimeoutSecs\": 60,\n  \"minFileDownloadSpeedKBps\": 128,\n  \"dynamicContentWaitSecs\": 10,\n  \"waitForSelector\": \"\",\n  \"softWaitForSelector\": \"\",\n  \"maxScrollHeightPixels\": 5000,\n  \"keepElementsCssSelector\": \"\",\n  \"htmlTransformer\": \"readableText\",\n  \"maxResults\": 9999999\n}",
+        "timeout": {},
+        "memory": 8192,
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -160
+      ],
+      "id": "706dd72a-1fd6-4b7c-8675-454d4984a9b1",
+      "name": "Crawl Company Website"
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId }}",
+        "offset": {},
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -160
+      ],
+      "id": "d29cca06-3b92-4007-9f68-b54433e00350",
+      "name": "Get Website Content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ab74c61c-cc25-4e77-a84e-09fa13b6c151",
+              "name": "text",
+              "value": "={{ $json.text.substring(0,1000) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        864,
+        -160
+      ],
+      "id": "083faca7-0dd2-4e0f-8692-cabbe5582625",
+      "name": "Truncate Website Content"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "filterByFormula": "={Email}='{{ $('Lead Capture Form').item.json.Email }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1872,
+        -128
+      ],
+      "id": "99d4c8c2-36dc-4270-976e-0159dcc1e7b3",
+      "name": "Check Existing Lead",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1ca972c3-d262-4a5d-8e45-f231c7e4c403",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2096,
+        -128
+      ],
+      "id": "d7d5133a-5e9c-43cc-9e2a-9e15c7b7a767",
+      "name": "Check If New Lead"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $('Lead Capture Form').item.json['Full Name'] }}",
+            "Company URL": "={{ $('Lead Capture Form').item.json['Company URL'] }}",
+            "Email": "={{ $('Lead Capture Form').item.json.Email }}",
+            "Status": "New",
+            "Company Size": "={{ $('Lead Capture Form').item.json['Company Size'] }}",
+            "Job Title": "={{ $('Lead Capture Form').item.json['Job Title'] }}",
+            "Industry": "={{ $('Lead Capture Form').item.json.Industry }}",
+            "Confidence Score": "={{ $('Lead Validation Agent').item.json.output['Confidence Score'] }}",
+            "Confidence Summary": "={{ $('Lead Validation Agent').item.json.output['Verification Summary'] }}",
+            "Lead Base Score": "={{ $('Lead Validation Agent').item.json.output['Confidence Score']/100 * $('Lead Quality Scorer').item.json.output.score}}",
+            "Engagement Score": 0,
+            "Company Text": "={{ $('Merge Lead Data').item.json.text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company URL",
+              "displayName": "Company URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "1-50",
+                  "value": "1-50"
+                },
+                {
+                  "name": "51-100",
+                  "value": "51-100"
+                },
+                {
+                  "name": "101+",
+                  "value": "101+"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Text",
+              "displayName": "Company Text",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Confidence Score",
+              "displayName": "Confidence Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Confidence Summary",
+              "displayName": "Confidence Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Base Score",
+              "displayName": "Lead Base Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Running Score",
+              "displayName": "Lead Running Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Engagement Score",
+              "displayName": "Engagement Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email Header",
+              "displayName": "Email Header",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email Footer",
+              "displayName": "Email Footer",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email To Send",
+              "displayName": "Email To Send",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email Template",
+              "displayName": "Email Template",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email-Goal",
+              "displayName": "Email-Goal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email Tone",
+              "displayName": "Email Tone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2320,
+        -224
+      ],
+      "id": "35aeedbc-8f0b-4e01-a473-a47acf496c67",
+      "name": "Create New Lead Record"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1296,
+        -144
+      ],
+      "id": "3d545fdb-b8ac-4ac1-ae72-482ffe72dc03",
+      "name": "Merge Lead Data"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Full Name": "={{ $('Lead Capture Form').item.json['Full Name'] }}",
+            "Company URL": "={{ $('Lead Capture Form').item.json['Company URL'] }}",
+            "Email": "={{ $('Lead Capture Form').item.json.Email }}",
+            "Company Size": "={{ $('Lead Capture Form').item.json['Company Size'] }}",
+            "Job Title": "={{ $('Lead Capture Form').item.json['Job Title'] }}",
+            "Industry": "={{ $('Lead Capture Form').item.json.Industry }}",
+            "Lead Base Score": "={{ $('Lead Validation Agent').item.json.output['Confidence Score']/100 * $('Lead Quality Scorer').item.json.output.score}}",
+            "Confidence Score": "={{ $('Lead Validation Agent').item.json.output['Confidence Score'] }}",
+            "Confidence Summary": "={{ $('Lead Validation Agent').item.json.output['Verification Summary'] }}",
+            "Company Text": "={{ $('Merge Lead Data').item.json.text }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company URL",
+              "displayName": "Company URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "1-50",
+                  "value": "1-50"
+                },
+                {
+                  "name": "51-100",
+                  "value": "51-100"
+                },
+                {
+                  "name": "101+",
+                  "value": "101+"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Text",
+              "displayName": "Company Text",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Confidence Score",
+              "displayName": "Confidence Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Confidence Summary",
+              "displayName": "Confidence Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Base Score",
+              "displayName": "Lead Base Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Running Score",
+              "displayName": "Lead Running Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Engagement Score",
+              "displayName": "Engagement Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email Header",
+              "displayName": "Email Header",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email Footer",
+              "displayName": "Email Footer",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email To Send",
+              "displayName": "Email To Send",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email Template",
+              "displayName": "Email Template",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email-Goal",
+              "displayName": "Email-Goal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email Tone",
+              "displayName": "Email Tone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2320,
+        -32
+      ],
+      "id": "54b999d3-2295-4ffb-a6e8-d40cc74ba544",
+      "name": "Update Existing Lead"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Data to Use\n- Name: {{ $('Lead Capture Form').item.json['Full Name'] }}\n- Email: {{ $('Lead Capture Form').item.json.Email }}\n- Job Title: {{ $('Lead Capture Form').item.json['Job Title'] }}\n- Company Size: {{ $('Lead Capture Form').item.json['Company Size'] }}\n- Industry: {{ $('Lead Capture Form').item.json.Industry }}\n- Site Text: {{ $json.text }}\n- About My Company: {{ $json['About My Company'] }}\n",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Evaluate and score a submitted Lead based on the completeness and relevance of the provided information, with an increased emphasis on the business potential between your company and the subject.\n\nInstructions\n- Review the following fields for completeness: Name, Company URL, Email, Job Title, Company Size, Industry, and Site Text.\n- Analyse how your company (description below) can specifically help the subject, based on the provided information. The higher the potential for business, the higher the score should be.\n\nData to Use\n- Name: {{ $('Lead Capture Form').item.json['Full Name'] }}\n- Email: {{ $('Lead Capture Form').item.json.Email }}\n- Job Title: {{ $('Lead Capture Form').item.json['Job Title'] }}\n- Company Size: {{ $('Lead Capture Form').item.json['Company Size'] }}\n- Industry: {{ $('Lead Capture Form').item.json.Industry }}\n- Site Text: {{ $json.text }}\n- About My Company: {{ $json['About My Company'] }}\n\nScoring Criteria\n1. Start at 100 points.\n2. For each missing required field (Name, Email, Job Title, Company Size, Industry, Company URL), subtract 10 points.\n3. Required fields with malformed data (e.g., Email missing '@') should be treated as missing.\n4. If all required fields are present, assign 60 or higher.\n5. Use a combined analysis of \"Site Text\" and \"About My Company\" to determine the potential for business and relevance. This analysis should account for up to 40% of the total score (up to 40 points), with higher scores for leads where there is more business potential and a strong connection between the subject and your company. Justify any adjustments in the scoring summary.\n6. If calculated score is below 0, set it to 0.\n7. Record which required fields, if any, are missing in the scoring summary.\n\nOutput Format\nReturn output in this precise JSON structure:\n{\n  \"score\": x, // Integer between 0 and 100\n  \"scoring_summary\": \"\" // Concise explanation of the score, specifying which fields were missing and any relevance-based adjustments\n}\n\nOutput Verbosity\n- Limit the scoring summary to at most 3 sentences or 4 bullet points, keeping each bullet to one line.\n- Prioritize complete, actionable explanations within this cap. Do not increase length to restate politeness.\n\nStop Conditions\n- Task is complete once the score and clear scoring summary are provided in the specified format."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1520,
+        -128
+      ],
+      "id": "fdc9a204-2e3b-450f-9ff7-af6f72d9f4d6",
+      "name": "Lead Quality Scorer"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3-pro-preview",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        32
+      ],
+      "id": "a5aa87f5-83c0-4bf9-a7b5-7052e49c8bdd",
+      "name": "Quality Scoring Model"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"score\": 40,\n  \"scoring_summary\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1664,
+        48
+      ],
+      "id": "cd2c0115-49a6-4a15-be66-207f0d87bae5",
+      "name": "Quality Score Parser"
+    },
+    {
+      "parameters": {
+        "path": "smart-lead-routing",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -704,
+        1104
+      ],
+      "id": "1f6aaee9-77b3-4ebc-9915-34707d2bdf5f",
+      "name": "Engagement Webhook",
+      "webhookId": "97b8b652-2c45-4e1f-b2de-b1ad5c61ddaa"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.query.action }}",
+                    "rightValue": "email-open",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c17e0593-408d-4760-b8af-7847c154c68a"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8f58de92-24cc-40cb-8e52-0b4c304bafed",
+                    "leftValue": "={{ $json.query.action }}",
+                    "rightValue": "link-click",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "db62df9a-07e7-40a6-b6ac-878cbc926a1b",
+                    "leftValue": "={{ $json.query.action }}",
+                    "rightValue": "generate-email",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d40410b7-e048-40e5-bd73-98d0015ee768",
+                    "leftValue": "={{ $json.query.action }}",
+                    "rightValue": "send-email",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -480,
+        1072
+      ],
+      "id": "ea6285e6-0eb7-450d-9be7-0d5c6194e0dd",
+      "name": "Route Engagement Type"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "filterByFormula": "={Email}='{{ $json.query.email }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -256,
+        976
+      ],
+      "id": "5abdf5a0-bb1b-4e5c-9a95-71e2c583e926",
+      "name": "Find Lead For Email Open",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1ca972c3-d262-4a5d-8e45-f231c7e4c403",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        976
+      ],
+      "id": "f5bc8cc5-3ed2-4033-a893-e0cf241e4553",
+      "name": "Check If Lead Exists For Open"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Engagement Score": "={{ $json['Engagement Score'] + 5 }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company URL",
+              "displayName": "Company URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "1-50",
+                  "value": "1-50"
+                },
+                {
+                  "name": "51-100",
+                  "value": "51-100"
+                },
+                {
+                  "name": "101+",
+                  "value": "101+"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Confidence Score",
+              "displayName": "Confidence Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Confidence Summary",
+              "displayName": "Confidence Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Lead Base Score",
+              "displayName": "Lead Base Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Lead Running Score",
+              "displayName": "Lead Running Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Engagement Score",
+              "displayName": "Engagement Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        976
+      ],
+      "id": "aa6a90c7-1fdb-45ee-aa26-f33d4f37058b",
+      "name": "Update Email Open Score"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "filterByFormula": "={Email}='{{ $json.query.email }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -256,
+        1168
+      ],
+      "id": "ae1e0e8f-4d57-438a-86be-17a03c6abf9a",
+      "name": "Find Lead For Link Click",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1ca972c3-d262-4a5d-8e45-f231c7e4c403",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        1168
+      ],
+      "id": "2a835af5-3a33-48de-b502-5bee9fa1d968",
+      "name": "Check If Lead Exists For Click"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Engagement Score": "={{ $json['Engagement Score'] + 10 }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company URL",
+              "displayName": "Company URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "1-50",
+                  "value": "1-50"
+                },
+                {
+                  "name": "51-100",
+                  "value": "51-100"
+                },
+                {
+                  "name": "101+",
+                  "value": "101+"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Confidence Score",
+              "displayName": "Confidence Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Confidence Summary",
+              "displayName": "Confidence Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Lead Base Score",
+              "displayName": "Lead Base Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Lead Running Score",
+              "displayName": "Lead Running Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Engagement Score",
+              "displayName": "Engagement Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        1168
+      ],
+      "id": "e99d6e96-07aa-49a6-a009-cacca4c35716",
+      "name": "Update Link Click Score"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "filterByFormula": "={Email}='{{ $json.query.email }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -256,
+        1472
+      ],
+      "id": "03eb9f96-1c85-481a-a074-5c50d2b704df",
+      "name": "Find Lead For Email Generation",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1ca972c3-d262-4a5d-8e45-f231c7e4c403",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        1472
+      ],
+      "id": "4f845b29-f082-4d1a-9a19-a175c161f111",
+      "name": "Check If Lead Exists For Email"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=System: System: # Role and Objective\nGenerate personalized HTML email content for a client using provided JSON object fields, assembling the message around their context and my company's AI offerings.\n\n{{ $json['Full Name'] }}\n{{ $json['Job Title'] }}\n{{ $json.Email }}\n{{ $json['Company URL'] }}\n{{ $json['Company Size'] }}\n{{ $json['Job Title'] }}\n{{ $json['Company Text'] }}\n\nEmail Goal: {{ $json['Email-Goal'] }}\nEmail Tone: {{ $json['Email Tone'] }}\n\n# Instructions\n- Use these JSON fields: Email, Company URL, Status, Company Size, Job Title, Industry, Company Text, Email Header, and Email Footer.\n- Embed client information logically and relevantly (Email, Company URL, Status, Company Size, Job Title, Industry) in the body of the email, focusing on fields typically emphasized in business introduction emails.\n- Company Text: Use as additional context about the client; format this field in HTML, preserving line breaks and paragraphs with <p>, <br>, etc.\n- Introduce your company as building and deploying AI solutions that land clients, cut costs, and boost revenue in weeks, not months.\n- Use semantic HTML elements such as <div>, <p>, <h1>, <table> for a clear, accessible structure. Avoid deprecated tags.\n- Escape or sanitize all inserted field values to protect against HTML injection and ensure special characters display correctly.\n- Omit any section for missing or empty JSON fields gracefully; do not generate visible errors or placeholder text for missing data.\n- Ensure UTF-8 character encoding in the email output so all characters display properly.\n\n# Output Format\nReturn only the generated HTML content that would appear between the Email Header and Email Footer blocks, structured as follows:\n\n<div>\n  <!-- Generated HTML email content goes here. Use the available client fields, formatted according to prior instructions. -->\n</div>\n\nDo not include the header or footer blocks themselves, explanatory text, or any additional output beyond this HTML content.\n\n# Output Verbosity\nYour response must be the complete HTML content (exclusive of header and footer), formatted as described above. Do not exceed the required structure, add extra lines, or use more than 1\u20132 sentences of dynamic content per client field. Prioritize complete, actionable answers within these length caps."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        192,
+        1552
+      ],
+      "id": "026031c0-ca8a-4503-afee-95089f376158",
+      "name": "Generate Personalized Email"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email To Send": "={{ $json.content.parts[0].text }}",
+            "id": "={{ $('Find Lead For Email Generation').item.json.id }}",
+            "Email-Status": "Ready to Review And Send"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company URL",
+              "displayName": "Company URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "1-50",
+                  "value": "1-50"
+                },
+                {
+                  "name": "51-100",
+                  "value": "51-100"
+                },
+                {
+                  "name": "101+",
+                  "value": "101+"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company Text",
+              "displayName": "Company Text",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Confidence Score",
+              "displayName": "Confidence Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Confidence Summary",
+              "displayName": "Confidence Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Lead Base Score",
+              "displayName": "Lead Base Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Lead Running Score",
+              "displayName": "Lead Running Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Engagement Score",
+              "displayName": "Engagement Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email Header",
+              "displayName": "Email Header",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email Footer",
+              "displayName": "Email Footer",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email To Send",
+              "displayName": "Email To Send",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email Template",
+              "displayName": "Email Template",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email-Goal",
+              "displayName": "Email-Goal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email Tone",
+              "displayName": "Email Tone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Generate Email",
+              "displayName": "Generate Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email-Status",
+              "displayName": "Email-Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Ready to Review And Send",
+                  "value": "Ready to Review And Send"
+                },
+                {
+                  "name": "Generating...",
+                  "value": "Generating..."
+                },
+                {
+                  "name": "Errr, Hiii",
+                  "value": "Errr, Hiii"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        544,
+        1552
+      ],
+      "id": "5a837630-9300-40b5-9ea8-d16151ac49e4",
+      "name": "Save Generated Email"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1ca972c3-d262-4a5d-8e45-f231c7e4c403",
+              "leftValue": "={{ $json.fields['Lead Running Score'] }}",
+              "rightValue": 80,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        1168
+      ],
+      "id": "86447f6c-30d2-4bbb-9bb9-1baeb0e611b7",
+      "name": "Check High Intent For Click"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09NUTK9KSN",
+          "mode": "list",
+          "cachedResultName": "all-xekhais-playground"
+        },
+        "text": "=\ud83c\udfaf HIGH INTENT: Link Click Detected\n\n{{ $json.fields['Full Name'] }} just clicked a link in your email!\n\n\ud83c\udfe2 Company: {{ $json.fields['Company URL'] }}\n\n\ud83d\udce7 Email: {{ $json.fields.Email }}\n\nThey are exploring your content. Review their activity and reach out.",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        768,
+        1168
+      ],
+      "id": "1e8f354f-0fbb-4f77-8de8-09374c06ac23",
+      "name": "Send Link Click Alert",
+      "webhookId": "f96a4e17-072a-4f36-9127-ce10604f4029"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1ca972c3-d262-4a5d-8e45-f231c7e4c403",
+              "leftValue": "={{ $json.fields['Lead Running Score'] }}",
+              "rightValue": 80,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        976
+      ],
+      "id": "519b957c-453b-40e6-8f9b-cb1b9bf9b35f",
+      "name": "Check High Intent For Open"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09NUTK9KSN",
+          "mode": "list",
+          "cachedResultName": "all-xekhais-playground"
+        },
+        "text": "=\u26a1 {{ $json.fields['Full Name'] }} is reading your email right now.\n\nContact Details: \u2022 Email: {{ $json.fields.Email }} \u2022 Site: <{{ $json.fields['Company URL'] }}|Visit Website>\n\ncc: @channel",
+        "otherOptions": {
+          "mrkdwn": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        768,
+        976
+      ],
+      "id": "0818c7a3-62de-466f-83e1-05c40a0d3184",
+      "name": "Send Email Open Alert",
+      "webhookId": "f96a4e17-072a-4f36-9127-ce10604f4029"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -704,
+        2112
+      ],
+      "id": "eb522d54-ee1c-4434-854a-a4dce7ec63de",
+      "name": "Monitor Inbound Emails"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "filterByFormula": "={Email} = '{{ $json.From.match(/<([^>]+)>/)[1] }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -480,
+        2112
+      ],
+      "id": "73e9a77c-e765-4a25-9554-c8d53b4c0a3f",
+      "name": "Find Lead From Email",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1ca972c3-d262-4a5d-8e45-f231c7e4c403",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -256,
+        2112
+      ],
+      "id": "daa005eb-5739-4cff-84ca-3a2b2d84621c",
+      "name": "Check If Lead Found"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Engagement Score": "={{ $json['Engagement Score'] + 20 }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company URL",
+              "displayName": "Company URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "1-50",
+                  "value": "1-50"
+                },
+                {
+                  "name": "51-100",
+                  "value": "51-100"
+                },
+                {
+                  "name": "101+",
+                  "value": "101+"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Confidence Score",
+              "displayName": "Confidence Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Confidence Summary",
+              "displayName": "Confidence Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Lead Base Score",
+              "displayName": "Lead Base Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Lead Running Score",
+              "displayName": "Lead Running Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Engagement Score",
+              "displayName": "Engagement Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -32,
+        2112
+      ],
+      "id": "928d0c1a-3383-4c96-9762-82108fbfa0ad",
+      "name": "Update Email Reply Score"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83c\udfaf Lead Intake & Validation\n\nCaptures lead information through forms and performs initial email verification to filter out invalid submissions before further processing.",
+        "height": 592,
+        "width": 896,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -768,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "846d74ff-eba6-4fbe-baaf-75ad3612ef71",
+      "name": "Lead Intake & Validation"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83c\udf10 Company Research & Data Enrichment\n\nAutomatically crawls the lead's company website to gather contextual information and business details for better qualification.",
+        "height": 368,
+        "width": 1072,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "33bd8049-7218-4ae5-b565-b334ed09aa8d",
+      "name": "Company Research"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udd0d AI-Powered Lead Verification\n\nUses advanced AI agents to perform comprehensive online research and verification of lead authenticity, generating confidence scores based on multiple data sources.",
+        "height": 544,
+        "width": 1072,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        256
+      ],
+      "typeVersion": 1,
+      "id": "df9ac78e-c93a-4a3f-bc0e-7b8ff59bb525",
+      "name": "AI Lead Verification"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udcca Lead Scoring & Qualification\n\nAnalyzes lead data against business criteria to generate quality scores and assess potential fit with your company's services.",
+        "height": 592,
+        "width": 576,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1232,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "7719887b-f050-4ac2-aafe-d842d6bb78ba",
+      "name": "Lead Scoring"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udcbe Database Management\n\nManages lead records in Airtable, checking for duplicates and creating/updating records with all scoring data.",
+        "height": 592,
+        "width": 704,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1824,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "30df2dc7-3314-41ea-941f-4ce1ea85bca8",
+      "name": "Database Management"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udce7 Engagement Tracking & Scoring\n\nTracks lead engagement through webhooks (email opens, link clicks) and dynamically updates engagement scores in the database.",
+        "height": 496,
+        "width": 1248,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -784,
+        832
+      ],
+      "typeVersion": 1,
+      "id": "97cf723b-1863-4711-9586-cbf8442c2b07",
+      "name": "Engagement Tracking"
+    },
+    {
+      "parameters": {
+        "content": "## \u26a1 High-Intent Alert System\n\nMonitors for high-engagement activities and sends real-time Slack notifications for immediate sales team follow-up.",
+        "height": 496,
+        "width": 480,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        832
+      ],
+      "typeVersion": 1,
+      "id": "3c22169f-866c-40e6-bad2-490daad84ef1",
+      "name": "High-Intent Alerts"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83e\udd16 Automated Email Generation\n\nUses AI to create personalized HTML email content based on lead\n data and company context for targeted outreach.",
+        "height": 368,
+        "width": 1744,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -784,
+        1344
+      ],
+      "typeVersion": 1,
+      "id": "4b424fa7-e18b-4c9a-be02-194960958ad2",
+      "name": "Email Generation"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udd04 Inbound Response Processing\n\nMonitors email replies and automatically updates lead engagement scores when prospects respond, indicating higher interest.",
+        "height": 304,
+        "width": 1232,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -784,
+        1984
+      ],
+      "typeVersion": 1,
+      "id": "77b6e909-f95e-451c-884c-cb19114f573a",
+      "name": "Inbound Processing"
+    },
+    {
+      "parameters": {
+        "content": "# \ud83c\udfea Set Company Description",
+        "height": 208,
+        "width": 1072,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        32
+      ],
+      "typeVersion": 1,
+      "id": "d734d446-30b7-47ab-ba50-2f733d4d5771",
+      "name": "Company Research1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Email-Status": "Generating..."
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company URL",
+              "displayName": "Company URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "1-50",
+                  "value": "1-50"
+                },
+                {
+                  "name": "51-100",
+                  "value": "51-100"
+                },
+                {
+                  "name": "101+",
+                  "value": "101+"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company Text",
+              "displayName": "Company Text",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Confidence Score",
+              "displayName": "Confidence Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Confidence Summary",
+              "displayName": "Confidence Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Lead Base Score",
+              "displayName": "Lead Base Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Lead Running Score",
+              "displayName": "Lead Running Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Engagement Score",
+              "displayName": "Engagement Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email Header",
+              "displayName": "Email Header",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email Footer",
+              "displayName": "Email Footer",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email To Send",
+              "displayName": "Email To Send",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email Template",
+              "displayName": "Email Template",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email-Goal",
+              "displayName": "Email-Goal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email Tone",
+              "displayName": "Email Tone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Generate Email",
+              "displayName": "Generate Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email-Status",
+              "displayName": "Email-Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Ready to Review And Send",
+                  "value": "Ready to Review And Send"
+                },
+                {
+                  "name": "Generating...",
+                  "value": "Generating..."
+                },
+                {
+                  "name": "Errr, Hiii",
+                  "value": "Errr, Hiii"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        192,
+        1360
+      ],
+      "id": "ec2d03dd-823e-4363-8274-ad628a57725a",
+      "name": "Update record"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appyQyuMYbD5aNHKi",
+          "mode": "list",
+          "cachedResultName": "Smart Lead Scoring & Routing",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDlzXkwDhUfAeEg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appyQyuMYbD5aNHKi/tblDlzXkwDhUfAeEg"
+        },
+        "filterByFormula": "={Email}='{{ $json.query.email }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -256,
+        1792
+      ],
+      "id": "0866d3ae-2c18-4e84-b16b-ec80528474a5",
+      "name": "Find Lead For Email Delivery",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1ca972c3-d262-4a5d-8e45-f231c7e4c403",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        1792
+      ],
+      "id": "c73d7082-6b4c-4519-8c47-ef1cd200838c",
+      "name": "Check If Lead Exists For Email Delivery"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Analyze the content of this email and come up with a header.\n{{ $json['Email Template'] }}\nRespond with Only the email header ready to just insert into the header field, no extra text."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        192,
+        1792
+      ],
+      "id": "c04a2ca9-e6a8-444a-a422-30893e4e710a",
+      "name": "Generate Email Header"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Engagement Webhook').item.json.query.email }}",
+        "subject": "={{ $json.content.parts[0].text }}",
+        "message": "={{ $('Check If Lead Exists For Email Delivery').item.json['Email Template'] }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        544,
+        1792
+      ],
+      "id": "ad6cbf61-d3ff-414f-819b-784d5ee0c257",
+      "name": "Send Email",
+      "webhookId": "884b9367-33e4-4c38-a63b-34eb4d0801cd"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udce4 Email Delivery System\n\nFinds lead records, generates AI-powered email headers, and sends \npersonalized emails to qualified leads through Gmail integration.",
+        "height": 240,
+        "width": 1744,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -784,
+        1728
+      ],
+      "typeVersion": 1,
+      "id": "801a283b-821d-41fe-9a45-177b6bf73d07",
+      "name": "Email Delivery System"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Lead Capture Form": {
+      "main": [
+        [
+          {
+            "node": "Verify Email Address",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Email Address": {
+      "main": [
+        [
+          {
+            "node": "Get Verification Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Verification Results": {
+      "main": [
+        [
+          {
+            "node": "Check If Email Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Web Search Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lead Validation Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Language Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Web Search Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation Result Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Lead Validation Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Main Language Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Lead Validation Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crawl Company Website": {
+      "main": [
+        [
+          {
+            "node": "Get Website Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Website Content": {
+      "main": [
+        [
+          {
+            "node": "Truncate Website Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Email Valid": {
+      "main": [
+        [
+          {
+            "node": "Crawl Company Website",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set Company Description",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Lead Validation Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing Lead": {
+      "main": [
+        [
+          {
+            "node": "Check If New Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If New Lead": {
+      "main": [
+        [
+          {
+            "node": "Create New Lead Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Existing Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Lead Quality Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Quality Scorer": {
+      "main": [
+        [
+          {
+            "node": "Check Existing Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quality Scoring Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Lead Quality Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quality Score Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Lead Quality Scorer",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Truncate Website Content": {
+      "main": [
+        [
+          {
+            "node": "Merge Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Company Description": {
+      "main": [
+        [
+          {
+            "node": "Merge Lead Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Lead Validation Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge Lead Data",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Engagement Webhook": {
+      "main": [
+        [
+          {
+            "node": "Route Engagement Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Engagement Type": {
+      "main": [
+        [
+          {
+            "node": "Find Lead For Email Open",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find Lead For Link Click",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find Lead For Email Generation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find Lead For Email Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Lead For Email Open": {
+      "main": [
+        [
+          {
+            "node": "Check If Lead Exists For Open",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Lead Exists For Open": {
+      "main": [
+        [
+          {
+            "node": "Update Email Open Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Email Open Score": {
+      "main": [
+        [
+          {
+            "node": "Check High Intent For Open",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Lead For Link Click": {
+      "main": [
+        [
+          {
+            "node": "Check If Lead Exists For Click",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Lead Exists For Click": {
+      "main": [
+        [
+          {
+            "node": "Update Link Click Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Link Click Score": {
+      "main": [
+        [
+          {
+            "node": "Check High Intent For Click",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Lead For Email Generation": {
+      "main": [
+        [
+          {
+            "node": "Check If Lead Exists For Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Lead Exists For Email": {
+      "main": [
+        [
+          {
+            "node": "Generate Personalized Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Personalized Email": {
+      "main": [
+        [
+          {
+            "node": "Save Generated Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check High Intent For Click": {
+      "main": [
+        [
+          {
+            "node": "Send Link Click Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check High Intent For Open": {
+      "main": [
+        [
+          {
+            "node": "Send Email Open Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monitor Inbound Emails": {
+      "main": [
+        [
+          {
+            "node": "Find Lead From Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Lead From Email": {
+      "main": [
+        [
+          {
+            "node": "Check If Lead Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Lead Found": {
+      "main": [
+        [
+          {
+            "node": "Update Email Reply Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Lead For Email Delivery": {
+      "main": [
+        [
+          {
+            "node": "Check If Lead Exists For Email Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Lead Exists For Email Delivery": {
+      "main": [
+        [
+          {
+            "node": "Generate Email Header",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Email Header": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c5c46acd-50b0-43f5-a119-301b4810c626",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "yy8iVX1oFLxmkTZc",
+  "tags": []
+}

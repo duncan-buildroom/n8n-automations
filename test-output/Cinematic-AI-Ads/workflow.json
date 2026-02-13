@@ -1,0 +1,1067 @@
+{
+  "name": "Cinematic AI Ads",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "CADV",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        2032,
+        256
+      ],
+      "id": "751855e6-87c2-4f15-a878-5b1590c6b45f",
+      "name": "Webhook: Video Request",
+      "webhookId": "9678accb-ac0c-4ccb-961a-440707b748d5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/veo/generate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": \"{{ $('Webhook: Video Request').item.json.body.prompt }}\",\n  \"imageUrls\": [\n    \"{{ $('Webhook: Video Request').item.json.body.imageUrl }}\"\n  ],\n  \"model\": \"veo3_fast\",\n  \"aspectRatio\": \"16:9\",\n  \"seeds\": 12345,\n  \"enableFallback\": false,\n  \"enableTranslation\": true,\n  \"generationType\": \"REFERENCE_2_VIDEO\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2480,
+        368
+      ],
+      "id": "a6d8ad93-916f-4d37-ba71-0ee40457f93b",
+      "name": "HTTP: Start Video Job"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2720,
+        368
+      ],
+      "id": "7861bf82-92ca-4a1c-9394-d049fad6ffee",
+      "name": "Wait: Video Polling",
+      "webhookId": "7b408894-d3c0-4331-ab2f-15c044b86f06"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/veo/record-info",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $('HTTP: Start Video Job').item.json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2928,
+        368
+      ],
+      "id": "daff08e0-4ccf-4fc1-90ef-81f1494bc86e",
+      "name": "HTTP: Check Video Status"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0e793708-9de0-40fe-aaba-fdc638d35adc",
+              "name": "vid",
+              "value": "={{ $json.data.response.resultUrls[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3392,
+        192
+      ],
+      "id": "11ddb109-2d96-42b4-88b5-6cfabb03a2d8",
+      "name": "Set: Video Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9ae03107-5026-4fca-bb72-f155258763cb",
+              "leftValue": "={{ $json.data.successFlag }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3152,
+        368
+      ],
+      "id": "7fb78dce-2ca1-4172-aa68-51e0c4dbeca2",
+      "name": "If: Video Ready?"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appvTtINXNwEazkdU",
+          "mode": "list",
+          "cachedResultName": "Cinematic AI Ads",
+          "cachedResultUrl": "https://airtable.com/appvTtINXNwEazkdU"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblo6fRZhYTCjT7ql",
+          "mode": "list",
+          "cachedResultName": "Video Processing Queue",
+          "cachedResultUrl": "https://airtable.com/appvTtINXNwEazkdU/tblo6fRZhYTCjT7ql"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "In progress"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Todo",
+                  "value": "Todo"
+                },
+                {
+                  "name": "In progress",
+                  "value": "In progress"
+                },
+                {
+                  "name": "Done",
+                  "value": "Done"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "videoURL",
+              "displayName": "videoURL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2256,
+        256
+      ],
+      "id": "c181d749-8ecf-43f4-b6ad-7cb264f10987",
+      "name": "Airtable: Create Task"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"id\": \"{{ $json.id }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2480,
+        160
+      ],
+      "id": "dfa6e9d5-d427-4461-8ea4-169b707a5449",
+      "name": "Response: Ack Task ID"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appvTtINXNwEazkdU",
+          "mode": "list",
+          "cachedResultName": "Cinematic AI Ads",
+          "cachedResultUrl": "https://airtable.com/appvTtINXNwEazkdU"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblo6fRZhYTCjT7ql",
+          "mode": "list",
+          "cachedResultName": "Video Processing Queue",
+          "cachedResultUrl": "https://airtable.com/appvTtINXNwEazkdU/tblo6fRZhYTCjT7ql"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Airtable: Create Task').item.json.id }}",
+            "Status": "Done",
+            "videoURL": "={{ $json.vid }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Todo",
+                  "value": "Todo"
+                },
+                {
+                  "name": "In progress",
+                  "value": "In progress"
+                },
+                {
+                  "name": "Done",
+                  "value": "Done"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "videoURL",
+              "displayName": "videoURL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        3616,
+        192
+      ],
+      "id": "fcb158de-3a99-4e3f-a836-2413d6e11c95",
+      "name": "Airtable: Mark Done"
+    },
+    {
+      "parameters": {
+        "path": "CADV-POLL",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        2016,
+        896
+      ],
+      "id": "a00795af-0707-43ab-8e72-e63149ff803a",
+      "name": "Webhook: Status Check",
+      "webhookId": "ac0fa4f2-9f62-4d98-9f68-251f0cb71c20"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "15e6dce8-b1c5-49c9-9313-769c30daba99",
+              "leftValue": "={{ $json.data.successFlag }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3392,
+        384
+      ],
+      "id": "48bd5290-bc85-40c2-b446-90d27d9dcc72",
+      "name": "If: Retry Logic"
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appvTtINXNwEazkdU",
+          "mode": "list",
+          "cachedResultName": "Cinematic AI Ads",
+          "cachedResultUrl": "https://airtable.com/appvTtINXNwEazkdU"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblo6fRZhYTCjT7ql",
+          "mode": "list",
+          "cachedResultName": "Video Processing Queue",
+          "cachedResultUrl": "https://airtable.com/appvTtINXNwEazkdU/tblo6fRZhYTCjT7ql"
+        },
+        "id": "={{ $json.query.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2224,
+        896
+      ],
+      "id": "5970bbc1-4ec5-446f-94d9-bc2f76305f62",
+      "name": "Airtable: Get Status"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8df821f5-c22e-4bdd-b8ab-3cfc3c26cb2c",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Done",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2432,
+        896
+      ],
+      "id": "094ead5e-53e1-42c2-8e0c-d9c14f60363b",
+      "name": "If: Is Complete?"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n\"status\": \"processing\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2640,
+        992
+      ],
+      "id": "0ca7d3d8-980c-4e94-a5f0-066b893fe469",
+      "name": "Response: Send Processing"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "= {\n\"videoURL\": \"{{$json.videoURL}}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2640,
+        800
+      ],
+      "id": "e122e29a-4d63-4d51-87dd-5033dba216e2",
+      "name": "Response: Send Video"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cinematic-ads",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        128,
+        16
+      ],
+      "id": "68e15c52-8509-462b-9961-06cf67627312",
+      "name": "Webhook: Brief Ingestion",
+      "webhookId": "107559eb-d138-46f8-970b-7220801a10a7"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a master AI Cinematographer. Your goal is to turn a brand brief into a deeply immersive visual storyboard.\n\nINPUT BRIEF:\nBrand: {{ $json.body.brand }}\nVibe: {{ $json.body.vibe }}\nTitle: {{ $json.body.title }}\nHeadlines: {{ $json.body.headline }}\nVisual Concept: {{ $json.body.visualDescription }}\nRationale: {{ $json.body.rationale }}\n\nINSTRUCTIONS:\nGenerate a JSON array of 6-8 sequential scenes.\n\nCRITICAL: The \"video_prompt\" must be derived specifically from the \"img_prompt\".\n- If the image prompt describes a \"stormy ocean,\" the video prompt must describe \"crashing waves and sea spray.\"\n- If the image prompt describes \"steam rising,\" the video prompt must describe \"swirling vapor speed.\"\n- Avoid generic camera moves. Focus on PHYSICS and SUBJECT MOVEMENT.\n\nFor each scene object, provide:\n1. \"scene_number\": Integer.\n2. \"scene_description\": A plain English summary of the action (e.g., \"The hero puts on the glasses\").\n3. \"img_prompt\": A static, high-fidelity prompt for an Image Generator (Imagen/Midjourney). Focus on lighting, texture, lens type (e.g., 35mm), and composition.\n4. \"video_prompt\": A dynamic motion prompt for a Video Generator (Veo/Runway).\n   - FORMULA: [Subject Action] + [Environmental Movement] + [Camera Movement].\n   - BAD: \"Pan right.\"\n   - GOOD: \"The car tires kick up dust as they spin (Subject), heat waves shimmer off the asphalt (Environment), camera tracks low to the ground (Camera).\"\n\nOUTPUT FORMAT:\nReturn ONLY a valid JSON Array. No markdown.\n\nExample Structure:\n[\n  {\n    \"scene_number\": 1,\n    \"scene_description\": \"Close up of product texture\",\n    \"img_prompt\": \"Macro shot of carbon fiber weave on the sunglasses frame, distinct threading texture, dramatic rim light, 8k, photorealistic, depth of field\",\n    \"video_prompt\": \"Light gleams move across the carbon fiber texture as the object slowly rotates, highlighting the weave pattern, shallow depth of field rack focus.\"\n  }\n]",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        384,
+        16
+      ],
+      "id": "56753bf5-4ea0-48dc-91e8-c5ed0783f650",
+      "name": "LLM Chain: Storyboard Gen"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-3-pro-preview",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        352,
+        240
+      ],
+      "id": "078e0c58-6471-478f-aed1-f2aff02fd922",
+      "name": "Model: Gemini Pro"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"scene_number\": 1,\n    \"img_prompt\": \"Close up of a coffee bean roasting, cinematic lighting, macro lens, 8k, smoke particles\",\n    \"video_prompt\": \"Slow motion rotation\"\n  }\n]",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        240
+      ],
+      "id": "14922e9f-6220-4d3d-b08a-b0f41185557c",
+      "name": "Parser: JSON Enforcer"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        560,
+        448
+      ],
+      "id": "56e14dda-37f9-4c3f-a8bf-3b980f9e4150",
+      "name": "Model: Auto-Repair"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        848,
+        224
+      ],
+      "id": "2a0c4c50-ad7f-4846-b2b1-e22c3a79a75d",
+      "name": "Response: Return Storyboard"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "CADI",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        128,
+        912
+      ],
+      "id": "5f2d06ad-0c1b-46f1-a3a4-cff9d9b4cc46",
+      "name": "Webhook: Image Request",
+      "webhookId": "9678accb-ac0c-4ccb-961a-440707b748d5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nano-banana-pro\",\n  \"input\": {\n    \"prompt\": \"{{ $json.body.prompt }}\",\n    \"aspect_ratio\": \"16:9\",\n    \"resolution\": \"1K\",\n    \"output_format\": \"png\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        352,
+        912
+      ],
+      "id": "d6f16758-b775-4dc5-b0b7-d3cc8459f714",
+      "name": "HTTP: Start Image Job"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        912
+      ],
+      "id": "f5582dc4-ae14-459c-a285-c9d8df015d68",
+      "name": "Wait: Image Polling",
+      "webhookId": "7b408894-d3c0-4331-ab2f-15c044b86f06"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        800,
+        832
+      ],
+      "id": "15dfdfe7-594a-48fb-bbec-b1e5d19c4704",
+      "name": "HTTP: Check Image Status"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b625e6ed-e264-484f-908a-be3d08e74196",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        912
+      ],
+      "id": "63f5be59-55e8-470c-9c61-bd295e6a8874",
+      "name": "If: Image Ready?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0e793708-9de0-40fe-aaba-fdc638d35adc",
+              "name": "img",
+              "value": "={{ $json.data.resultJson.parseJson().resultUrls[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1248,
+        912
+      ],
+      "id": "15727331-beae-4259-9d5d-ce5b63861348",
+      "name": "Set: Image URL"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"image URL\": \"{{ $json.img }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1472,
+        912
+      ],
+      "id": "b8677100-6f69-480d-a10f-7e0b55c89cdb",
+      "name": "Response: Return Image"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83c\udfac 1. Storyboard Generation\nTakes a text brief and uses Gemini + LangChain to generate structured scene descriptions and prompts.",
+        "height": 734,
+        "width": 1033,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        -96
+      ],
+      "typeVersion": 1,
+      "id": "bacdcf3e-94d1-4483-99df-94097b2efb8a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83c\udfa8 2. Image Generation Loop\nGenerates static reference images using Kie.ai. Includes a polling loop to wait for generation completion.",
+        "height": 398,
+        "width": 1637,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        768
+      ],
+      "typeVersion": 1,
+      "id": "5ffefb0a-2dc8-4c5e-87fd-fe14bab54a92",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83c\udfa5 3. Video Generation & State Mgmt\nAsynchronous process. Logs task to Airtable, triggers Video AI, waits for completion, and updates the database.",
+        "height": 722,
+        "width": 1926,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1952,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "dd3ea332-ec52-47fa-9930-8ffe7c06fc5e",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udce1 4. Client Status Polling\nEndpoint for the frontend to check if the video generation is finished based on the Airtable record.",
+        "height": 396,
+        "width": 912,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1952,
+        768
+      ],
+      "typeVersion": 1,
+      "id": "9cce106e-9a21-4c84-bdd2-4a64bd23d67f",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP: Start Video Job": {
+      "main": [
+        [
+          {
+            "node": "Wait: Video Polling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Video Polling": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Check Video Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Check Video Status": {
+      "main": [
+        [
+          {
+            "node": "If: Video Ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Video Request": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Create Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Video Ready?": {
+      "main": [
+        [
+          {
+            "node": "Set: Video Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If: Retry Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Create Task": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Start Video Job",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Response: Ack Task ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Video Data": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Mark Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Retry Logic": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Start Video Job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait: Video Polling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Status Check": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Get Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Get Status": {
+      "main": [
+        [
+          {
+            "node": "If: Is Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Is Complete?": {
+      "main": [
+        [
+          {
+            "node": "Response: Send Video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response: Send Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Brief Ingestion": {
+      "main": [
+        [
+          {
+            "node": "LLM Chain: Storyboard Gen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Chain: Storyboard Gen": {
+      "main": [
+        [
+          {
+            "node": "Response: Return Storyboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model: Gemini Pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LLM Chain: Storyboard Gen",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parser: JSON Enforcer": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "LLM Chain: Storyboard Gen",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model: Auto-Repair": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Parser: JSON Enforcer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Image Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Start Image Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Start Image Job": {
+      "main": [
+        [
+          {
+            "node": "Wait: Image Polling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Image Polling": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Check Image Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Check Image Status": {
+      "main": [
+        [
+          {
+            "node": "If: Image Ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Image Ready?": {
+      "main": [
+        [
+          {
+            "node": "Set: Image URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait: Image Polling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Image URL": {
+      "main": [
+        [
+          {
+            "node": "Response: Return Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "46ffc453-0345-48b9-b3a4-51107deb7f82",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "RFxg0LDt89JjEBha",
+  "tags": []
+}

@@ -1,0 +1,1279 @@
+{
+  "name": "Personalized Video Prospector",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        2416,
+        480
+      ],
+      "id": "0cdb8220-a1e8-4b2f-933b-87f65330fbe2",
+      "name": "Manual Trigger"
+    },
+    {
+      "parameters": {
+        "content": "## Phase 1: Lead Scraping\n**Goal:** Scrape fresh leads from Apollo/ZoomInfo via Apify.\n\n1. Configure how many leads to get.\n2. Run the Apify scraper.\n3. Save raw results to Google Sheets.",
+        "height": 368,
+        "width": 912
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2352,
+        -112
+      ],
+      "id": "6608ed3a-2376-4f32-8155-97929e7ecf6e",
+      "name": "Note: Scraping",
+      "width": 800,
+      "height": 260
+    },
+    {
+      "parameters": {
+        "content": "## Phase 2: Enrichment & Validation\n**Goal:** Prepare leads for processing.\n\n1. Fetch \"Ready\" leads from Sheets.\n2. Enrich them with LinkedIn data.\n3. Validate that we have a name and profile to work with.",
+        "height": 400,
+        "width": 880
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2592,
+        272
+      ],
+      "id": "e14ec597-3036-4f12-ba5f-de074815645d",
+      "name": "Note: Enrichment",
+      "width": 1100,
+      "height": 300
+    },
+    {
+      "parameters": {
+        "content": "## Phase 3: AI Script & Audio\n**Goal:** Generate the voiceover.\n\n1. Gemini writes a personalized script.\n2. ElevenLabs (via WaveSpeed) generates the audio.\n3. Loop matches and waits until the audio file is ready.",
+        "height": 464,
+        "width": 1664
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3504,
+        208
+      ],
+      "id": "be1ead88-d849-4561-b532-25e2001be659",
+      "name": "Note: Audio",
+      "width": 1600,
+      "height": 350
+    },
+    {
+      "parameters": {
+        "content": "## Phase 4: Video Gen & Delivery\n**Goal:** Create the final asset and deliver.\n\n1. Generate an avatar video using the audio.\n2. Wait for rendering.\n3. Upload to Drive and update the Lead Sheet with the link.",
+        "height": 464,
+        "width": 1600
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5184,
+        208
+      ],
+      "id": "7063ccd1-14bb-41f0-89fc-0c3ae318eff8",
+      "name": "Note: Video",
+      "width": 1500,
+      "height": 350
+    },
+    {
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "value": "LurATYM4hkEo78GVj",
+          "mode": "list",
+          "cachedResultName": "\ud83d\udc8e Leads Scraper With EMAILS  | $1/1K | 300M base | Like Apollo (x_guru/Leads-Scraper-apollo-zoominfo)",
+          "cachedResultUrl": "https://console.apify.com/actors/LurATYM4hkEo78GVj/input"
+        },
+        "customBody": "={\n  \"max_results\": {{ $json['Number of Leads'] }},\n  \"job_titles\": [\"CEO\", \"Sales Director\"],\n  \"job_title_seniority\": [\"cxo\", \"director\"],\n  \"person_location_country\": [\"United States\"],\n  \"person_location_region\": [\"California\", \"New York\"],\n  \"employee_size\": [\"51-200\", \"201-500\"],\n  \"industries\": [\"Computer Software\"],\n  \"inferred_salary\": [\"100,000-150,000\", \"150,000-250,000\"],\n  \"email_status\": \"verified\",\n  \"include_emails\": true,\n  \"include_phones\": true\n}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        80
+      ],
+      "id": "4ccf03b7-2ba8-48e6-89f5-67d28d6da6d6",
+      "name": "Run Scraper"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "441f3ecf-7fff-4f65-8050-399554b6e8a3",
+              "name": "Number of Leads",
+              "value": 50,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2416,
+        80
+      ],
+      "id": "ea7270f3-b1d6-48fd-92d8-9ba2f6feb7ed",
+      "name": "Config Scraper"
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId }}",
+        "limit": "={{ $('Config Scraper').item.json['Number of Leads'] }}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        2864,
+        80
+      ],
+      "id": "7cd24a95-f09c-42bc-91d8-1ab5f57da46a",
+      "name": "Get Scraper Results"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "12ktwZCoNKJJqMp43Nd47EWN8qRGIM_00UGTHFlYpLes",
+          "mode": "list",
+          "cachedResultName": "Personalized Video Prospector",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12ktwZCoNKJJqMp43Nd47EWN8qRGIM_00UGTHFlYpLes/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12ktwZCoNKJJqMp43Nd47EWN8qRGIM_00UGTHFlYpLes/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.full_name }}",
+            "Linkedin": "={{ $json.linkedin_url }}",
+            "Industry": "={{ $json.job_company_industry }}",
+            "Job_title": "={{ $json.job_title }}",
+            "Company": "={{ $json.job_company_name }}",
+            "Job Summary": "={{ $json.job_summary }}",
+            "Status": "ready",
+            "Email": "={{ $json.emails[0].address }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Linkedin",
+              "displayName": "Linkedin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job_title",
+              "displayName": "Job_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Summary",
+              "displayName": "Job Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Video-Outreach",
+              "displayName": "Video-Outreach",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3088,
+        80
+      ],
+      "id": "53a7eef6-de5a-4d92-af7e-72c561670a49",
+      "name": "Save New Leads"
+    },
+    {
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "value": "LpVuK3Zozwuipa5bp",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Profile Scraper + Email \u2705 No Cookies (harvestapi/linkedin-profile-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/LpVuK3Zozwuipa5bp/input"
+        },
+        "customBody": "={\n  \"profileScraperMode\": \"Profile details no email ($4 per 1k)\",\n  \"queries\": [\n    \"{{ $json.Linkedin }}\"\n  ]\n}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        2864,
+        480
+      ],
+      "id": "e3faf47b-2dc5-4fb0-8552-e1ba589d249a",
+      "name": "Run Enrichment"
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId }}",
+        "limit": "=",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        3088,
+        480
+      ],
+      "id": "f1f442ea-344e-4bd1-bfbf-e4088f71e7c7",
+      "name": "Get Enrichment Results"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "12ktwZCoNKJJqMp43Nd47EWN8qRGIM_00UGTHFlYpLes",
+          "mode": "list",
+          "cachedResultName": "Personalized Video Prospector",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12ktwZCoNKJJqMp43Nd47EWN8qRGIM_00UGTHFlYpLes/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12ktwZCoNKJJqMp43Nd47EWN8qRGIM_00UGTHFlYpLes/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "ready"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2640,
+        480
+      ],
+      "id": "e5e1f9bb-fba0-463c-af2a-4c0df270068e",
+      "name": "Fetch Pending Leads"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert Scriptwriter for AI Text-to-Speech video generation. Your goal is to analyze the prospect data below and write a script that sounds like a real person talking\u2014full of emotion, pauses, and emphasis.\n\nPROSPECT DATA INPUT\nName: {{ $json.Name || \"Friend\" }}\nHeadline: {{ $json.headline || \"\" }}\nLocation: {{ $json.location && $json.location.parsed ? $json.location.parsed.country : \"\" }}\nAbout Section: {{ $json.about || \"\" }}\nCurrent Company: {{ $json.currentPosition && $json.currentPosition[0] ? $json.currentPosition[0].companyName : \"your company\" }}\nSchool: {{ $json.profileTopEducation && $json.profileTopEducation[0] ? $json.profileTopEducation[0].schoolName : \"\" }}\nWebsite/Action: {{ $json.profileActions && $json.profileActions[0] ? $json.profileActions[0].label + \" - \" + $json.profileActions[0].url : \"\" }}\n\nArrays (History & Achievements):\nExperience: {{ JSON.stringify($json.experience || []) }}\nCertifications: {{ JSON.stringify($json.certifications || []) }}\nVolunteering: {{ JSON.stringify($json.volunteering || []) }}\nSkills: {{ JSON.stringify($json.skills || []) }}\nPublications: {{ JSON.stringify($json.publications || []) }}\nCourses: {{ JSON.stringify($json.courses || []) }}\nPatents: {{ JSON.stringify($json.patents || []) }}\nHonors: {{ JSON.stringify($json.honorsAndAwards || []) }}\n\nSTEP 1: FIND THE HOOK\nAnalyze the data above to find one unique fact. Use this strict priority order:\n1. Patent, Publication, or Award (High Authority)\n2. Volunteering experience or specific Cause (High Character)\n3. Unique hobby or interest from the About section (High Personalization)\n4. Specific Certification (Medium Authority)\n5. University/Location (Fallback - only use if nothing else exists)\n\nSTEP 2: WRITE THE SCRIPT\nWrite the script at a 6th-grade reading level (simple words, short sentences).\nYou MUST use the following Audio Tags and formatting to direct the voice:\n- Audio Tags: Use [laughs], [sighs], [excited], [curious], [whispers] to convey emotion.\n- Punctuation: Use ellipses (...) to create pauses and let the idea sink in.\n- Capitalization: Use ALL CAPS for words that need strong emphasis.\n\nScript Structure:\n1. The Hook (Curious/Warm): Start with the unique fact. \"Hi {{ $json.Name || \"there\" }}... [curious] I was just reading about...\"\n2. The Bridge (Natural): Connect that fact to their role at {{ $json.currentPosition && $json.currentPosition[0] ? $json.currentPosition[0].companyName : \"your company\" }} or the challenge of moving fast.\n3. The Pitch (Confident/Excited): Introduce \"The Fastest Way to Build What's Next.\" Explain we build/deploy AI solutions to cut costs/boost revenue.\n4. The Hammer (Strong): Emphasize that we do it in WEEKS, not months.\n5. The Ask (Soft/Casual): \"Worth a quick chat?\"\n\nOUTPUT FORMAT\nYou must return ONLY a valid JSON object. Do not include markdown formatting.\n\n{\n\"unique_fact_identified\": \"The specific fact you selected\",\n\"script_content\": \"The full script text with audio tags\"\n}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        3552,
+        384
+      ],
+      "id": "f2d7751a-3eec-43c3-a0c4-5833b251af04",
+      "name": "Generate Sales Script"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "12ktwZCoNKJJqMp43Nd47EWN8qRGIM_00UGTHFlYpLes",
+          "mode": "list",
+          "cachedResultName": "Personalized Video Prospector",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12ktwZCoNKJJqMp43Nd47EWN8qRGIM_00UGTHFlYpLes/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12ktwZCoNKJJqMp43Nd47EWN8qRGIM_00UGTHFlYpLes/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Linkedin": "={{ $('Fetch Pending Leads').item.json.Linkedin }}",
+            "Status": "error"
+          },
+          "matchingColumns": [
+            "Linkedin"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Linkedin",
+              "displayName": "Linkedin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Job_title",
+              "displayName": "Job_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Job Summary",
+              "displayName": "Job Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Video-Outreach",
+              "displayName": "Video-Outreach",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3552,
+        496
+      ],
+      "id": "6fc07ce2-12ba-4256-bc26-54e8ebcf4abe",
+      "name": "Set Status: Error"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "49c76be7-39ab-43be-8b7e-17d42fd9a6fa",
+              "name": "audioURL",
+              "value": "={{ $json.data.outputs[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5024,
+        384
+      ],
+      "id": "5925c9cd-afa3-49f9-be19-e4d49c5d8cb0",
+      "name": "Format Audio Link"
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4352,
+        384
+      ],
+      "id": "2f2e1637-749b-445d-936d-4095da145c43",
+      "name": "Wait (Audio)",
+      "webhookId": "a59695d2-8d31-456f-827a-11f9b4ee6e75"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9ae03107-5026-4fca-bb72-f155258763cb",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4800,
+        384
+      ],
+      "id": "e29ebc4e-88e1-4cdf-8d6f-655d693943d7",
+      "name": "Audio Complete?"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.urls.get }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4576,
+        384
+      ],
+      "id": "3ce50f16-5cde-449b-aed8-0b7c09d08cfb",
+      "name": "Poll Audio"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.wavespeed.ai/api/v3/elevenlabs/eleven-v3",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "similarity",
+              "value": "1"
+            },
+            {
+              "name": "stability",
+              "value": "0.0"
+            },
+            {
+              "name": "text",
+              "value": "=[pause] {{ $json.content.parts[0].text.script_content }}"
+            },
+            {
+              "name": "use_speaker_boost",
+              "value": "true"
+            },
+            {
+              "name": "voice_id",
+              "value": "=cVQu9bCKpvg5qUDOzQ2M"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4128,
+        384
+      ],
+      "id": "7e3a65a2-ec37-413c-b18b-6b165b0d2fd4",
+      "name": "Start Audio Gen"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6a0b0038-a043-4885-97d2-cd8aa4e7dc3e",
+              "leftValue": "={{ $json.firstName }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3328,
+        480
+      ],
+      "id": "71f9af8b-f73e-4105-9db4-a3693d8d5c89",
+      "name": "Has Valid Data?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c2fd41c5-740e-4e8f-8b07-38e7fa4c60d4",
+              "name": "content.parts[0].text",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3904,
+        384
+      ],
+      "id": "1492e88a-37e6-4e51-ba22-f0f072096ffe",
+      "name": "Clean Script Data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.wavespeed.ai/api/v3/wavespeed-ai/infinitetalk",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "audio",
+              "value": "={{ $json.audioURL }}"
+            },
+            {
+              "name": "image",
+              "value": "=https://drive.google.com/uc?export=download&id=15wXd1g86nu0qr9H7P47qH4QswbwI0wcs"
+            },
+            {
+              "name": "prompt",
+              "value": "=A natural feeling video"
+            },
+            {
+              "name": "resolution",
+              "value": "480p"
+            },
+            {
+              "name": "seed",
+              "value": "-1"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5248,
+        384
+      ],
+      "id": "5e683ef5-d2e8-47f3-b36c-de5bd94d82f7",
+      "name": "Start Video Gen"
+    },
+    {
+      "parameters": {
+        "amount": 60
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        5472,
+        384
+      ],
+      "id": "a1e9c3cc-be71-49d8-a7e0-fe8c1dd56589",
+      "name": "Wait (Video)",
+      "webhookId": "a59695d2-8d31-456f-827a-11f9b4ee6e75"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.urls.get }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5696,
+        384
+      ],
+      "id": "d918ba31-4a49-4645-8e9b-a75d0be7289c",
+      "name": "Poll Video"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9ae03107-5026-4fca-bb72-f155258763cb",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5920,
+        384
+      ],
+      "id": "6d720708-332b-4c7e-8e81-967411079f57",
+      "name": "Video Complete?"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.outputs[0] }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6144,
+        384
+      ],
+      "id": "e5dea9b2-ea0d-4254-a9e8-6d17578e14d7",
+      "name": "Download File"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Has Valid Data?').item.json.firstName }}.{{ $('Has Valid Data?').item.json.lastName }}-{{ $('Has Valid Data?').item.json.headline }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1gPksmscMct-kgI_amvhI3tB7VrMVExPw",
+          "mode": "list",
+          "cachedResultName": "Personalized Video Prospector",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1gPksmscMct-kgI_amvhI3tB7VrMVExPw"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        6368,
+        384
+      ],
+      "id": "c702b134-5b21-4ee9-bb48-e2c402024006",
+      "name": "Upload to Drive"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "12ktwZCoNKJJqMp43Nd47EWN8qRGIM_00UGTHFlYpLes",
+          "mode": "list",
+          "cachedResultName": "Personalized Video Prospector",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12ktwZCoNKJJqMp43Nd47EWN8qRGIM_00UGTHFlYpLes/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12ktwZCoNKJJqMp43Nd47EWN8qRGIM_00UGTHFlYpLes/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Linkedin": "={{ $('Has Valid Data?').item.json.linkedinUrl }}",
+            "Video-Outreach": "={{ $json.webViewLink }}",
+            "Status": "done"
+          },
+          "matchingColumns": [
+            "Linkedin"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Linkedin",
+              "displayName": "Linkedin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Job_title",
+              "displayName": "Job_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Job Summary",
+              "displayName": "Job Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Video-Outreach",
+              "displayName": "Video-Outreach",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6592,
+        384
+      ],
+      "id": "de68e4a5-8860-4a92-9c7d-838084712057",
+      "name": "Save Video Link"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Pending Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config Scraper": {
+      "main": [
+        [
+          {
+            "node": "Run Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Scraper": {
+      "main": [
+        [
+          {
+            "node": "Get Scraper Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Scraper Results": {
+      "main": [
+        [
+          {
+            "node": "Save New Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Enrichment": {
+      "main": [
+        [
+          {
+            "node": "Get Enrichment Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Pending Leads": {
+      "main": [
+        [
+          {
+            "node": "Run Enrichment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Enrichment Results": {
+      "main": [
+        [
+          {
+            "node": "Has Valid Data?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Sales Script": {
+      "main": [
+        [
+          {
+            "node": "Clean Script Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (Audio)": {
+      "main": [
+        [
+          {
+            "node": "Poll Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audio Complete?": {
+      "main": [
+        [
+          {
+            "node": "Format Audio Link",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait (Audio)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Audio": {
+      "main": [
+        [
+          {
+            "node": "Audio Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Audio Gen": {
+      "main": [
+        [
+          {
+            "node": "Wait (Audio)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Valid Data?": {
+      "main": [
+        [
+          {
+            "node": "Generate Sales Script",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Status: Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Script Data": {
+      "main": [
+        [
+          {
+            "node": "Start Audio Gen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Video Gen": {
+      "main": [
+        [
+          {
+            "node": "Wait (Video)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (Video)": {
+      "main": [
+        [
+          {
+            "node": "Poll Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Video": {
+      "main": [
+        [
+          {
+            "node": "Video Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Complete?": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait (Video)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "Upload to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Audio Link": {
+      "main": [
+        [
+          {
+            "node": "Start Video Gen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Drive": {
+      "main": [
+        [
+          {
+            "node": "Save Video Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5bc6b7fb-c9c7-4ec4-a087-5e1e7ba8e29d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "P2j9kYOn7FNLvW97",
+  "tags": []
+}

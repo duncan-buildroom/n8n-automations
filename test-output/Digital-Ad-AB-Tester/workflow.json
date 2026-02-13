@@ -1,0 +1,445 @@
+{
+  "name": "Digital Ad A/B Tester",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 1. Ingest & Setup\nInitializes the workflow by receiving the form data, creating a project folder in Drive, and preparing the image for AI analysis.",
+        "height": 723,
+        "width": 435,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4fd48a74-4012-4b3e-949d-1182f1fd8788",
+      "name": "Sticky Note 1"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Strategic Concepting\nUses Gemini to analyze the product image and generate distinct ad angles, headlines, and design briefs.",
+        "height": 730,
+        "width": 560,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "1895546d-419e-4d7c-99e3-693aea9267e3",
+      "name": "Sticky Note 2"
+    },
+    {
+      "parameters": {
+        "content": "## 3. Production & Delivery\nMerges the concepts with the original assets, loops through each variation to generate the final visuals, and saves them to Drive.",
+        "height": 391,
+        "width": 1242,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "bb949755-9c50-4a5c-ab93-94f175e327d4",
+      "name": "Sticky Note 3"
+    },
+    {
+      "parameters": {
+        "formTitle": "Dynamic Ad Creative A/B Tester",
+        "formDescription": "Takes one product image and generates 20 variations of ad creative for Facebook/Instagram. It varies the background scene, changes the headline text based on different customer personas, and reformats it for Story vs. Feed.\n",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Product Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Product Image",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".jpg, .png",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Target Audience Personas",
+              "fieldType": "textarea",
+              "placeholder": "(e.g., \"Busy Moms,\" \"Tech Geeks,\" \"Budget Shoppers\")",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Key Selling Points",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Number of Images",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "1"
+                  },
+                  {
+                    "option": "2"
+                  },
+                  {
+                    "option": "3"
+                  },
+                  {
+                    "option": "4"
+                  },
+                  {
+                    "option": "5"
+                  },
+                  {
+                    "option": "6"
+                  },
+                  {
+                    "option": "7"
+                  },
+                  {
+                    "option": "8"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        48,
+        336
+      ],
+      "id": "373964cf-6587-4996-9568-226d8499b57d",
+      "name": "Start: Receive Ad Request",
+      "webhookId": "416c179a-ea27-47fc-8c1a-d3966c536d12"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6f603e28-0eae-47bd-9249-47ca0868a5ec",
+              "name": "content",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        544
+      ],
+      "id": "1e533976-4e08-400d-a66c-c8fc6fa9b6cb",
+      "name": "Helper: Parse AI Response"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "content.variations",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        160
+      ],
+      "id": "bea8e8d1-dd0b-4825-98ad-4e89e35e43dd",
+      "name": "Helper: Loop Through Variations"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1120,
+        144
+      ],
+      "id": "6dad7e0a-cee1-4fe8-abf5-2318ef2397c3",
+      "name": "Helper: Merge Data Streams"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "Product_Image",
+        "destinationKey": "Product_Image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        688,
+        336
+      ],
+      "id": "a963093c-5d94-4d76-952f-26cf652db31f",
+      "name": "Helper: Extract Image Binary"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "Product_Image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1584,
+        160
+      ],
+      "id": "1448f944-83a4-4da5-8ae0-4ff6cc18aa51",
+      "name": "Helper: Prepare Image for Edit"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=SYSTEM CONSTRAINT: PRODUCT PRESERVATION MODE\nYou are an AI Image Editor. Your task is to edit the BACKGROUND and OVERLAYS of this image only.\n\nCRITICAL RULE: DO NOT REDRAW THE PRODUCT. The device in the image is a specific real-world prototype. You must preserve the device's pixels exactly as they are. If you change the camera layout or the bezel shape, the edit is a FAILURE.\n\nEDITING INSTRUCTION (Execute This):\n{{ $('Helper: Loop Through Variations').item.json['content.variations'].image_prompt }}\n\nTEXT INTEGRATION TASK\nOverlay the headline \"{{ $('Helper: Loop Through Variations').item.json['content.variations'].headline }}\" onto the image.\n\nTypography: Bold, Modern Sans-Serif.\n\nPlacement: High-contrast area (Top/Bottom Center).\n\nRequirement: The text must look like a native layer of the ad.",
+        "images": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1808,
+        160
+      ],
+      "id": "1986d9e3-3841-48a2-a8a4-7e2b458b7535",
+      "name": "Gemini: Generate Visuals"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "edited",
+        "name": "={{ $('Helper: Merge Data Streams').item.json.persona_angle }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Drive: Create Campaign Folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2032,
+        160
+      ],
+      "id": "29b8e138-a9de-4efc-9952-c2397a6680a1",
+      "name": "Drive: Save Final Ads"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Start: Receive Ad Request').item.json['Product Name'] }}-{{ $('Start: Receive Ad Request').item.json['Target Audience Personas'] }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "[https://drive.google.com/drive/my-drive](https://drive.google.com/drive/my-drive)"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1pIsVvU3thPa9liIBX4I3JGc7zk3Ncuz4",
+          "mode": "list",
+          "cachedResultName": "Social Media - Ads",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1pIsVvU3thPa9liIBX4I3JGc7zk3Ncuz4"
+        },
+        "options": {
+          "simplifyOutput": true
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        528,
+        128
+      ],
+      "id": "e5a1bf45-7288-46b1-ab30-d98f4825aaa7",
+      "name": "Drive: Create Campaign Folder"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "text": "=You are an Expert Social Media Ad Compositor and Technical Product Inspector. Your goal is to transform the provided product image into high-converting ad creatives.\n\nINPUT DATA\n- Product: {{ $('Start: Receive Ad Request').item.json['Product Name'] }}\n- Audience: {{ $('Start: Receive Ad Request').item.json['Target Audience Personas'] }}\n- Key Selling Points: {{ $('Start: Receive Ad Request').item.json['Key Selling Points'] }}\n\nDYNAMIC PRESERVATION PROTOCOL (CRITICAL)\n1. ANALYZE THE IMAGE FIRST: Look closely at the provided product binary image. Count the specific hardware details (e.g., \"I see 3 large lenses and 2 small sensors\" or \"I see a notch at the top\").\n2. INJECT HARDWARE CONSTRAINTS: In your output `image_prompt`, you must explicitly describe these details as non-negotiable constraints.\n   - BAD: \"Keep the device as is.\" (Too vague, leads to hallucinations).\n   - GOOD: \"The device must retain exactly 3 large camera lenses and 2 small flash/sensor circles in the specific layout shown. Do not modify this array.\"\n3. PROTECTED LAYER: Command the image generator to treat the product pixels as a protected layer.\n\nTHE TASK\nGenerate {{ $json['Number of Images'] }} distinct ad compositions. Each must use a different \"Visual Hook\" strategy with graphic elements and text. You must create a mix of product-only ads, and ads featuring a hero person.\n\nSTRATEGY ANGLES\n1. \"Benefit Visualization\": Graphic shapes demonstrating speed, battery, or connectivity.\n2. \"Social Proof\": Trustworthy elements like \"Verified\" badges or 5-star ratings around the device.\n3. \"Lifestyle Aspirational\": Composite the device into a luxury or professional context.\n4. \"Pattern Interrupt\": High-contrast neon shapes or surreal backgrounds.\n\nOUTPUT INSTRUCTIONS\n- \"image_prompt\": Write a detailed description for an AI editing model.\n    - Hardware Enforcer: explicitly list the hardware traits you observed (e.g. \"Preserve the 3-lens configuration\") to prevent the AI from defaulting to generic models.\n    - Compositing: Describe the background and shapes behind or around the device.\n    - Typography: Provide exact instructions for text rendering.\n\nSTRICT FORMATTING RULES (CRITICAL)\n1. Output RAW JSON only.\n2. DO NOT use Markdown formatting.\n3. DO NOT include any introductory text.\n4. Start your response strictly with { and end strictly with }.\n\nREQUIRED JSON SCHEMA\n{\n  \"variations\": [\n    {\n      \"angle\": \"Pattern Interrupt\",\n      \"headline\": \"Future Ready.\",\n      \"image_prompt\": \"Isolate the provided device in the center. [DYNAMIC CONSTRAINT INJECTION]: The device has a distinct camera bump with 3 large lenses and 2 smaller sensors; these must be preserved pixel-perfectly. Behind the device, generate a deep matte black background with glowing cyan circuit board lines. Below the device, add a glass-morphism banner containing the text FUTURE READY in modern, thin, white sans-serif typography.\",\n      \"reasoning\": \"Uses technical patterns to emphasize the advanced nature of the hardware without altering the device design.\"\n    }\n  ]\n}",
+        "inputType": "binary",
+        "binaryPropertyName": "=Product_Image",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        528,
+        544
+      ],
+      "id": "306e9b61-58e7-4d9e-8b03-1fb10d38a808",
+      "name": "Analyze an image"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start: Receive Ad Request": {
+      "main": [
+        [
+          {
+            "node": "Helper: Extract Image Binary",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Drive: Create Campaign Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Analyze an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Helper: Parse AI Response": {
+      "main": [
+        [
+          {
+            "node": "Helper: Merge Data Streams",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Helper: Loop Through Variations": {
+      "main": [
+        [
+          {
+            "node": "Helper: Prepare Image for Edit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Helper: Merge Data Streams": {
+      "main": [
+        [
+          {
+            "node": "Helper: Loop Through Variations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Helper: Extract Image Binary": {
+      "main": [
+        [
+          {
+            "node": "Helper: Merge Data Streams",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Helper: Prepare Image for Edit": {
+      "main": [
+        [
+          {
+            "node": "Gemini: Generate Visuals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: Generate Visuals": {
+      "main": [
+        [
+          {
+            "node": "Drive: Save Final Ads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drive: Create Campaign Folder": {
+      "main": [
+        [
+          {
+            "node": "Helper: Merge Data Streams",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze an image": {
+      "main": [
+        [
+          {
+            "node": "Helper: Parse AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "versionId": "1bc8387b-b55f-4f55-a3bc-b0346ae6e1b4",
+  "meta": {
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "IPYcnrDgDmvm2TiY",
+  "tags": []
+}

@@ -1,0 +1,611 @@
+{
+  "name": "The \"Case Study\" Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Case Study Engine",
+        "formDescription": "Takes a raw success story (text or bullet points) and formats it into a \"Problem \u2192 Agitation \u2192 Solution\" narrative.\n\nPaste your notes, a transcript, or bullet points here. Don't worry about formatting. Just tell the story of what happened.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Raw Success Story / Notes",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Key Result / The \"Hook\" Metric",
+              "placeholder": "The AI needs to know the single most important number to put on the cover slide (Slide 1). If you bury this in the long text, the AI might miss it or pick a weaker metric."
+            },
+            {
+              "fieldLabel": "Who is this for? (Target Audience)",
+              "placeholder": "e.g., SaaS Founders, Dental Practice Owners, eCom Brands. This helps the AI calibrate the language. If the audience is \"Engineers,\" the agitation needs to be technical. If it's \"CEOs,\" the agitation needs to be financial.",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Writing Style",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Professional & Data-Driven"
+                  },
+                  {
+                    "option": "Punchy & Bold"
+                  },
+                  {
+                    "option": "Story-Driven & Emotional"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        1024,
+        944
+      ],
+      "id": "8af60603-e676-4248-9363-633d81dd7e4f",
+      "name": "Form Trigger: Intake Case Study",
+      "webhookId": "95e17b54-dc7b-4767-9aa6-c43f9d24e0a7"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert B2B Copywriter and LinkedIn Strategist. Your job is to take a raw client success story and transform it into a high-performing \"Zero-Click\" Carousel (8 slides total).\n\nYou must use the \"PAS\" Framework (Problem \u2192 Agitation \u2192 Solution).\n\n### THE STRUCTURE (8 SLIDES)\n1. **Slide 1 (The Hook):** A catchy title featuring the \"Key Result\". Must stop the scroll.\n2. **Slide 2 (The Problem):** Identify the core struggle. Make the audience feel seen.\n3. **Slide 3 ( The Agitation):** Twist the knife. specific financial or emotional cost of not solving this.\n4. **Slide 4 (The Shift):** The turning point. \"We realized X was wrong.\"\n5. **Slide 5 (Solution Step 1):** The first major action taken.\n6. **Slide 6 (Solution Step 2):** The second major action or insight.\n7. **Slide 7 (The Results):** Hard numbers and the \"Happy Ending\" (e.g., the founder crying).\n8. **Slide 8 (CTA):** A strong call to action for the specific target audience.\n\n### DESIGN CONSTRAINTS (CRITICAL)\n- **Titles:** Max 8 words. Strong and punchy.\n- **Body Text:** Max 25 words per slide. Do not write paragraphs. Use short, punchy statements.\n- **Tone:** match the requested \"{{ $json['Writing Style'] }}\".\n\n### TECHNICAL OUTPUT\n- You must output ONLY a valid JSON object.\n- Do not add markdown formatting like ```json or ```. Just the raw JSON string.\n- The JSON must follow this exact schema:\n{\n  \"slides\": [\n    {\n      \"slide_number\": 1,\n      \"layout\": \"cover\",\n      \"title\": \"TEXT HERE\",\n      \"body\": \"TEXT HERE (Optional for cover)\"\n    },\n    {\n      \"slide_number\": 2,\n      \"layout\": \"content\",\n      \"title\": \"TEXT HERE\",\n      \"body\": \"TEXT HERE\"\n    }\n    // ... repeats for all 8 slides\n  ]\n}",
+              "role": "model"
+            },
+            {
+              "content": "=Here is the raw data for the case study. Generate the JSON content now.\n\nContext:\n- **Target Audience:** {{ $('Form Trigger: Intake Case Study').item.json['Who is this for? (Target Audience)'] }}\n- **Writing Style:** {{ $('Form Trigger: Intake Case Study').item.json['Writing Style'] }}\n- **Key Result (Hook):** {{ $('Form Trigger: Intake Case Study').item.json['Key Result / The \"Hook\" Metric'] }}\n\nThe Story:\n{{ $('Form Trigger: Intake Case Study').item.json['Raw Success Story / Notes'] }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1264,
+        752
+      ],
+      "id": "21f97d46-f6ca-4e4d-bcf1-4aa1127f406f",
+      "name": "AI: Generate Slide Copy (JSON)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f7979345-3c8e-46ba-846c-12bc73184b55",
+              "name": "Brand Logo",
+              "value": "https://buildroom.ai/assets/image_1755138797787-J0h8n6uV.png",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1248,
+        944
+      ],
+      "id": "dad0c8fe-cee3-45b0-8710-be8213e3dd32",
+      "name": "Config: Set Logo URL"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json['Brand Logo'] }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1472,
+        944
+      ],
+      "id": "f5ae3486-e086-4493-845e-6dd3548cfd78",
+      "name": "HTTP: Fetch Logo"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "template_image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        2048,
+        944
+      ],
+      "id": "a3144feb-03ea-4884-a1b2-2c4dc1a8b877",
+      "name": "Format: Extract Binary"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "18fb6e8f-86a3-4953-82f1-a283e879a720",
+              "name": "slides",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        752
+      ],
+      "id": "bb1ab28e-c5d3-46be-a134-eed0fedd2963",
+      "name": "Format: Clean AI Output"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2304,
+        928
+      ],
+      "id": "f7255e86-1bb5-4780-8d45-10c71f77c15e",
+      "name": "Merge: Combine Assets"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "slides.slides",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2512,
+        944
+      ],
+      "id": "3bf73855-7628-41a1-b1aa-5e6146997ce6",
+      "name": "Loop: Split Slides"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "ReferenceImageBase64data",
+        "binaryPropertyName": "ReferenceImageBase64data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2960,
+        944
+      ],
+      "id": "81162a71-950a-4cf4-bebd-419b9856d44d",
+      "name": "Format: Binary Conversion"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b9370bfe-7b56-4c26-8817-06c62d0d9d7d",
+              "name": "slides",
+              "value": "={{ $json }}",
+              "type": "object"
+            },
+            {
+              "id": "ae340e79-8e06-4979-8db4-917dc66defd4",
+              "name": "ReferenceImageBase64data",
+              "value": "={{ $('Merge: Combine Assets').item.json.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2736,
+        944
+      ],
+      "id": "6410fc6d-9025-434d-bfd9-a912b3a0abc9",
+      "name": "Config: Prep Single Slide"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=YOU ARE AN ELITE IMAGE EDITOR. Your task is to edit the reference image to update the text/visuals while PROTECTING the brand identity.\n\n### CRITICAL: LOGO PROTECTION\n- **PROTECTED ZONE:** The Brand Logo located in the **Top-Left Corner** (or specific logo position).\n- **CONSTRAINT:** You must NOT remove, blur, cover, or alter this logo in any way. It must remain pixel-perfect from the original image.\n\n### INSTRUCTIONS FOR REFERENCE IMAGE USAGE:\n1. **Analyze:** Note the layout, background style, and the logo position.\n2. **Clear Specifics Only:** Remove the OLD text headlines and the OLD *central* illustrations/icons. \n3. **DO NOT CLEAR:** The Background Texture, The Frame/Border, and **THE LOGO**.\n\n### INSTRUCTIONS FOR NEW CONTENT:\n---\nNEW INPUT TEXT DATA:\n1. HEADLINE: \"{{ $('Config: Prep Single Slide').item.json.slides.title }}\"\n2. BODY: \"{{ $('Config: Prep Single Slide').item.json.slides.body }}\"\n3. PROGRESS: \"{{ $('Config: Prep Single Slide').item.json.slides.slide_number }} of {{ $('Format: Clean AI Output').item.json.slides.slides.length }}\"\n---\n\nTHEME CONTEXT:\nSlide Layout: \"{{ $('Config: Prep Single Slide').item.json.slides.layout }}\"\nTopic/Audience: \"{{ $('Form Trigger: Intake Case Study').item.json['Who is this for? (Target Audience)'] }}\"\n\n### EXECUTION STEPS:\n1. **Verify Logo:** Before rendering, confirm the logo in the corner is visible and untouched.\n2. **Place New Text:** Render the new text strings in high contrast, matching the original hierarchy.\n3. **Create New Visuals:** Generate fresh icons/graphics relevant to the \"Topic\" in the central content area (previously cleared).\n4. **Final Output:** A seamless slide where the content is new, but the **Logo** and **Background Style** are preserved.",
+        "images": {
+          "values": [
+            {
+              "binaryPropertyName": "ReferenceImageBase64data"
+            }
+          ]
+        },
+        "options": {
+          "binaryPropertyOutput": "edited"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        3184,
+        944
+      ],
+      "id": "388cbc06-de59-4a90-b495-d680d8004e23",
+      "name": "AI: Render Final Image",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=You are a Modern Abstract Artist. Create a stunning, abstract background composition (Portrait 3:4) that incorporates the provided logo.\n\n### DESIGN INSTRUCTIONS\n\n1.  **CRITICAL: LOGO PRESERVATION.** The provided logo in the top-left corner MUST remain exactly as it is. Do not alter, distort, recolor, or cover it in any way. The abstract design must be placed *around* it.\n2.  **Border Composition:** Create a dynamic abstract pattern using **fluid organic shapes**, **soft gradients**, and **modern geometry**.\n    * **CRITICAL CONSTRAINT:** These abstract elements must be strictly confined to the **outer edges and corners** of the canvas, framing the content area.\n    * The shapes should feel like they are flowing along the borders.\n3.  **Color Strategy:** Analyze the logo's colors. Use these as the primary palette for the abstract elements, mixing them with complementary soft neutral tones.\n4.  **The Clean Center:** The entire central area of the image (approx. 80%) must be completely empty, clean, and solid (e.g., a flat, light neutral color from the palette). There should be **zero** abstract shapes, textures, or gradients in this central zone to ensure maximum readability for future text.\n5.  **Vibe:** The result should feel artistic, creative, and premium, but clean.",
+        "images": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {
+          "binaryPropertyOutput": "template_image"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1760,
+        944
+      ],
+      "id": "239d8713-930d-46cb-8bd5-cbd22420c5d2",
+      "name": "AI: Create Background Template"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $json.submittedAt.toDateTime().format('yyyy-MM-dd') }} - {{ $json['Key Result / The \"Hook\" Metric'] }} {{ $json['Who is this for? (Target Audience)'] }} {{ $json['Writing Style'] }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1155eONUCTwmwJuhLX-mbBSZoBFSfRJWR",
+          "mode": "list",
+          "cachedResultName": "Carousel Storyteller Engine",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1155eONUCTwmwJuhLX-mbBSZoBFSfRJWR"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1248,
+        1136
+      ],
+      "id": "56045cf8-b60d-4efa-a4ab-5418bdee09b9",
+      "name": "Drive: Create Project Folder"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "18fb6e8f-86a3-4953-82f1-a283e879a720",
+              "name": "drivefolderId",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        1136
+      ],
+      "id": "caeb7ccf-8030-4559-9073-b21233af3601",
+      "name": "Config: Set Drive ID"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "edited",
+        "name": "={{ $('Config: Prep Single Slide').item.json.slides.title }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Merge: Combine Assets').item.json.drivefolderId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3392,
+        944
+      ],
+      "id": "6155d1b4-db45-4999-b321-86d02beb731d",
+      "name": "Drive: Upload Slide"
+    },
+    {
+      "parameters": {
+        "content": "## 1. Input & Setup\nCollects user data, fetches the brand logo, and creates a Google Drive folder for storage.",
+        "height": 654,
+        "width": 757,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        944,
+        672
+      ],
+      "id": "1c070b80-4f5a-4e0c-8124-e61fc6dc3392",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Asset Generation\nGenerates the slide text (JSON) and the abstract background image (Template) in parallel.",
+        "height": 656,
+        "width": 520,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        672
+      ],
+      "id": "d2aa82ff-9583-42a2-b0ee-d79435a4c0eb",
+      "name": "Sticky Note 1"
+    },
+    {
+      "parameters": {
+        "content": "## 3. Production Loop\nMerges assets, iterates through each slide, renders the final text onto the image, and uploads to Drive.",
+        "height": 308,
+        "width": 1360,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        832
+      ],
+      "id": "56924679-0f4e-4468-a602-47099017d186",
+      "name": "Sticky Note 2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Form Trigger: Intake Case Study": {
+      "main": [
+        [
+          {
+            "node": "Config: Set Logo URL",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI: Generate Slide Copy (JSON)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Drive: Create Project Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: Set Logo URL": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Fetch Logo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Fetch Logo": {
+      "main": [
+        [
+          {
+            "node": "AI: Create Background Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Generate Slide Copy (JSON)": {
+      "main": [
+        [
+          {
+            "node": "Format: Clean AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format: Clean AI Output": {
+      "main": [
+        [
+          {
+            "node": "Merge: Combine Assets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format: Extract Binary": {
+      "main": [
+        [
+          {
+            "node": "Merge: Combine Assets",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Loop: Split Slides": {
+      "main": [
+        [
+          {
+            "node": "Config: Prep Single Slide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format: Binary Conversion": {
+      "main": [
+        [
+          {
+            "node": "AI: Render Final Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: Prep Single Slide": {
+      "main": [
+        [
+          {
+            "node": "Format: Binary Conversion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: Combine Assets": {
+      "main": [
+        [
+          {
+            "node": "Loop: Split Slides",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Create Background Template": {
+      "main": [
+        [
+          {
+            "node": "Format: Extract Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Render Final Image": {
+      "main": [
+        [
+          {
+            "node": "Drive: Upload Slide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drive: Create Project Folder": {
+      "main": [
+        [
+          {
+            "node": "Config: Set Drive ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: Set Drive ID": {
+      "main": [
+        [
+          {
+            "node": "Merge: Combine Assets",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "888385dc-8a3b-4782-b20d-b41702f36a96",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "EZCvFuYHPWCLeZOzn99xz",
+  "tags": []
+}

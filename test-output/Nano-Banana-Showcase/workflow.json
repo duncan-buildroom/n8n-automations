@@ -1,0 +1,1179 @@
+{
+  "name": "Nano Banana Showcase",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        96,
+        -304
+      ],
+      "id": "8ed42eac-439d-4775-a1ee-d4974ba448c9",
+      "name": "When clicking \u2018Execute workflow\u2019"
+    },
+    {
+      "parameters": {
+        "content": "## 1. Brand Review Generator\nTakes raw customer reviews, fetches their profile picture, and uses AI to generate a luxury social media graphic, then updates the database.",
+        "height": 272,
+        "width": 1101,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -896
+      ],
+      "id": "8baff2a3-4776-42db-932b-c507635c9b5e",
+      "name": "Note: Reviews"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8",
+          "mode": "list",
+          "cachedResultName": "Nano Banano Pro Showcase",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1369775896,
+          "mode": "list",
+          "cachedResultName": "reviews",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit#gid=1369775896"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "ready"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        528,
+        -784
+      ],
+      "id": "654320a4-fc7a-4932-b534-a514e04066a4",
+      "name": "Get Review Data"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "edited",
+        "name": "={{ $('Get Review Data').item.json.reviewer_name }}-{{ $('Get Review Data').item.json.rating }}-{{ $('Get Review Data').item.json.date }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1z_ZCebJ6lh-kik-KJVTYQntO3EREDUPI",
+          "mode": "list",
+          "cachedResultName": "Reviews",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1z_ZCebJ6lh-kik-KJVTYQntO3EREDUPI"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        -784
+      ],
+      "id": "d332dc66-2cd4-4fb8-aa86-c1c4447794cd",
+      "name": "Upload Review Graphic"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8",
+          "mode": "list",
+          "cachedResultName": "Nano Banano Pro Showcase",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1369775896,
+          "mode": "list",
+          "cachedResultName": "reviews",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit#gid=1369775896"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "done",
+            "id": "={{ $('Get Review Data').item.json.id }}",
+            "Img URI": "={{ $json.webContentLink }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1424,
+        -784
+      ],
+      "id": "70d905a6-04ac-4a79-a82b-19031b6cb0b1",
+      "name": "Update Review Status"
+    },
+    {
+      "parameters": {
+        "content": "## 2. SaaS Wrapped Generator\nCalculates user efficiency stats and generates a \"Spotify Wrapped\" style year-in-review infographic for SaaS users.",
+        "height": 256,
+        "width": 1101,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -608
+      ],
+      "id": "967daf38-ac86-4680-9627-9495be1cc01b",
+      "name": "Note: Wrapped"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8",
+          "mode": "list",
+          "cachedResultName": "Nano Banano Pro Showcase",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 565641060,
+          "mode": "list",
+          "cachedResultName": "userstats",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit#gid=565641060"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "ready"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        528,
+        -512
+      ],
+      "id": "cc10669e-5982-473d-99e4-f27a436bf5da",
+      "name": "Get User Stats"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "edited",
+        "name": "={{ $('Get User Stats').item.json.user_name }}-{{ $('Get User Stats').item.json.archetype }}-{{ $('Get User Stats').item.json.year }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "13QOLH2uJU6ZFG7_m_fFVcdC2Z4VwBzVI",
+          "mode": "list",
+          "cachedResultName": "Wrapped-2025",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/13QOLH2uJU6ZFG7_m_fFVcdC2Z4VwBzVI"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        -512
+      ],
+      "id": "ad466b50-49d5-4fd5-91b6-1bd64b80b711",
+      "name": "Upload Wrapped Image"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8",
+          "mode": "list",
+          "cachedResultName": "Nano Banano Pro Showcase",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 565641060,
+          "mode": "list",
+          "cachedResultName": "userstats",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit#gid=565641060"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Get User Stats').item.json.id }}",
+            "status": "done",
+            "Img URI": "={{ $json.webContentLink }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1424,
+        -512
+      ],
+      "id": "83bcb8fc-8a6c-4691-844a-94d3426641dd",
+      "name": "Update Wrapped Status"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=You are a high-end motion graphics designer creating a intensely vibrant personalized \"Year in Review\" infographic (1080x1920 vertical).\n\nAnalysis Phase: First, analyze the logo provided in the input image to establish a base color palette.\n\nVisual Style & Atmosphere (Crucial: Avoid Boxy Designs): The aesthetic must be fluid, organic, and explosively colorful, moving away from rigid grids or boxes. Think liquid light, flowing data streams, and psychedelic energy.\n\nBackground: A deep, dark cosmic void, but aggressively filled with sweeping, amorphous color gradients and liquid neon light trails that bleed across the entire canvas.\n\nColor Palette: Expand the logo colors into an ultra-saturated, full-spectrum neon gradient. The colors should be blindingly bright against the dark background.\n\nTypography: Use massive, bold, modern fonts that feel like part of the energy flow. Text should float on top of the light, having distinct outer glows and gradient fills.\n\nLayout & Content Structure (Fluid Integration):\n\nHeader: At the top, in large, glowing, wavy text: \"{{$('Get User Stats').item.json.year}} WRAPPED\".\n\nHero Stat (Explosive Center): In the middle, the number \"{{$('Get User Stats').item.json.total_runs}}\" should be enormous and look like it is bursting outwards with light rays. Below it, the label: \"AUTOMATIONS EXECUTED\".\n\nSupporting Data (Floating Clusters): Below the hero stat, arrange two distinct clusters of floating text integrated into the swirling background energy (do not put them inside boxes or distinct modules):\n\nCluster A: The number \"{{$('Get User Stats').item.json.ghost_shift_hours}}\" with the label \"HOURS WORKED WHILE YOU SLEPT\".\n\nCluster B: The number \"{{$('Get User Stats').item.json.hours_saved}}\" with the label \"HUMAN HOURS SAVED\".\n\nArchetype Badge: Near the bottom, create a glowing, organic emblem that looks like liquid metal or light. Inside it, place the text: \"ARCHETYPE: {{$('Get User Stats').item.json.archetype}}\".\n\nFooter: At the very bottom center, place the exact logo provided in the input image. Render it in bright white or a single, super-bright neon color to ensure it pops professionally as the anchor point against the chaotic background.",
+        "images": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        976,
+        -512
+      ],
+      "id": "0e0dc22f-0420-4b03-b737-33adf4a10150",
+      "name": "Generate SaaS Wrapped"
+    },
+    {
+      "parameters": {
+        "content": "## 3. Real Estate AI Renovator\nTakes a photo of an old room and virtually renovates it in a specific style (e.g., \"Modern Scandinavian\") using Generative AI.",
+        "height": 240,
+        "width": 1101,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -336
+      ],
+      "id": "08c1eebb-ce59-4c5e-9b46-0afacc018b55",
+      "name": "Note: Real Estate"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8",
+          "mode": "list",
+          "cachedResultName": "Nano Banano Pro Showcase",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 587929908,
+          "mode": "list",
+          "cachedResultName": "rooms",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit#gid=587929908"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "ready"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        528,
+        -256
+      ],
+      "id": "a935cc4b-e03c-47c6-b308-9ff80d0993b4",
+      "name": "Get Room Data"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.before_image_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        752,
+        -256
+      ],
+      "id": "a0dc4dcc-de77-437a-b012-e60284251273",
+      "name": "Fetch Room Image"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=Act as a high-end architectural visualizer and interior designer creating marketing materials for real estate. \n\nAnalyze the provided reference image of the {{$('Get Room Data').item.json.room_type}}. Your task is to virtually renovate this space. \n\nCRITICAL CONSTRAINTS: \n1. You MUST strictly maintain the exact structural layout, perspective, camera angle, window placement, door placement, and ceiling height of the reference image. Do not move walls or windows.\n2. The output must be photorealistic, high-resolution, and look like a professional real estate photograph.\n\nRENOVATION INSTRUCTIONS:\nTransform the current outdated space into a luxurious, newly renovated room in the \"{{$('Get Room Data').item.json.desired_renovation_style}}\" style. \n\nSpecifically incorporate these elements based on the desired style notes: {{$('Get Room Data').item.json.desired_renovation_style}}. Replace all old surfaces (flooring, walls, ceilings, cabinetry) with high-end, modern materials appropriate for that style. Add beautiful, staged furniture and warm, inviting lighting.",
+        "images": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        976,
+        -256
+      ],
+      "id": "e3f63252-2662-4e0f-8863-a80b1cd326be",
+      "name": "Renovate Room AI"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "edited",
+        "name": "={{ $('Get Room Data').item.json.property_address }}-{{ $('Get Room Data').item.json.room_type }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1QPcYoijSTA7icTvLc723FD8l-hJoMZz9",
+          "mode": "list",
+          "cachedResultName": "Rooms-Fixers",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1QPcYoijSTA7icTvLc723FD8l-hJoMZz9"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        -256
+      ],
+      "id": "aba43180-ecd6-436a-bb6d-1567b12bccc0",
+      "name": "Upload Renovation"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8",
+          "mode": "list",
+          "cachedResultName": "Nano Banano Pro Showcase",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 587929908,
+          "mode": "list",
+          "cachedResultName": "rooms",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit#gid=587929908"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Get Room Data').item.json.id }}",
+            "status": "done",
+            "after_image_url": "={{ $json.webContentLink }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1424,
+        -256
+      ],
+      "id": "b2904369-a347-4c90-975c-58ba1a71c930",
+      "name": "Update Room Status"
+    },
+    {
+      "parameters": {
+        "content": "## 4. Billboard Localizer\nIdentifies text in a physical billboard image, translates it into a target region's language, and replaces the text in the image while maintaining perspective and lighting.",
+        "height": 256,
+        "width": 1101,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -80
+      ],
+      "id": "2792f318-6707-499c-a80b-6d60ce995cb1",
+      "name": "Note: Billboard"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8",
+          "mode": "list",
+          "cachedResultName": "Nano Banano Pro Showcase",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 681134357,
+          "mode": "list",
+          "cachedResultName": "billboard",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit#gid=681134357"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "ready"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        528,
+        16
+      ],
+      "id": "331ac6c1-2c23-4627-9969-f6fc68e2c4f2",
+      "name": "Get Billboard Data"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.master_image_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        752,
+        16
+      ],
+      "id": "dea8e098-f75d-44c6-a088-fa6714cdd06e",
+      "name": "Fetch Billboard Image"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=Act as a professional retouching artist and localization expert.\n\nTask: Replace the text on the billboard/signage in the provided image.\n\n1. Identify: Locate the text \"{{$('Get Billboard Data').item.json.original_text}}\" in the image.\n2. Replace: Replace it all with the localized text: \"{{$('Get Billboard Data').item.json.translated_text}}\".\n3. Style Match: You MUST maintain the exact font style, weight, color, and kerning of the original text. \n4. Perspective & Physics: The new text must perfectly match the perspective, rotation, and skew of the sign. If the sign is tilted, the text must be tilted. Apply the same lighting effects (shadows, glare, texture) so it looks like it was printed on the material physically.\n5. Background: Do not alter the background scenery, people, or environment. Only change the text.",
+        "images": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        976,
+        16
+      ],
+      "id": "eaed6097-f1cf-4f63-86ed-fccd31fe34c0",
+      "name": "Localize Billboard Text"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "edited",
+        "name": "={{ $('Get Billboard Data').item.json.original_text }}-{{ $('Get Billboard Data').item.json.target_region }}-{{ $('Get Billboard Data').item.json.translated_text }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "18YTb15iElqM9vhJvkSAhBluYPe6oJcNY",
+          "mode": "list",
+          "cachedResultName": "Billboard",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/18YTb15iElqM9vhJvkSAhBluYPe6oJcNY"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        16
+      ],
+      "id": "08e05acd-49e5-4870-beb8-8b45e327fb9c",
+      "name": "Upload Localized Image"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8",
+          "mode": "list",
+          "cachedResultName": "Nano Banano Pro Showcase",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 681134357,
+          "mode": "list",
+          "cachedResultName": "billboard",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit#gid=681134357"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Get Billboard Data').item.json.id }}",
+            "status": "done",
+            "image_URI": "={{ $json.webContentLink }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1424,
+        16
+      ],
+      "id": "e406691f-d0ae-4c8c-88ab-579fce6e10c8",
+      "name": "Update Billboard Status"
+    },
+    {
+      "parameters": {
+        "content": "## 5. Napkin Sketch to UI Prototype\nTakes a rough hand-drawn sketch of an app idea (a \"napkin drawing\") and converts it into a high-fidelity Figma-style user interface mockup.",
+        "height": 256,
+        "width": 1101,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        192
+      ],
+      "id": "95a6d55d-f74d-44d3-a750-8ae3ce1dbcdf",
+      "name": "Note: UI Prototype"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8",
+          "mode": "list",
+          "cachedResultName": "Nano Banano Pro Showcase",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1353158570,
+          "mode": "list",
+          "cachedResultName": "napkin drawing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit#gid=1353158570"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "ready"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        528,
+        272
+      ],
+      "id": "f2de46ca-091b-4e6a-95bb-a0a97993d9ea",
+      "name": "Get Sketch Data"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.sketch_image_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        752,
+        272
+      ],
+      "id": "47064992-146e-42bd-9b33-26e7fc2b29cd",
+      "name": "Fetch Sketch Image"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=Act as a senior UI/UX designer. Your task is to convert the provided hand-drawn sketch layout into a professional, high-fidelity UI mockup.\n\n1. Analyze Sketch: Use the layout, element placement, and text from the reference image as your blueprint.\n\n2. Apply Style: Render the entire interface in a \"{{$('Get Sketch Data').item.json.ui_style}}\" aesthetic.\n\n**3. Design System: Apply a consistent design system with:\n   - 8px grid spacing (all margins/padding snap to 8px increments)\n   - Max 3 font sizes (heading, body, small) with clear hierarchy\n   - Max 3 colors (primary, neutral-900, neutral-100) + accent for CTAs\n   - Single border radius value (4px or 8px, applied consistently)**\n\n4. Text Rendering: Convert all handwritten text from the sketch into crisp, highly legible, digital font typography that matches the specified UI style. Ensure all labels, buttons, and headers are perfectly readable.\n   **- Use a single sans-serif font (e.g., Inter, SF Pro, or system default)**\n   **- Line height: 1.5 for body text, 1.2 for headings**\n   **- Letter spacing: -0.02em for headings, 0 for body**\n\n5. UI Components: Replace all hand-drawn boxes, lines, and circles with professional UI components. Buttons should have correct padding and states (e.g., primary color). Input fields should look clean. Images should be represented by high-quality placeholders.\n\n6. Fidelity: **Final output must match the visual quality of Stripe, Linear, or Vercel marketing pages: crisp typography, generous whitespace, subtle shadows (max 2px blur), and zero visual clutter.**\n\n**7. Visual Hierarchy Check:\n   - Primary action (CTA) must be most visually prominent (bold color, higher contrast)\n   - Secondary elements (labels, helper text) should be muted (gray, smaller font)\n   - Images/icons should support, not compete with, primary content**",
+        "images": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        976,
+        272
+      ],
+      "id": "114bf0c8-751d-480b-a631-bf2741fae1d3",
+      "name": "Generate Figma Prototype"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "edited",
+        "name": "={{ $('Fetch Sketch Image').item.json.project_name }}-{{ $('Fetch Sketch Image').item.json.ui_style }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1ml7gMwGNA7rLMY95bEiArVuKUc0CIgeh",
+          "mode": "list",
+          "cachedResultName": "Figma-UI",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1ml7gMwGNA7rLMY95bEiArVuKUc0CIgeh"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        272
+      ],
+      "id": "8a46c37a-b8d5-473b-ab87-1397d6172952",
+      "name": "Upload UI Design"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8",
+          "mode": "list",
+          "cachedResultName": "Nano Banano Pro Showcase",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1353158570,
+          "mode": "list",
+          "cachedResultName": "napkin drawing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KB25FoSZ2oQh_nVX785RU5vVkbyZtOlb5AaFnkYrdd8/edit#gid=1353158570"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Get Sketch Data').item.json.id }}",
+            "status": "done",
+            "image_Uri": "={{ $json.webContentLink }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1424,
+        272
+      ],
+      "id": "474068dc-7002-45a4-b399-eebd49091949",
+      "name": "Update Sketch Status"
+    },
+    {
+      "parameters": {
+        "url": "https://lh3.googleusercontent.com/d/1PJDOn8TzyafRKJmCPFsdSYlmrpLLigp_",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        752,
+        -784
+      ],
+      "id": "46eca46c-7dac-4c89-afa5-a5aa49795f28",
+      "name": "Fetch Logo Pic"
+    },
+    {
+      "parameters": {
+        "url": "https://lh3.googleusercontent.com/d/1PJDOn8TzyafRKJmCPFsdSYlmrpLLigp_",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        752,
+        -512
+      ],
+      "id": "1435d170-01d8-400e-858d-26557c5295d5",
+      "name": "Fetch Logo"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "edit",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=Analyze the provided logo reference image to extract the brand's primary and secondary color palette. Create a complete, luxurious Instagram review graphic (1080x1080) from scratch based on these colors.\n\n1. Background: Generate a sophisticated, off-white textured paper background. Subtle, minimalist abstract lines or organic shapes, rendered in a very faint tint of the brand's color, should flow across the background.\n2. Header: At the top center, place the text \"CLIENT REVIEW\" in an elegant, dark serif font.\n3. Review Card Central Focus: In the middle, create a soft, rounded rectangular card container. The card background should be a clean, very light complementary tint from the brand palette (e.g., pale cream or softest brand tint) to ensure high text contrast.\n4. Card Content:\n    *Stars: Inside the top of the card, render a row of 5 distinct star icons. Color them using the brand's primary accent color. Fill exactly {{$('Get Review Data').item.json.rating}} of the 5 stars completely to indicate the score, and leave the remaining stars as outlines.\n    *Text: Below the stars, center the review text prominently in a clean, highly legible sans-serif font using a dark brand color: \"{{$('Get Review Data').item.json.review_text}}\".\n    *Name: Below the text, add the reviewer name in a slightly smaller, sophisticated font: \"- {{$('Get Review Data').item.json.reviewer_name}}\".\n5. Footer Logo: At the bottom center of the entire graphic (outside the card), place the exact logo from the reference image input. Ensure the logo is rendered sharply, intact, and is sized appropriately for a footer.",
+        "images": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        976,
+        -784
+      ],
+      "id": "98ad3fee-f102-4d68-abb0-33bc3729e480",
+      "name": "Generate Review Graphic"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \u2018Execute workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Get Sketch Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Review Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get User Stats",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Room Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Billboard Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Review Data": {
+      "main": [
+        [
+          {
+            "node": "Fetch Logo Pic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Review Graphic": {
+      "main": [
+        [
+          {
+            "node": "Update Review Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User Stats": {
+      "main": [
+        [
+          {
+            "node": "Fetch Logo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Wrapped Image": {
+      "main": [
+        [
+          {
+            "node": "Update Wrapped Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate SaaS Wrapped": {
+      "main": [
+        [
+          {
+            "node": "Upload Wrapped Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Room Data": {
+      "main": [
+        [
+          {
+            "node": "Fetch Room Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Room Image": {
+      "main": [
+        [
+          {
+            "node": "Renovate Room AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Renovate Room AI": {
+      "main": [
+        [
+          {
+            "node": "Upload Renovation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Renovation": {
+      "main": [
+        [
+          {
+            "node": "Update Room Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Billboard Data": {
+      "main": [
+        [
+          {
+            "node": "Fetch Billboard Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Billboard Image": {
+      "main": [
+        [
+          {
+            "node": "Localize Billboard Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Localize Billboard Text": {
+      "main": [
+        [
+          {
+            "node": "Upload Localized Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Localized Image": {
+      "main": [
+        [
+          {
+            "node": "Update Billboard Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Sketch Data": {
+      "main": [
+        [
+          {
+            "node": "Fetch Sketch Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Sketch Image": {
+      "main": [
+        [
+          {
+            "node": "Generate Figma Prototype",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Figma Prototype": {
+      "main": [
+        [
+          {
+            "node": "Upload UI Design",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload UI Design": {
+      "main": [
+        [
+          {
+            "node": "Update Sketch Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Logo Pic": {
+      "main": [
+        [
+          {
+            "node": "Generate Review Graphic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Logo": {
+      "main": [
+        [
+          {
+            "node": "Generate SaaS Wrapped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Review Graphic": {
+      "main": [
+        [
+          {
+            "node": "Upload Review Graphic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "337f822d-8fd4-46a7-8636-e30e61253e21",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "cQVEImVxPODQ0ggM",
+  "tags": []
+}
