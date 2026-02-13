@@ -4,6 +4,8 @@
 
 These are the exact n8n workflows I teach inside [The Build Room](https://www.skool.com/build-room) to help you get more leads using AI.
 
+> 📺 **Free AI tutorials**: Learn how to build automations like this on [@duncanrogoff](https://youtube.com/@duncanrogoff)
+
 ---
 
 ## 🔍 What's Inside
@@ -16,8 +18,6 @@ This repository contains ready-to-import n8n workflows across four categories:
 | 🎯 **Lead Generation** | Automated prospecting, community hunting, and personalized outreach |
 | 📊 **Business Operations** | Onboarding, feedback triage, lead scoring, and workflow automation |
 | 🔬 **Research & Analysis** | AI research assistants, news digests, and competitive intelligence |
-
-> 📺 **Free AI tutorials**: Learn how to build automations like this on [@duncanrogoff](https://youtube.com/@duncanrogoff)
 
 ---
 
@@ -101,11 +101,15 @@ Each automation folder includes:
 
 ---
 
-## 🚀 Want More Leads Using AI?
+## 🚀 Want to Build & Sell AI Automations Like These?
 
-Join **The Build Room** — get your first leads in 14 days and 1,500+ real followers in under 49 days using AI. Guaranteed.
+Join **The Build Room** and learn to build and sell AI automations — from $49 templates to $3K+ clients in 30 days.
+
+Get your first leads in 14 days and 1,500+ real followers in under 49 days using AI. Guaranteed.
 
 [→ Join The Build Room](https://www.skool.com/build-room)
+
+> 📺 **Watch free tutorials**: [@duncanrogoff on YouTube](https://youtube.com/@duncanrogoff)
 
 ---
 
