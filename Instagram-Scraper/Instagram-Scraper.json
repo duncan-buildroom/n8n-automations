@@ -1,0 +1,704 @@
+{
+  "name": "Instagram Scraper",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        80
+      ],
+      "id": "2b530118-d23c-4abc-a925-ee0edf8466cb",
+      "name": "When clicking \u2018Execute workflow\u2019"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/shu8hvrXbJbY3Eb9W/run-sync-get-dataset-items",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"addParentData\": false,\n    \"directUrls\": [\n        \"https://www.instagram.com/{{ $json.Name }}/\"\n    ],\n    \"enhanceUserSearchWithFacebookPage\": false,\n    \"isUserReelFeedURL\": false,\n    \"isUserTaggedFeedURL\": false,\n    \"resultsLimit\": 3,\n    \"resultsType\": \"stories\",\n    \"searchLimit\": 1,\n    \"searchType\": \"hashtag\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        544,
+        208
+      ],
+      "id": "7078b0a1-c493-4f71-92b3-9fb2eef3884c",
+      "name": "scrapeProfiles"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appCRmozQKkBbR76r",
+          "mode": "list",
+          "cachedResultName": "Instagram Scraper",
+          "cachedResultUrl": "https://airtable.com/appCRmozQKkBbR76r"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblfLWLCqNCGv3MgO",
+          "mode": "list",
+          "cachedResultName": "Scraped Content",
+          "cachedResultUrl": "https://airtable.com/appCRmozQKkBbR76r/tblfLWLCqNCGv3MgO"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Caption": "={{ $json.caption }}",
+            "URL": "={{ $json.url }}",
+            "Hashtags": "={{ $json.hashtags.toJsonString() }}",
+            "Comments": "={{ $json.commentsCount }}",
+            "Likes": "={{ $json.likesCount }}",
+            "Views": "={{ $json.videoPlayCount }}",
+            "Duration": "={{ $json.videoDuration }}",
+            "VideoID": "={{ $json.id }}",
+            "Profile": "={{ $json.ownerUsername }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Profile",
+              "displayName": "Profile",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Hashtags",
+              "displayName": "Hashtags",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Views",
+              "displayName": "Views",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Likes",
+              "displayName": "Likes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Comments",
+              "displayName": "Comments",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Duration",
+              "displayName": "Duration",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "VideoID",
+              "displayName": "VideoID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        704,
+        208
+      ],
+      "id": "e3d2867e-f290-4497-828f-8db0ac077bb8",
+      "name": "Airtable"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appCRmozQKkBbR76r",
+          "mode": "list",
+          "cachedResultName": "Instagram Scraper",
+          "cachedResultUrl": "https://airtable.com/appCRmozQKkBbR76r"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblnUwjTw27moxmAA",
+          "mode": "list",
+          "cachedResultName": "Competitors",
+          "cachedResultUrl": "https://airtable.com/appCRmozQKkBbR76r/tblnUwjTw27moxmAA"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        160,
+        80
+      ],
+      "id": "31ec07ec-9791-4195-bdff-79bf53a60c59",
+      "name": "Airtable1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        352,
+        80
+      ],
+      "id": "40335d18-afc2-4013-aeab-4c76cc3c6741",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        928,
+        -48
+      ],
+      "id": "f334db83-5180-42d6-966a-c5ef16c9d09b",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Here's the video caption: {{ $json.fields.Caption }}"
+            },
+            {
+              "content": "=You are a content strategy AI for a creator who teaches small business owners, content creators, and entrepreneurs how to use AI and automation to work more efficiently, make money, scale systems, boost engagement, build personal brands, and establish authority.\n\nAnalyze the provided Instagram caption. Identify the main themes, engaging ideas, and any high-value insights. Then generate 5 new video content ideas tailored to this creator\u2019s niche and audience.\n\nEach idea must be returned in JSON format with the following fields:\n\ntitle: a clear and compelling video title\n\nhook: a punchy opening line or scroll-stopping hook\n\ndescription: a 1\u20132 sentence explanation of what the video will include or teach\n\nEnsure ideas are practical, results-driven, and aligned with the creator\u2019s goals and audience.\n\nYou must output in the following format: \n\n{\n    \"title\": \"\",\n    \"hook\": \"\",\n    \"description\": \"\"\n  }",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        560,
+        -48
+      ],
+      "id": "72099f81-df7d-4dd2-b65b-647058a067f4",
+      "name": "Idea Generator"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n JavaScript Code Node Function\n// Extracts content ideas from ChatGPT's inconsistent response formats\n\nconst inputData = $input.all();\nconst extractedItems = [];\n\n// Process each item in the input\ninputData.forEach((item, itemIndex) => {\n  const messageContent = item.json.message?.content;\n  \n  if (!messageContent) {\n    console.log(`No message content found for item ${itemIndex}`);\n    return;\n  }\n  \n  // Find the property that contains the content ideas array\n  // ChatGPT uses different property names like: content_ideas, videoIdeas, contentIdeas, etc.\n  let contentIdeasArray = null;\n  let propertyName = null;\n  \n  for (const [key, value] of Object.entries(messageContent)) {\n    if (Array.isArray(value) && value.length > 0) {\n      // Check if the array contains objects with title, hook, description\n      const firstItem = value[0];\n      if (firstItem && \n          typeof firstItem === 'object' && \n          firstItem.title && \n          firstItem.hook && \n          firstItem.description) {\n        contentIdeasArray = value;\n        propertyName = key;\n        break;\n      }\n    }\n  }\n  \n  if (!contentIdeasArray) {\n    console.log(`No content ideas array found for item ${itemIndex}`);\n    return;\n  }\n  \n  console.log(`Found ${contentIdeasArray.length} content ideas in property \"${propertyName}\" for item ${itemIndex}`);\n  \n  // Extract each content idea as a separate item\n  contentIdeasArray.forEach((idea, ideaIndex) => {\n    extractedItems.push({\n      sourceItemIndex: itemIndex,\n      ideaIndex: ideaIndex + 1,\n      propertyName: propertyName,\n      title: idea.title,\n      hook: idea.hook,\n      description: idea.description,\n      // Optional: include original item data for reference\n      originalIndex: item.json.index\n    });\n  });\n});\n\nconsole.log(`Total extracted items: ${extractedItems.length}`);\n\n// Return as a single item containing the array\nreturn [{ json: { items: extractedItems } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        -64
+      ],
+      "id": "485c76ae-3200-4d46-bbae-c136f1aa369c",
+      "name": "Clean Data"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appCRmozQKkBbR76r",
+          "mode": "list",
+          "cachedResultName": "Instagram Scraper",
+          "cachedResultUrl": "https://airtable.com/appCRmozQKkBbR76r"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblfLWLCqNCGv3MgO",
+          "mode": "list",
+          "cachedResultName": "Scraped Content",
+          "cachedResultUrl": "https://airtable.com/appCRmozQKkBbR76r/tblfLWLCqNCGv3MgO"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Loop Over Items').item.json.id }}",
+            "Idea 1": "=Title: {{ $json.items[0].title }}\nHook: {{ $json.items[0].hook }}\nDescription:{{ $json.items[0].description }}",
+            "Idea 2": "=Title: {{ $json.items[1].title }}\nHook: {{ $json.items[1].hook }}\nDescription:{{ $json.items[1].description }}",
+            "Idea 3": "=Title: {{ $json.items[2].title }}\nHook: {{ $json.items[2].hook }}\nDescription:{{ $json.items[2].description }}",
+            "Idea 4": "=Title: {{ $json.items[3].title }}\nHook: {{ $json.items[3].hook }}\nDescription:{{ $json.items[3].description }}",
+            "Idea 5": "=Title: {{ $json.items[4].title }}\nHook: {{ $json.items[4].hook }}\nDescription:{{ $json.items[4].description }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Profile",
+              "displayName": "Profile",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Hashtags",
+              "displayName": "Hashtags",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Views",
+              "displayName": "Views",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Likes",
+              "displayName": "Likes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Comments",
+              "displayName": "Comments",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Duration",
+              "displayName": "Duration",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "VideoID",
+              "displayName": "VideoID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Idea 1",
+              "displayName": "Idea 1",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Idea 2",
+              "displayName": "Idea 2",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Idea 3",
+              "displayName": "Idea 3",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Idea 4",
+              "displayName": "Idea 4",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Idea 5",
+              "displayName": "Idea 5",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1408,
+        -64
+      ],
+      "id": "128a4ff8-e48e-45ae-b438-198ff523fd78",
+      "name": "Update Ideas"
+    },
+    {
+      "parameters": {
+        "content": "## Save Ideas",
+        "height": 220,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        -128
+      ],
+      "id": "6436044d-4494-4c7e-a1bf-feff65aee0fe",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Clean Data",
+        "height": 220,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        -128
+      ],
+      "id": "b1a160ee-f183-4433-bb40-7408414680a4",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Scrape Reels",
+        "height": 260,
+        "width": 400,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        144
+      ],
+      "id": "de2e8d3f-6a2f-447c-aed6-b578a2195a65",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Generate New Ideas",
+        "height": 240,
+        "width": 400,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -128
+      ],
+      "id": "ae348453-2a14-4e37-8244-9724e609b371",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Get Instagram Chanels",
+        "height": 280,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -16
+      ],
+      "id": "46a62b3f-8e07-4867-99d0-e3c4f38a0c89",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \u2018Execute workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Airtable1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrapeProfiles": {
+      "main": [
+        [
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Idea Generator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "scrapeProfiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Clean Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Idea Generator": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Data": {
+      "main": [
+        [
+          {
+            "node": "Update Ideas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Ideas": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7d91dda4-8c29-4b4e-8a65-bc9d97ec89f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca3f3f1b54754cc6a8bf7018ef2c4b3d517f36ec4d32b4741e6f00bea7ac9b4a"
+  },
+  "id": "lZepll6Daqk8E2Bh",
+  "tags": []
+}

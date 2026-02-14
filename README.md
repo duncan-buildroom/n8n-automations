@@ -53,6 +53,7 @@ This repository contains ready-to-import n8n workflows across four categories:
 | [Programmatic SEO Content Machine](Programmatic-SEO-Content-Machine/) | Generate SEO-optimized content programmatically |
 | [Digital Ad A/B Tester](Digital-Ad-AB-Tester/) | Automate ad creative testing and optimization |
 | [Upwork Scraper](Upwork-Scraper/) | Scrape Upwork jobs, filter with AI, and generate personalized icebreakers |
+| [Instagram Scraper](Instagram-Scraper/) | Scrape competitor Reels and generate AI-powered content ideas |
 
 ---
 
